@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>About This App</h1>
+    <p>This is a simple Flask application created as a starter template.</p>
+    <p>Here you can add more information about your application.</p>
+    <div class="cta-button">
+        <a href="{{ url_for('index') }}" class="btn">Back to Home</a>
+    </div>
+</div>
+{% endblock %} 
