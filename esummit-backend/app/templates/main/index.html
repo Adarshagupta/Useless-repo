@@ -1,87 +1,103 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}ESummit - Home{% endblock %}
+{% block title %}E-Summit - Home{% endblock %}
 
 {% block content %}
 <!-- Hero Section -->
-<div class="yellow-bg text-dark py-5 mb-5 rounded-4">
+<div class="hero-section py-5 mb-5">
     <div class="container">
         <div class="row align-items-center">
-            <div class="col-md-6">
-                <h1 class="display-4 fw-bold">Welcome to ESummit</h1>
-                <p class="lead">Join us for an exciting journey of innovation, learning, and networking.</p>
-                <a href="{{ url_for('main.events') }}" class="btn btn-primary btn-lg">Explore Events</a>
+            <div class="col-md-6 hero-content">
+                <h1 class="display-3 fw-bold mb-4"><span class="text-dark">E-</span><span class="text-accent">SUMMIT</span></h1>
+                <p class="lead mb-4">Elevate your entrepreneurial journey through innovation, collaboration, and exceptional networking opportunities.</p>
+                <div class="cta-buttons">
+                    <a href="{{ url_for('main.events') }}" class="btn btn-dark btn-lg me-3">Explore Events</a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-outline-dark btn-lg">Join Now</a>
+                </div>
             </div>
-            <div class="col-md-6">
-                <img src="{{ url_for('static', filename='img/hero.jpg') }}" alt="ESummit" class="img-fluid rounded-4 shadow">
+            <div class="col-md-6 mt-5 mt-md-0">
+                <div class="hero-image-container">
+                    <img src="{{ url_for('static', filename='img/hero.jpg') }}" alt="E-Summit" class="img-fluid hero-image">
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 <!-- Upcoming Events Section -->
-<section class="mb-5">
-    <h2 class="text-center mb-4">Upcoming Events</h2>
-    <div class="row">
-        {% for event in events[:3] %}
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                {% if event.image_url %}
-                <img src="{{ event.image_url }}" class="card-img-top" alt="{{ event.name }}">
-                {% else %}
-                <img src="{{ url_for('static', filename='img/event-default.jpg') }}" class="card-img-top" alt="{{ event.name }}">
-                {% endif %}
-                <div class="card-body">
-                    <h5 class="card-title">{{ event.name }}</h5>
-                    <p class="card-text">{{ event.description[:150] }}...</p>
-                    <p class="card-text">
-                        <small class="text-muted">
-                            <i class="fas fa-calendar"></i> {{ event.start_date.strftime('%B %d, %Y') }}
-                        </small>
-                    </p>
-                    <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="btn btn-primary">Learn More</a>
+<section class="events-section py-5 mb-5">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <h6 class="text-accent text-uppercase fw-bold tracking-wide mb-2">What's Next</h6>
+            <h2 class="display-5 fw-bold">Upcoming Events</h2>
+        </div>
+        <div class="row g-4">
+            {% for event in events[:3] %}
+            <div class="col-md-4">
+                <div class="event-card h-100">
+                    <div class="event-image">
+                        {% if event.image_url %}
+                        <img src="{{ event.image_url }}" class="img-fluid" alt="{{ event.name }}">
+                        {% else %}
+                        <img src="{{ url_for('static', filename='img/event-default.jpg') }}" class="img-fluid" alt="{{ event.name }}">
+                        {% endif %}
+                        <div class="event-date">
+                            <span class="day">{{ event.start_date.strftime('%d') }}</span>
+                            <span class="month">{{ event.start_date.strftime('%b') }}</span>
+                        </div>
+                    </div>
+                    <div class="event-content">
+                        <h4 class="event-title">{{ event.name }}</h4>
+                        <p class="event-description">{{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}</p>
+                        <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="btn btn-link text-accent p-0">
+                            Learn More <i class="fas fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+        {% if events|length > 3 %}
+        <div class="text-center mt-5">
+            <a href="{{ url_for('main.events') }}" class="btn btn-outline-dark btn-lg">View All Events</a>
+        </div>
+        {% endif %}
     </div>
-    {% if events|length > 3 %}
-    <div class="text-center">
-        <a href="{{ url_for('main.events') }}" class="btn btn-outline-primary">View All Events</a>
-    </div>
-    {% endif %}
 </section>
 
 <!-- Features Section -->
-<section class="py-5 mb-4">
+<section class="features-section py-5 mb-5">
     <div class="container">
-        <h2 class="text-center mb-4">Why Join ESummit?</h2>
-        <div class="row">
-            <div class="col-md-4 mb-4">
-                <div class="feature-box text-center">
+        <div class="section-header text-center mb-5">
+            <h6 class="text-accent text-uppercase fw-bold tracking-wide mb-2">Why Join Us</h6>
+            <h2 class="display-5 fw-bold">The E-Summit Experience</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-laptop-code"></i>
                     </div>
-                    <h4>Hackathons</h4>
-                    <p>Participate in exciting hackathons and showcase your skills.</p>
+                    <h4 class="feature-title">Hackathons</h4>
+                    <p class="feature-description">Collaborate with talented developers and solve real-world challenges in our competitive hackathons.</p>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="feature-box text-center">
+            <div class="col-md-4">
+                <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-users"></i>
                     </div>
-                    <h4>Networking</h4>
-                    <p>Connect with industry experts and like-minded individuals.</p>
+                    <h4 class="feature-title">Networking</h4>
+                    <p class="feature-description">Connect with industry leaders, investors, and fellow entrepreneurs to expand your professional network.</p>
                 </div>
             </div>
-            <div class="col-md-4 mb-4">
-                <div class="feature-box text-center">
+            <div class="col-md-4">
+                <div class="feature-card">
                     <div class="feature-icon">
                         <i class="fas fa-lightbulb"></i>
                     </div>
-                    <h4>Innovation</h4>
-                    <p>Learn about the latest technologies and innovative solutions.</p>
+                    <h4 class="feature-title">Innovation</h4>
+                    <p class="feature-description">Discover cutting-edge technologies and innovative business solutions through workshops and talks.</p>
                 </div>
             </div>
         </div>
@@ -89,9 +105,214 @@
 </section>
 
 <!-- Call to Action -->
-<section class="yellow-bg rounded-4 p-5 text-center">
-    <h2 class="mb-3">Ready to join the next big event?</h2>
-    <p class="lead mb-4">Register now and be part of the innovation community.</p>
-    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-5">Register Today</a>
+<section class="cta-section py-5 mb-5 text-center">
+    <div class="container">
+        <h2 class="display-5 fw-bold mb-4">Ready to embark on your entrepreneurial journey?</h2>
+        <p class="lead mb-4">Join our community of innovators and make your mark in the startup ecosystem.</p>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-dark btn-lg px-5 fw-bold">Register Today</a>
+    </div>
 </section>
+
+<style>
+    /* Yellow-themed color scheme */
+    :root {
+        --primary: #ffd100;
+        --primary-light: #fff3b0;
+        --primary-dark: #ffc400;
+        --accent: #ff9500;
+        --dark: #212121;
+        --light: #ffffff;
+    }
+    
+    body {
+        background-color: var(--light);
+        color: var(--dark);
+    }
+    
+    .btn-primary {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        color: var(--dark);
+    }
+    
+    .btn-primary:hover {
+        background-color: var(--primary-dark);
+        border-color: var(--primary-dark);
+        color: var(--dark);
+    }
+    
+    .btn-dark {
+        background-color: var(--dark);
+        border-color: var(--dark);
+    }
+    
+    .btn-dark:hover {
+        background-color: #000;
+        border-color: #000;
+    }
+    
+    .text-accent {
+        color: var(--accent) !important;
+    }
+    
+    /* Hero section styling */
+    .hero-section {
+        position: relative;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        padding: 6rem 0;
+        overflow: hidden;
+    }
+    
+    .hero-content {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .hero-image-container {
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+    
+    .hero-image {
+        transition: transform 0.5s ease;
+    }
+    
+    .hero-image:hover {
+        transform: scale(1.05);
+    }
+    
+    /* Event cards styling */
+    .event-card {
+        background-color: #fff;
+        border: none;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .event-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+    }
+    
+    .event-image {
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .event-image img {
+        height: 200px;
+        object-fit: cover;
+        width: 100%;
+        transition: transform 0.5s ease;
+    }
+    
+    .event-card:hover .event-image img {
+        transform: scale(1.1);
+    }
+    
+    .event-date {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background-color: var(--accent);
+        color: white;
+        padding: 10px 15px;
+        border-radius: 5px;
+        text-align: center;
+        font-weight: 700;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .event-date .day {
+        font-size: 1.5rem;
+        line-height: 1;
+    }
+    
+    .event-date .month {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+    }
+    
+    .event-content {
+        padding: 1.5rem;
+    }
+    
+    .event-title {
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+    
+    .event-description {
+        color: #6c757d;
+        margin-bottom: 1.5rem;
+    }
+    
+    /* Feature cards styling */
+    .features-section {
+        background-color: var(--primary-light);
+    }
+    
+    .feature-card {
+        padding: 2rem;
+        text-align: center;
+        border-radius: 8px;
+        background-color: white;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+        transition: transform 0.3s ease;
+        height: 100%;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        color: var(--accent);
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-title {
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: var(--dark);
+    }
+    
+    .feature-description {
+        color: #6c757d;
+    }
+    
+    /* CTA section styling */
+    .cta-section {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        border-radius: 10px;
+        color: var(--dark);
+    }
+    
+    /* Typography enhancements */
+    .display-3, .display-5 {
+        font-weight: 800;
+        letter-spacing: -0.5px;
+    }
+    
+    .tracking-wide {
+        letter-spacing: 2px;
+    }
+    
+    /* Animation utilities */
+    .btn {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-dark:hover {
+        background-color: var(--dark);
+        color: white;
+    }
+</style>
 {% endblock %} 
