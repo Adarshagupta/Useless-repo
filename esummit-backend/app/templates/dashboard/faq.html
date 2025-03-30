@@ -1,0 +1,236 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Registration Instructions & FAQ - ESummit{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-12 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-header blue-bg text-white">
+                    <h4 class="mb-0 fw-semibold">ESummit Registration Instructions</h4>
+                </div>
+                <div class="card-body p-4">
+                    <div class="alert alert-info mb-4">
+                        <p class="mb-0">This guide provides step-by-step instructions for registering for different types of events on the ESummit platform.</p>
+                    </div>
+                    
+                    <nav>
+                        <div class="nav nav-tabs mb-4" id="nav-tab" role="tablist">
+                            <button class="nav-link active" id="nav-single-tab" data-bs-toggle="tab" data-bs-target="#nav-single" type="button" role="tab" aria-controls="nav-single" aria-selected="true">Individual Events</button>
+                            <button class="nav-link" id="nav-team-tab" data-bs-toggle="tab" data-bs-target="#nav-team" type="button" role="tab" aria-controls="nav-team" aria-selected="false">Team Events</button>
+                            <button class="nav-link" id="nav-hackathon-tab" data-bs-toggle="tab" data-bs-target="#nav-hackathon" type="button" role="tab" aria-controls="nav-hackathon" aria-selected="false">Hackathons</button>
+                            <button class="nav-link" id="nav-faq-tab" data-bs-toggle="tab" data-bs-target="#nav-faq" type="button" role="tab" aria-controls="nav-faq" aria-selected="false">FAQ</button>
+                        </div>
+                    </nav>
+                    
+                    <div class="tab-content" id="nav-tabContent">
+                        <!-- Individual Events -->
+                        <div class="tab-pane fade show active" id="nav-single" role="tabpanel" aria-labelledby="nav-single-tab">
+                            <h4 class="mb-4">Registering for Individual Events</h4>
+                            
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">Step 1: Browse Events</h5>
+                                    <p>Navigate to the <a href="{{ url_for('dashboard.events') }}">Events page</a> to see all available events.</p>
+                                    <div class="text-center mb-3">
+                                        <img src="{{ url_for('static', filename='img/steps/events-browse.jpg') }}" alt="Browse Events" class="img-fluid border rounded" style="max-height: 300px;">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">Step 2: View Event Details</h5>
+                                    <p>Click on an event to view its details, including description, date, venue, and registration deadline.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">Step 3: Register for the Event</h5>
+                                    <p>Click the "Register" button on the event details page and complete any required information.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Step 4: Confirmation</h5>
+                                    <p>After successful registration, you'll receive a confirmation and the event will appear in your dashboard.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Team Events -->
+                        <div class="tab-pane fade" id="nav-team" role="tabpanel" aria-labelledby="nav-team-tab">
+                            <h4 class="mb-4">Registering for Team Events</h4>
+                            
+                            <div class="alert alert-warning mb-4">
+                                <h5 class="alert-heading"><i class="fas fa-exclamation-triangle me-2"></i>Important!</h5>
+                                <p class="mb-0">For team events, you must first create or join a team before you can register for the event.</p>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">Option 1: Create a New Team</h5>
+                                    <ol class="mb-0">
+                                        <li>Visit the event details page</li>
+                                        <li>Click "Create New Team" button</li>
+                                        <li>Enter your team name</li>
+                                        <li>Add team members' emails (optional)</li>
+                                        <li>Submit the form</li>
+                                    </ol>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">Option 2: Join an Existing Team</h5>
+                                    <ol class="mb-0">
+                                        <li>Visit the event details page</li>
+                                        <li>Click "Join Existing Team" button</li>
+                                        <li>Enter the team code (ask your team leader)</li>
+                                        <li>Submit the form</li>
+                                    </ol>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Managing Your Team</h5>
+                                    <p class="mb-0">As a team leader, you can add or remove members from your team page in the dashboard.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Hackathons -->
+                        <div class="tab-pane fade" id="nav-hackathon" role="tabpanel" aria-labelledby="nav-hackathon-tab">
+                            <h4 class="mb-4">Registering for Hackathons</h4>
+                            
+                            <div class="alert alert-danger mb-4">
+                                <h5 class="alert-heading"><i class="fas fa-exclamation-circle me-2"></i>Two-Step Registration Required!</h5>
+                                <p class="mb-0">For hackathons, team creation is only the first step. After creating a team, you must also complete the hackathon project registration as explained below.</p>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">Step 1: Create or Join a Team</h5>
+                                    <p>Follow the same steps as for team events to create or join a team.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="card-title">Step 2: Team Formation</h5>
+                                    <p>Make sure all your team members have joined the team. Team size must be within the limits specified for the hackathon.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="card mb-4">
+                                <div class="card-body bg-light">
+                                    <h5 class="card-title text-danger">Step 3: Complete Hackathon Registration (REQUIRED)</h5>
+                                    <p class="fw-bold">This step is critical and can only be done by the team leader:</p>
+                                    <ol>
+                                        <li>Go to your team details page</li>
+                                        <li>Click "Register for Hackathon" button</li>
+                                        <li>Fill in your project details:
+                                            <ul>
+                                                <li>Project name</li>
+                                                <li>Project description</li>
+                                                <li>Technologies you'll use</li>
+                                                <li>GitHub repository (if available)</li>
+                                                <li>Any other relevant links</li>
+                                            </ul>
+                                        </li>
+                                        <li>Submit the registration form</li>
+                                    </ol>
+                                    <p class="mt-3 mb-0 fw-bold">Without completing this step, your team is NOT officially registered for the hackathon!</p>
+                                </div>
+                            </div>
+                            
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title">Step 4: Confirmation</h5>
+                                    <p>After successful registration, your project details will appear on your team page, and all team members will be officially registered for the hackathon.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- FAQ -->
+                        <div class="tab-pane fade" id="nav-faq" role="tabpanel" aria-labelledby="nav-faq-tab">
+                            <h4 class="mb-4">Frequently Asked Questions</h4>
+                            
+                            <div class="accordion" id="faqAccordion">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="faqOne">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                            How do I know if I'm successfully registered?
+                                        </button>
+                                    </h2>
+                                    <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="faqOne" data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body">
+                                            After successful registration, you'll see the event listed in the "Your Registered Events" section of your dashboard. For hackathons, your team's project details will appear on your team page.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="faqTwo">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                                            Can I register for multiple events?
+                                        </button>
+                                    </h2>
+                                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="faqTwo" data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body">
+                                            Yes, you can register for multiple events as long as they don't have scheduling conflicts. Each event registration is processed separately.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="faqThree">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                            Why do I need to complete a second registration step for hackathons?
+                                        </button>
+                                    </h2>
+                                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="faqThree" data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body">
+                                            Hackathons require more information than regular events, including your project idea, tech stack, and other details that help organizers evaluate and categorize your submission. This two-step process ensures all necessary information is collected while allowing flexibility in team formation.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="faqFour">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                                            Can I edit my team or hackathon project details after registering?
+                                        </button>
+                                    </h2>
+                                    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="faqFour" data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body">
+                                            Team leaders can add or remove team members until the registration deadline. For hackathon projects, you can contact the event organizers to request changes to your project details.
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="faqFive">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFive" aria-expanded="false" aria-controls="collapseFive">
+                                            What if I can no longer attend an event I registered for?
+                                        </button>
+                                    </h2>
+                                    <div id="collapseFive" class="accordion-collapse collapse" aria-labelledby="faqFive" data-bs-parent="#faqAccordion">
+                                        <div class="accordion-body">
+                                            Please contact the event organizers as soon as possible to cancel your registration. For team events, team leaders should notify organizers if the entire team needs to withdraw.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

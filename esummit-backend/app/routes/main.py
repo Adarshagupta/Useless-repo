@@ -223,7 +223,6 @@ def register_event(event_id):
                 user_id=current_user.id,
                 event_id=event_id,
                 status='confirmed',
-                registration_date=datetime.utcnow(),
                 full_name=form.name.data if hasattr(form, 'name') else None,
                 email=form.email.data if hasattr(form, 'email') else None,
                 phone=form.phone.data if hasattr(form, 'phone') else None,
@@ -294,7 +293,6 @@ def create_team(event_id):
                 user_id=current_user.id,
                 event_id=event_id,
                 status='confirmed',
-                registration_date=datetime.utcnow(),
                 team_id=team.id
             )
             db.session.add(registration)
@@ -375,7 +373,6 @@ def join_team(event_id):
                 user_id=current_user.id,
                 event_id=event_id,
                 status='confirmed',
-                registration_date=datetime.utcnow(),
                 team_id=team.id
             )
             db.session.add(registration)

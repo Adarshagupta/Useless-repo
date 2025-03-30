@@ -66,6 +66,21 @@
                                         <i class="fas fa-tachometer-alt"></i> Dashboard
                                     </a>
                                 </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('dashboard.events') }}">
+                                        My Events
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('dashboard.teams') }}">
+                                        My Teams
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="{{ url_for('dashboard.faq') }}">
+                                        <i class="fas fa-question-circle me-1"></i>Instructions
+                                    </a>
+                                </li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li>
                                     <a class="dropdown-item" href="{{ url_for('auth.logout') }}">

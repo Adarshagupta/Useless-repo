@@ -6,9 +6,8 @@ from app.models.event import Event
 from app.models.registration import EventRegistration, HackathonRegistration
 from app.models.team import Team, TeamMember
 from app.forms.event import EventRegistrationForm, EventForm
-from app.forms.team import TeamForm, TeamJoinForm, HackathonRegistrationForm
+from app.forms.team import TeamForm, TeamJoinForm, TeamMemberForm
 from app.forms.hackathon import HackathonRegistrationForm
-from app.forms.team import TeamMemberForm
 from datetime import datetime
 import psycopg2
 import os
@@ -41,6 +40,12 @@ def index():
 def profile():
     """User profile route"""
     return render_template('dashboard/profile.html')
+
+@dashboard_bp.route('/faq')
+@login_required
+def faq():
+    """FAQ and instructions page"""
+    return render_template('dashboard/faq.html')
 
 @dashboard_bp.route('/events')
 @login_required
@@ -164,7 +169,14 @@ def create_team(event_id):
                         db.session.add(member)
             
             db.session.commit()
-            flash('Team created successfully!', 'success')
+            
+            # Add additional message for hackathons, reminding users to complete registration
+            if event.event_type == 'hackathon':
+                flash('Team created successfully! Please complete your hackathon registration to finalize your participation.', 'warning')
+            else:
+                flash('Team created successfully!', 'success')
+                
+            # Redirect directly to the team details page
             return redirect(url_for('dashboard.team_details', team_id=team.id))
             
         except Exception as e:
