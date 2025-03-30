@@ -300,6 +300,9 @@ def create_team(event_id):
             db.session.commit()
             flash(f'Team "{team.name}" created successfully!', 'success')
             
+            # Redirect to team details page
+            return redirect(url_for('dashboard.team_details', team_id=team.id))
+            
         except Exception as e:
             db.session.rollback()
             import traceback
@@ -379,6 +382,9 @@ def join_team(event_id):
             
             db.session.commit()
             flash(f'You have joined the team "{team.name}"!', 'success')
+            
+            # Redirect to team details page
+            return redirect(url_for('dashboard.team_details', team_id=team.id))
             
         except Exception as e:
             db.session.rollback()
