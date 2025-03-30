@@ -8,10 +8,26 @@ from app.models.team import Team, TeamMember
 from app.forms.event import EventRegistrationForm, EventForm
 from app.forms.team import TeamForm, TeamJoinForm, TeamMemberForm
 from app.forms.hackathon import HackathonRegistrationForm
+from flask_wtf import FlaskForm
+from wtforms import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, Optional
 from datetime import datetime
 import psycopg2
 import os
 import logging
+
+# Define the ProfileForm here since it's not in a separate file
+class ProfileForm(FlaskForm):
+    username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
+    full_name = StringField('Full Name', validators=[DataRequired(), Length(min=2, max=100)])
+    phone = StringField('Phone Number', validators=[Optional(), Length(max=15)])
+    college = StringField('College/University', validators=[Optional(), Length(max=100)])
+    current_password = PasswordField('Current Password', validators=[DataRequired()])
+    new_password = PasswordField('New Password', validators=[Optional(), Length(min=6)])
+    confirm_new_password = PasswordField('Confirm New Password', validators=[
+        Optional(), EqualTo('new_password', message='Passwords must match')
+    ])
+    submit = SubmitField('Update Profile')
 
 dashboard_bp = Blueprint('dashboard', __name__, url_prefix='/dashboard')
 
@@ -39,7 +55,34 @@ def index():
 @login_required
 def profile():
     """User profile route"""
-    return render_template('dashboard/profile.html')
+    form = ProfileForm(obj=current_user)
+    
+    if form.validate_on_submit():
+        # Check if current password is correct
+        if not current_user.check_password(form.current_password.data):
+            flash('Current password is incorrect', 'danger')
+            return render_template('dashboard/profile.html', form=form)
+        
+        # Update the user's information
+        current_user.username = form.username.data
+        current_user.full_name = form.full_name.data
+        current_user.phone = form.phone.data
+        current_user.college = form.college.data
+        
+        # Update password if a new one was provided
+        if form.new_password.data:
+            from app.models.user import bcrypt
+            current_user.password_hash = bcrypt.generate_password_hash(form.new_password.data).decode('utf-8')
+            
+        try:
+            db.session.commit()
+            flash('Your profile has been updated!', 'success')
+            return redirect(url_for('dashboard.profile'))
+        except Exception as e:
+            db.session.rollback()
+            flash('An error occurred. Please try again.', 'danger')
+            
+    return render_template('dashboard/profile.html', form=form)
 
 @dashboard_bp.route('/faq')
 @login_required
@@ -376,3 +419,199 @@ def create_event():
             flash('An error occurred while creating the event. Please try again.', 'danger')
     
     return render_template('dashboard/create_event.html', form=form)
+
+@dashboard_bp.route('/admin')
+@login_required
+def admin_dashboard():
+    """Admin dashboard home"""
+    # Check if user has admin privileges
+    if not current_user.is_admin:
+        flash('You do not have permission to access the admin dashboard.', 'danger')
+        return redirect(url_for('dashboard.index'))
+    
+    # Get counts for admin dashboard
+    user_count = User.query.count()
+    event_count = Event.query.count()
+    team_count = Team.query.count()
+    registration_count = EventRegistration.query.count()
+    hackathon_count = HackathonRegistration.query.count()
+    
+    return render_template('dashboard/admin/index.html',
+                         user_count=user_count,
+                         event_count=event_count,
+                         team_count=team_count,
+                         registration_count=registration_count,
+                         hackathon_count=hackathon_count)
+
+@dashboard_bp.route('/admin/users')
+@login_required
+def admin_users():
+    """Admin user management"""
+    # Check if user has admin privileges
+    if not current_user.is_admin:
+        flash('You do not have permission to access the admin dashboard.', 'danger')
+        return redirect(url_for('dashboard.index'))
+    
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    search = request.args.get('search', '')
+    
+    # Query users with optional search
+    query = User.query
+    if search:
+        query = query.filter(
+            (User.email.ilike(f'%{search}%')) | 
+            (User.full_name.ilike(f'%{search}%'))
+        )
+    
+    pagination = query.order_by(User.id).paginate(page=page, per_page=per_page, error_out=False)
+    users = pagination.items
+    
+    return render_template('dashboard/admin/users.html', 
+                         users=users, 
+                         pagination=pagination,
+                         search=search)
+
+@dashboard_bp.route('/admin/events')
+@login_required
+def admin_events():
+    """Admin event management"""
+    # Check if user has admin privileges
+    if not current_user.is_admin:
+        flash('You do not have permission to access the admin dashboard.', 'danger')
+        return redirect(url_for('dashboard.index'))
+    
+    page = request.args.get('page', 1, type=int)
+    per_page = 15
+    event_type = request.args.get('event_type')
+    
+    # Query events with optional filter
+    query = Event.query
+    if event_type:
+        query = query.filter_by(event_type=event_type)
+    
+    pagination = query.order_by(Event.start_date.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    events = pagination.items
+    
+    # Add current datetime for status comparisons
+    now = datetime.now()
+    
+    return render_template('dashboard/admin/events.html', 
+                         events=events, 
+                         pagination=pagination,
+                         event_type=event_type,
+                         now=now)
+
+@dashboard_bp.route('/admin/teams')
+@login_required
+def admin_teams():
+    """Admin team management"""
+    # Check if user has admin privileges
+    if not current_user.is_admin:
+        flash('You do not have permission to access the admin dashboard.', 'danger')
+        return redirect(url_for('dashboard.index'))
+    
+    page = request.args.get('page', 1, type=int)
+    per_page = 15
+    event_id = request.args.get('event_id', type=int)
+    
+    # Query teams with optional filter
+    query = Team.query
+    if event_id:
+        query = query.filter_by(event_id=event_id)
+    
+    pagination = query.order_by(Team.id.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    teams = pagination.items
+    
+    # Get all events for filter dropdown
+    events = Event.query.filter_by(is_team_event=True).all()
+    
+    return render_template('dashboard/admin/teams.html', 
+                         teams=teams, 
+                         pagination=pagination,
+                         events=events,
+                         selected_event_id=event_id)
+
+@dashboard_bp.route('/admin/registrations')
+@login_required
+def admin_registrations():
+    """Admin registration management"""
+    # Check if user has admin privileges
+    if not current_user.is_admin:
+        flash('You do not have permission to access the admin dashboard.', 'danger')
+        return redirect(url_for('dashboard.index'))
+    
+    page = request.args.get('page', 1, type=int)
+    per_page = 20
+    event_id = request.args.get('event_id', type=int)
+    
+    # Query registrations with optional filter
+    query = EventRegistration.query
+    if event_id:
+        query = query.filter_by(event_id=event_id)
+    
+    pagination = query.order_by(EventRegistration.id.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    registrations = pagination.items
+    
+    # Get all events for filter dropdown
+    events = Event.query.all()
+    
+    return render_template('dashboard/admin/registrations.html', 
+                         registrations=registrations, 
+                         pagination=pagination,
+                         events=events,
+                         selected_event_id=event_id)
+
+@dashboard_bp.route('/admin/hackathons')
+@login_required
+def admin_hackathons():
+    """Admin hackathon registration management"""
+    # Check if user has admin privileges
+    if not current_user.is_admin:
+        flash('You do not have permission to access the admin dashboard.', 'danger')
+        return redirect(url_for('dashboard.index'))
+    
+    page = request.args.get('page', 1, type=int)
+    per_page = 15
+    event_id = request.args.get('event_id', type=int)
+    
+    # Query hackathon registrations with optional filter
+    query = HackathonRegistration.query
+    if event_id:
+        query = query.filter_by(event_id=event_id)
+    
+    pagination = query.order_by(HackathonRegistration.id.desc()).paginate(page=page, per_page=per_page, error_out=False)
+    hackathon_regs = pagination.items
+    
+    # Get hackathon events for filter dropdown
+    hackathon_events = Event.query.filter_by(event_type='hackathon').all()
+    
+    return render_template('dashboard/admin/hackathons.html', 
+                         hackathon_regs=hackathon_regs, 
+                         pagination=pagination,
+                         events=hackathon_events,
+                         selected_event_id=event_id)
+
+@dashboard_bp.route('/admin/user/<int:user_id>')
+@login_required
+def admin_user_details(user_id):
+    """Admin view of user details"""
+    # Check if user has admin privileges
+    if not current_user.is_admin:
+        flash('You do not have permission to access the admin dashboard.', 'danger')
+        return redirect(url_for('dashboard.index'))
+    
+    user = User.query.get_or_404(user_id)
+    
+    # Get user's registrations
+    registrations = EventRegistration.query.filter_by(user_id=user.id).all()
+    
+    # Get user's teams
+    teams_led = Team.query.filter_by(leader_id=user.id).all()
+    team_memberships = TeamMember.query.filter_by(user_id=user.id).all()
+    
+    return render_template('dashboard/admin/user_details.html',
+                         user=user,
+                         registrations=registrations,
+                         teams_led=teams_led,
+                         team_memberships=team_memberships)

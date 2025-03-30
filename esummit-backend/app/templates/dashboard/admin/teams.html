@@ -1,0 +1,152 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Admin - Manage Teams{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1>Manage Teams</h1>
+                <div>
+                    <a href="{{ url_for('dashboard.admin_dashboard') }}" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Filter Form -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form action="{{ url_for('dashboard.admin_teams') }}" method="get" class="row g-3 align-items-center">
+                        <div class="col-md-10">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-filter"></i></span>
+                                <select name="event_id" class="form-select">
+                                    <option value="">All Team Events</option>
+                                    {% for event in events %}
+                                    <option value="{{ event.id }}" {% if selected_event_id == event.id %}selected{% endif %}>
+                                        {{ event.name }} ({{ event.event_type|title }})
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2 d-grid">
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Teams Table -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Teams ({{ pagination.total }})</h5>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Team Name</th>
+                                    <th>Event</th>
+                                    <th>Leader</th>
+                                    <th>Members</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for team in teams %}
+                                <tr>
+                                    <td>{{ team.id }}</td>
+                                    <td>{{ team.name }}</td>
+                                    <td>{{ team.event.name }}</td>
+                                    <td>
+                                        <a href="{{ url_for('dashboard.admin_user_details', user_id=team.leader_id) }}">
+                                            {{ team.leader.full_name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ team.members|length }}</td>
+                                    <td>
+                                        {% if team.event.event_type == 'hackathon' %}
+                                            {% if team.hackathon_registration %}
+                                            <span class="badge bg-success">Complete</span>
+                                            {% else %}
+                                            <span class="badge bg-warning">Incomplete</span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-info">Registered</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('dashboard.team_details', team_id=team.id) }}" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <!-- Pagination -->
+                {% if pagination.pages > 1 %}
+                <div class="card-footer bg-white">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center mb-0">
+                            {% if pagination.has_prev %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('dashboard.admin_teams', page=pagination.prev_num, event_id=selected_event_id) }}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                            </li>
+                            {% endif %}
+                            
+                            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                                {% if page_num %}
+                                    {% if page_num == pagination.page %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ page_num }}</span>
+                                    </li>
+                                    {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ url_for('dashboard.admin_teams', page=page_num, event_id=selected_event_id) }}">{{ page_num }}</a>
+                                    </li>
+                                    {% endif %}
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">…</span>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+                            
+                            {% if pagination.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('dashboard.admin_teams', page=pagination.next_num, event_id=selected_event_id) }}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

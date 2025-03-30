@@ -1,0 +1,227 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Admin - Hackathon Projects{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-dark mb-0">Hackathon Projects</h1>
+        <div>
+            <a href="{{ url_for('dashboard.admin_dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+    
+    <!-- Filter Form -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form action="{{ url_for('dashboard.admin_hackathons') }}" method="get" class="row g-3 align-items-center">
+                <div class="col-md-10">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-filter"></i></span>
+                        <select name="event_id" class="form-select">
+                            <option value="">All Hackathons</option>
+                            {% for event in events %}
+                            <option value="{{ event.id }}" {% if selected_event_id == event.id %}selected{% endif %}>
+                                {{ event.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-2 d-grid">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Hackathon Projects -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="card-title text-dark mb-0">Hackathon Projects ({{ pagination.total }})</h5>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>ID</th>
+                            <th>Team</th>
+                            <th>Project</th>
+                            <th>Event</th>
+                            <th>Leader</th>
+                            <th>Members</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reg in hackathon_regs %}
+                        <tr>
+                            <td>{{ reg.id }}</td>
+                            <td>{{ reg.team.name }}</td>
+                            <td>{{ reg.project_name }}</td>
+                            <td>{{ reg.event.name }}</td>
+                            <td>
+                                <a href="{{ url_for('dashboard.admin_user_details', user_id=reg.team.leader_id) }}">
+                                    {{ reg.team.leader.full_name }}
+                                </a>
+                            </td>
+                            <td>{{ reg.team.members|length }}</td>
+                            <td>
+                                <a href="{{ url_for('dashboard.team_details', team_id=reg.team.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-info" data-bs-toggle="modal" data-bs-target="#projectModal-{{ reg.id }}">
+                                    <i class="fas fa-info-circle"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        
+                        <!-- Project Details Modal -->
+                        <div class="modal fade" id="projectModal-{{ reg.id }}" tabindex="-1" aria-labelledby="projectModalLabel-{{ reg.id }}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="projectModalLabel-{{ reg.id }}">Project: {{ reg.project_name }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <h6 class="text-dark">Team</h6>
+                                            <p>{{ reg.team.name }}</p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <h6 class="text-dark">Description</h6>
+                                            <p>{{ reg.project_description }}</p>
+                                        </div>
+                                        <div class="mb-3">
+                                            <h6 class="text-dark">Tech Stack</h6>
+                                            <p>{{ reg.tech_stack }}</p>
+                                        </div>
+                                        {% if reg.github_url %}
+                                        <div class="mb-3">
+                                            <h6 class="text-dark">GitHub Repository</h6>
+                                            <a href="{{ reg.github_url }}" target="_blank">{{ reg.github_url }}</a>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if reg.problem_statement %}
+                                        <div class="mb-3">
+                                            <h6 class="text-dark">Problem Statement</h6>
+                                            <p>{{ reg.problem_statement }}</p>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if reg.solution_approach %}
+                                        <div class="mb-3">
+                                            <h6 class="text-dark">Solution Approach</h6>
+                                            <p>{{ reg.solution_approach }}</p>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if reg.team_background %}
+                                        <div class="mb-3">
+                                            <h6 class="text-dark">Team Background</h6>
+                                            <p>{{ reg.team_background }}</p>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if reg.other_links %}
+                                        <div class="mb-3">
+                                            <h6 class="text-dark">Other Links</h6>
+                                            <p>{{ reg.other_links }}</p>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <!-- Team Members -->
+                                        <div>
+                                            <h6 class="text-dark">Team Members</h6>
+                                            <ul class="list-group">
+                                                {% for member in reg.team.members %}
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <div>
+                                                        <strong>{{ member.user.full_name }}</strong> 
+                                                        <small class="text-muted d-block">{{ member.user.email }}</small>
+                                                    </div>
+                                                    <span class="badge bg-primary">{{ member.role|title }}</span>
+                                                </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="fas fa-laptop-code fa-3x mb-3"></i>
+                                <p>No hackathon projects found.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Pagination -->
+        {% if pagination.pages > 1 %}
+        <div class="card-footer bg-white">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center mb-0">
+                    {% if pagination.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('dashboard.admin_hackathons', page=pagination.prev_num, event_id=selected_event_id) }}">
+                            <i class="fas fa-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                        {% if page_num %}
+                            {% if page_num == pagination.page %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ page_num }}</span>
+                            </li>
+                            {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="{{ url_for('dashboard.admin_hackathons', page=page_num, event_id=selected_event_id) }}">{{ page_num }}</a>
+                            </li>
+                            {% endif %}
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">…</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if pagination.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('dashboard.admin_hackathons', page=pagination.next_num, event_id=selected_event_id) }}">
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

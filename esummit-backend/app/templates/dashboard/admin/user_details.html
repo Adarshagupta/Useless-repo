@@ -1,0 +1,315 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Admin - User Details{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 fw-bold mb-0">User Profile: {{ user.full_name }}</h1>
+        <div>
+            <a href="{{ url_for('dashboard.admin_users') }}" class="btn btn-outline-primary rounded-pill">
+                <i class="fas fa-arrow-left me-1"></i> Back to Users
+            </a>
+        </div>
+    </div>
+    
+    <div class="row g-4">
+        <!-- User Details Card -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-lg rounded-4 h-100 overflow-hidden">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="card-title fw-bold mb-0">
+                        <i class="fas fa-user-circle text-primary me-2"></i>Profile Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <div class="avatar bg-primary bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3 shadow" style="width: 90px; height: 90px; font-size: 2.5rem; transition: all 0.3s ease;">
+                            {{ user.full_name[0] }}
+                        </div>
+                        <h5 class="fw-bold mb-1">{{ user.full_name }}</h5>
+                        <span class="badge {% if user.is_admin %}bg-danger{% else %}bg-info{% endif %} rounded-pill px-3 py-2">
+                            <i class="fas {% if user.is_admin %}fa-user-shield{% else %}fa-user-graduate{% endif %} me-1"></i>
+                            {% if user.is_admin %}Administrator{% else %}Student{% endif %}
+                        </span>
+                    </div>
+                    
+                    <div class="list-group list-group-flush border-0">
+                        <div class="list-group-item border-0 px-0 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="icon-circle bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <p class="text-muted small mb-0">Email Address</p>
+                                    <p class="mb-0 fw-medium">{{ user.email }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="list-group-item border-0 px-0 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="icon-circle bg-warning-subtle text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <p class="text-muted small mb-0">Phone Number</p>
+                                    <p class="mb-0 fw-medium">{{ user.phone if user.phone else 'Not provided' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="list-group-item border-0 px-0 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="icon-circle bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-university"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <p class="text-muted small mb-0">Institution</p>
+                                    <p class="mb-0 fw-medium">{{ user.college if user.college else 'Not provided' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="list-group-item border-0 px-0 py-3">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="icon-circle bg-info-subtle text-info rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <p class="text-muted small mb-0">Account Created</p>
+                                    <p class="mb-0 fw-medium">{{ user.created_at.strftime('%B %d, %Y') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Registrations Card -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-lg rounded-4 h-100 overflow-hidden">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title fw-bold mb-0">
+                        <i class="fas fa-calendar-check text-primary me-2"></i>Event Registrations
+                    </h5>
+                    <span class="badge bg-primary rounded-pill px-3 py-2">{{ registrations|length }} Events</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="py-3">Event</th>
+                                    <th class="py-3">Type</th>
+                                    <th class="py-3">Date</th>
+                                    <th class="py-3">Registration Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reg in registrations %}
+                                <tr>
+                                    <td class="py-3 fw-medium">{{ reg.event.name }}</td>
+                                    <td class="py-3">
+                                        <span class="badge bg-primary-subtle text-primary">{{ reg.event.event_type|title }}</span>
+                                    </td>
+                                    <td class="py-3">{{ reg.event.start_date.strftime('%b %d, %Y') }}</td>
+                                    <td class="py-3">{{ reg.created_at.strftime('%b %d, %Y') }}</td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-5">
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon bg-light rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px;">
+                                                <i class="fas fa-calendar-times text-secondary" style="font-size: 2rem;"></i>
+                                            </div>
+                                            <h6 class="text-muted">No Event Registrations</h6>
+                                            <p class="text-muted small">This user has not registered for any events yet</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Team Memberships -->
+    <div class="row g-4 mt-2">
+        <!-- Teams Led -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 h-100 overflow-hidden">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title fw-bold mb-0">
+                        <i class="fas fa-user-tie text-primary me-2"></i>Teams Led
+                    </h5>
+                    <span class="badge bg-primary rounded-pill px-3 py-2">{{ teams_led|length }} Teams</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="py-3">Team Name</th>
+                                    <th class="py-3">Event</th>
+                                    <th class="py-3">Members</th>
+                                    <th class="py-3">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for team in teams_led %}
+                                <tr>
+                                    <td class="py-3">
+                                        <a href="{{ url_for('dashboard.team_details', team_id=team.id) }}" class="text-decoration-none fw-medium text-primary">
+                                            {{ team.name }}
+                                        </a>
+                                    </td>
+                                    <td class="py-3">{{ team.event.name }}</td>
+                                    <td class="py-3">
+                                        <span class="badge bg-secondary rounded-pill">{{ team.members|length }}</span>
+                                    </td>
+                                    <td class="py-3">
+                                        {% if team.event.event_type == 'hackathon' %}
+                                            {% if team.hackathon_registration %}
+                                            <span class="badge bg-success-subtle text-success px-3 py-2">
+                                                <i class="fas fa-check-circle me-1"></i>Complete
+                                            </span>
+                                            {% else %}
+                                            <span class="badge bg-warning-subtle text-warning px-3 py-2">
+                                                <i class="fas fa-exclamation-circle me-1"></i>Incomplete
+                                            </span>
+                                            {% endif %}
+                                        {% else %}
+                                            <span class="badge bg-info-subtle text-info px-3 py-2">
+                                                <i class="fas fa-info-circle me-1"></i>Registered
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-5">
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon bg-light rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px;">
+                                                <i class="fas fa-users-slash text-secondary" style="font-size: 2rem;"></i>
+                                            </div>
+                                            <h6 class="text-muted">No Teams Led</h6>
+                                            <p class="text-muted small">This user is not leading any teams</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Teams Joined -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-lg rounded-4 h-100 overflow-hidden">
+                <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title fw-bold mb-0">
+                        <i class="fas fa-users text-primary me-2"></i>Team Memberships
+                    </h5>
+                    {% set membership_count = team_memberships|selectattr('team.leader_id', 'ne', user.id)|list|length %}
+                    <span class="badge bg-primary rounded-pill px-3 py-2">{{ membership_count }} Teams</span>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="py-3">Team</th>
+                                    <th class="py-3">Role</th>
+                                    <th class="py-3">Event</th>
+                                    <th class="py-3">Leader</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for membership in team_memberships %}
+                                {% if membership.team.leader_id != user.id %}
+                                <tr>
+                                    <td class="py-3">
+                                        <a href="{{ url_for('dashboard.team_details', team_id=membership.team.id) }}" class="text-decoration-none fw-medium text-primary">
+                                            {{ membership.team.name }}
+                                        </a>
+                                    </td>
+                                    <td class="py-3">
+                                        <span class="badge bg-primary-subtle text-primary px-3 py-2">
+                                            {{ membership.role|title }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3">{{ membership.team.event.name }}</td>
+                                    <td class="py-3">{{ membership.team.leader.full_name }}</td>
+                                </tr>
+                                {% endif %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-5">
+                                        <div class="empty-state">
+                                            <div class="empty-state-icon bg-light rounded-circle p-4 mx-auto mb-3" style="width: 80px; height: 80px;">
+                                                <i class="fas fa-user-plus text-secondary" style="font-size: 2rem;"></i>
+                                            </div>
+                                            <h6 class="text-muted">No Team Memberships</h6>
+                                            <p class="text-muted small">This user is not a member of any other teams</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+    
+    .card:hover {
+        transform: translateY(-3px);
+    }
+    
+    .avatar:hover {
+        transform: scale(1.05);
+    }
+    
+    .icon-circle {
+        transition: all 0.2s ease;
+    }
+    
+    .list-group-item:hover .icon-circle {
+        transform: scale(1.1);
+    }
+    
+    .table tbody tr {
+        transition: background-color 0.15s ease-in-out;
+    }
+    
+    .badge {
+        transition: all 0.2s ease;
+    }
+    
+    .badge:hover {
+        transform: scale(1.05);
+    }
+</style>
+{% endblock %} 
