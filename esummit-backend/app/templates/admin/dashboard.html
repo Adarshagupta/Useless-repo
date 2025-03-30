@@ -1,0 +1,217 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Admin Dashboard - ESummit{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Admin Menu</h5>
+                    <div class="list-group">
+                        <a href="{{ url_for('admin.index') }}" class="list-group-item list-group-item-action active">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a href="{{ url_for('admin.events') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-alt"></i> Events
+                        </a>
+                        <a href="{{ url_for('admin.users') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                        <a href="{{ url_for('admin.teams') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users-cog"></i> Teams
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <!-- Stats Cards -->
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4 mb-4">
+                <div class="col">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="card-subtitle mb-2 text-muted">Total Users</h6>
+                                    <h2 class="card-title mb-0">{{ stats.total_users }}</h2>
+                                </div>
+                                <div class="icon-circle bg-primary">
+                                    <i class="fas fa-users text-white"></i>
+                                </div>
+                            </div>
+                            <p class="card-text mt-3">
+                                <span class="text-success">
+                                    <i class="fas fa-arrow-up"></i> {{ stats.new_users_today }}
+                                </span>
+                                new today
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="card-subtitle mb-2 text-muted">Active Events</h6>
+                                    <h2 class="card-title mb-0">{{ stats.active_events }}</h2>
+                                </div>
+                                <div class="icon-circle bg-success">
+                                    <i class="fas fa-calendar-check text-white"></i>
+                                </div>
+                            </div>
+                            <p class="card-text mt-3">
+                                <span class="text-info">
+                                    <i class="fas fa-clock"></i> {{ stats.upcoming_events }}
+                                </span>
+                                upcoming
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="card-subtitle mb-2 text-muted">Total Teams</h6>
+                                    <h2 class="card-title mb-0">{{ stats.total_teams }}</h2>
+                                </div>
+                                <div class="icon-circle bg-warning">
+                                    <i class="fas fa-users-cog text-white"></i>
+                                </div>
+                            </div>
+                            <p class="card-text mt-3">
+                                <span class="text-success">
+                                    <i class="fas fa-arrow-up"></i> {{ stats.new_teams_today }}
+                                </span>
+                                new today
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="card-subtitle mb-2 text-muted">Submissions</h6>
+                                    <h2 class="card-title mb-0">{{ stats.total_submissions }}</h2>
+                                </div>
+                                <div class="icon-circle bg-info">
+                                    <i class="fas fa-file-alt text-white"></i>
+                                </div>
+                            </div>
+                            <p class="card-text mt-3">
+                                <span class="text-success">
+                                    <i class="fas fa-arrow-up"></i> {{ stats.new_submissions_today }}
+                                </span>
+                                new today
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">Recent Activity</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Time</th>
+                                            <th>User</th>
+                                            <th>Action</th>
+                                            <th>Details</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for activity in recent_activity %}
+                                        <tr>
+                                            <td>{{ activity.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                                            <td>{{ activity.user.full_name }}</td>
+                                            <td>{{ activity.action }}</td>
+                                            <td>{{ activity.details }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions and Notifications -->
+            <div class="row">
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('admin.create_event') }}" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i> Create New Event
+                                </a>
+                                <a href="{{ url_for('admin.send_announcement') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-bullhorn"></i> Send Announcement
+                                </a>
+                                <a href="{{ url_for('admin.export_data') }}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-download"></i> Export Data
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">System Notifications</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="list-group list-group-flush">
+                                {% for notification in system_notifications %}
+                                <div class="list-group-item">
+                                    <div class="d-flex w-100 justify-content-between">
+                                        <h6 class="mb-1">{{ notification.title }}</h6>
+                                        <small>{{ notification.timestamp.strftime('%H:%M') }}</small>
+                                    </div>
+                                    <p class="mb-1">{{ notification.message }}</p>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.icon-circle {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-circle i {
+    font-size: 1.5rem;
+}
+</style>
+{% endblock %} 

@@ -1,0 +1,56 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Database Connection Error{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <h1 class="display-6 mb-4 text-danger">
+                        <i class="fas fa-database me-2"></i> PostgreSQL Connection Error
+                    </h1>
+                    
+                    <div class="alert alert-warning mb-4">
+                        <p class="mb-0">We're having trouble connecting to our PostgreSQL database. This is usually temporary.</p>
+                    </div>
+                    
+                    <div class="text-start mb-4">
+                        <h5>Please try:</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item bg-transparent"><i class="fas fa-sync-alt me-2"></i> Refreshing the page</li>
+                            <li class="list-group-item bg-transparent"><i class="fas fa-clock me-2"></i> Waiting a few moments and trying again</li>
+                            <li class="list-group-item bg-transparent"><i class="fas fa-wifi me-2"></i> Checking your internet connection</li>
+                        </ul>
+                    </div>
+                    
+                    {% if current_user.is_authenticated and current_user.is_admin %}
+                    <div class="alert alert-info mb-4 text-start">
+                        <h5><i class="fas fa-user-shield me-2"></i> Admin Information</h5>
+                        <p>Since you're an administrator, you can take these steps to fix the PostgreSQL connection issue:</p>
+                        <ol>
+                            <li>Verify that the Neon PostgreSQL instance is active in the Neon console</li>
+                            <li>Check that <code>DATABASE_URL</code> is correctly set in your <code>.env</code> file</li>
+                            <li>Make sure <code>USE_SQLITE=false</code> is set if you want to use PostgreSQL</li>
+                            <li>Check that your network allows outbound connections to PostgreSQL (port 5432)</li>
+                            <li>Ensure your database credentials are still valid</li>
+                            <li>Restart the application with <code>docker compose restart web</code></li>
+                        </ol>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="d-grid gap-2 col-md-6 mx-auto">
+                        <a href="{{ request.path }}" class="btn btn-primary">
+                            <i class="fas fa-sync-alt me-2"></i> Try Again
+                        </a>
+                        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-2"></i> Return to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,41 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Database Connection Error{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <h1 class="display-6 mb-4 text-danger">
+                        <i class="fas fa-database me-2"></i> Database Connection Error
+                    </h1>
+                    
+                    <div class="alert alert-warning mb-4">
+                        <p class="mb-0">We're having trouble connecting to our database. This is usually temporary.</p>
+                    </div>
+                    
+                    <div class="text-start mb-4">
+                        <h5>Please try:</h5>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item bg-transparent"><i class="fas fa-sync-alt me-2"></i> Refreshing the page</li>
+                            <li class="list-group-item bg-transparent"><i class="fas fa-clock me-2"></i> Waiting a few moments and trying again</li>
+                            <li class="list-group-item bg-transparent"><i class="fas fa-wifi me-2"></i> Checking your internet connection</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-grid gap-2 col-md-6 mx-auto">
+                        <a href="{{ request.path }}" class="btn btn-primary">
+                            <i class="fas fa-sync-alt me-2"></i> Try Again
+                        </a>
+                        <a href="{{ url_for('main.index') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-home me-2"></i> Return to Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

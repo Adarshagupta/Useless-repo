@@ -1,0 +1,294 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}View Team - Admin - ESummit{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Admin Menu</h5>
+                    <div class="list-group">
+                        <a href="{{ url_for('admin.index') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a href="{{ url_for('admin.events') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-alt"></i> Events
+                        </a>
+                        <a href="{{ url_for('admin.users') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                        <a href="{{ url_for('admin.teams') }}" class="list-group-item list-group-item-action active">
+                            <i class="fas fa-users-cog"></i> Teams
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="h3 mb-0">Team Details</h2>
+                    <p class="text-muted mb-0">View team information</p>
+                </div>
+                <div class="btn-group">
+                    <a href="{{ url_for('admin.teams') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Teams
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Team Info -->
+                <div class="col-md-8">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-transparent">
+                            <h5 class="card-title mb-0">Team Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Team Name</label>
+                                    <p class="mb-0">{{ team.name }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Status</label>
+                                    <p class="mb-0">
+                                        <span class="badge bg-{{ team.status_color }}">{{ team.status }}</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Created</label>
+                                    <p class="mb-0">{{ team.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Members</label>
+                                    <p class="mb-0">
+                                        {{ team.members|length }} / 
+                                        {% if team.event.min_team_size == team.event.max_team_size %}
+                                            {{ team.event.min_team_size }}
+                                        {% else %}
+                                            {{ team.event.min_team_size }}-{{ team.event.max_team_size }}
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                {% if team.status == 'rejected' and team.rejection_reason %}
+                                <div class="col-12">
+                                    <label class="form-label text-muted">Rejection Reason</label>
+                                    <p class="mb-0">{{ team.rejection_reason }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event Details -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-transparent">
+                            <h5 class="card-title mb-0">Event Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label text-muted">Event Name</label>
+                                    <p class="mb-0">{{ team.event.name }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Event Type</label>
+                                    <p class="mb-0">
+                                        <span class="badge bg-info">{{ team.event.event_type }}</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Event Date</label>
+                                    <p class="mb-0">{{ team.event.start_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label text-muted">Venue</label>
+                                    <p class="mb-0">{{ team.event.venue }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Team Members -->
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-transparent">
+                            <h5 class="card-title mb-0">Team Members</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Member</th>
+                                            <th>Role</th>
+                                            <th>Joined</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for member in team.members %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="bg-primary bg-opacity-10 rounded me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-user text-primary"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0">{{ member.user.full_name }}</h6>
+                                                        <small class="text-muted">{{ member.user.email }}</small>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-{{ 'primary' if member.is_leader else 'secondary' }}">
+                                                    {{ 'Leader' if member.is_leader else 'Member' }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div>{{ member.joined_at.strftime('%Y-%m-%d') }}</div>
+                                                <small class="text-muted">{{ member.joined_at.strftime('%H:%M') }}</small>
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('admin.users') }}?search={{ member.user.email }}" class="btn btn-sm btn-outline-info">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="col-md-4">
+                    {% if team.status == 'pending' %}
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-transparent">
+                            <h5 class="card-title mb-0">Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal">
+                                    <i class="fas fa-check"></i> Approve Team
+                                </button>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                    <i class="fas fa-times"></i> Reject Team
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Team Stats -->
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-transparent">
+                            <h5 class="card-title mb-0">Team Statistics</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-6">
+                                    <div class="bg-light rounded p-3 text-center">
+                                        <h3 class="mb-1">{{ team.members|length }}</h3>
+                                        <small class="text-muted">Members</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="bg-light rounded p-3 text-center">
+                                        <h3 class="mb-1">{{ team.submissions|length }}</h3>
+                                        <small class="text-muted">Submissions</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="bg-light rounded p-3 text-center">
+                                        <h3 class="mb-1">{{ team.created_at.strftime('%d') }}</h3>
+                                        <small class="text-muted">Days Active</small>
+                                    </div>
+                                </div>
+                                <div class="col-6">
+                                    <div class="bg-light rounded p-3 text-center">
+                                        <h3 class="mb-1">{{ team.score or 0 }}</h3>
+                                        <small class="text-muted">Score</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Approve Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Approve Team</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to approve team <strong>{{ team.name }}</strong> for <strong>{{ team.event.name }}</strong>?</p>
+                {% if team.members|length < team.event.min_team_size %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> Warning: Team has fewer members than required ({{ team.members|length }} of {{ team.event.min_team_size }})
+                </div>
+                {% endif %}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('admin.approve_team', team_id=team.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Approve Team
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reject Team</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to reject team <strong>{{ team.name }}</strong> from <strong>{{ team.event.name }}</strong>?</p>
+                <div class="mb-3">
+                    <label class="form-label">Reason for Rejection</label>
+                    <textarea name="reason" class="form-control" rows="3" required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('admin.reject_team', team_id=team.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times"></i> Reject Team
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-opacity-10 {
+    --bs-bg-opacity: 0.1;
+}
+</style>
+{% endblock %} 

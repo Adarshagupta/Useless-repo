@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  web:
+    build: 
+      context: .
+      args:
+        - USE_SQLITE=false
+        - DATABASE_URL=postgresql://neondb_owner:npg_tTgQ5xiIRO0p@ep-steep-term-a13n1hve-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+    command: >
+      bash -c "python -c 'import time; print(\"Waiting for database to be ready...\"); time.sleep(5);' && gunicorn --bind 0.0.0.0:5000 run:app"
+    volumes:
+      - .:/app
+    ports:
+      - "5001:5000"
+    environment:
+      - FLASK_APP=run.py
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://neondb_owner:npg_tTgQ5xiIRO0p@ep-steep-term-a13n1hve-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
+      - USE_SQLITE=false
+      - SECRET_KEY=development_key_change_in_production
+    restart: unless-stopped
+
+volumes:
+  sqlite_data: 

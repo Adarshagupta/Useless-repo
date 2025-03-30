@@ -1,0 +1,91 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Submit Project - ESummit{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-upload"></i> Submit Project</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('dashboard.submit_project', team_id=team.id) }}" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-4">
+                            <h5>Team: {{ team.name }}</h5>
+                            <p><strong>Event:</strong> {{ team.event.name }}</p>
+                            <p><strong>Submission Deadline:</strong> {{ team.event.submission_deadline.strftime('%B %d, %Y %H:%M') }}</p>
+                            
+                            {% if team.submission %}
+                                <div class="alert alert-info">
+                                    <h6 class="alert-heading">Previous Submission Found</h6>
+                                    <p class="mb-0">You already have a submission from {{ team.submission.submitted_at.strftime('%B %d, %Y %H:%M') }}. Submitting a new one will replace the existing submission.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.project_title.label(class="form-label") }}
+                            {{ form.project_title(class="form-control" + (" is-invalid" if form.project_title.errors else "")) }}
+                            {% for error in form.project_title.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.description.label(class="form-label") }}
+                            {{ form.description(class="form-control", rows=6) }}
+                            {% for error in form.description.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">Provide a detailed description of your project, including its purpose, features, and technologies used.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.github_url.label(class="form-label") }}
+                            {{ form.github_url(class="form-control" + (" is-invalid" if form.github_url.errors else "")) }}
+                            {% for error in form.github_url.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">Link to your GitHub repository or project demo</div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            {{ form.project_file.label(class="form-label") }}
+                            {{ form.project_file(class="form-control" + (" is-invalid" if form.project_file.errors else "")) }}
+                            {% for error in form.project_file.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">You can upload a ZIP file (max 20MB) containing your project or presentation</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('dashboard.team_detail', team_id=team.id) }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Team
+                            </a>
+                            {{ form.submit(class="btn btn-warning") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.getElementById('file').addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        if (file.size > 50 * 1024 * 1024) { // 50MB in bytes
+            alert('File size exceeds 50MB limit');
+            this.value = '';
+        }
+    }
+});
+</script>
+{% endblock %} 

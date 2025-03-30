@@ -1,0 +1,72 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Register for Hackathon - {{ event.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title mb-4">Register for {{ event.name }}</h2>
+                    <p class="text-muted mb-4">Team: {{ team.name }}</p>
+
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-3">
+                            {{ form.project_name.label(class="form-label") }}
+                            {{ form.project_name(class="form-control" + (" is-invalid" if form.project_name.errors else "")) }}
+                            {% for error in form.project_name.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.project_description.label(class="form-label") }}
+                            {{ form.project_description(class="form-control" + (" is-invalid" if form.project_description.errors else ""), rows=5) }}
+                            {% for error in form.project_description.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.tech_stack.label(class="form-label") }}
+                            {{ form.tech_stack(class="form-control" + (" is-invalid" if form.tech_stack.errors else "")) }}
+                            {% for error in form.tech_stack.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">List the technologies you plan to use (e.g., Python, React, PostgreSQL)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            {{ form.github_url.label(class="form-label") }}
+                            {{ form.github_url(class="form-control" + (" is-invalid" if form.github_url.errors else "")) }}
+                            {% for error in form.github_url.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">Optional: Link to your project repository</div>
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form.other_links.label(class="form-label") }}
+                            {{ form.other_links(class="form-control" + (" is-invalid" if form.other_links.errors else ""), rows=3) }}
+                            {% for error in form.other_links.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">Optional: Any other relevant links (one per line)</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('dashboard.team_details', team_id=team.id) }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Back to Team
+                            </a>
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

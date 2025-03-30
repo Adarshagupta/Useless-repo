@@ -1,0 +1,45 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Edit Team - ESummit{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-edit"></i> Edit Team</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('dashboard.edit_team', team_id=team.id) }}">
+                        {{ form.hidden_tag() }}
+                        
+                        <div class="mb-4">
+                            <h5>Event: {{ team.event.name }}</h5>
+                            <p><strong>Team ID:</strong> {{ team.id }}</p>
+                            <p><strong>Created:</strong> {{ team.created_at.strftime('%B %d, %Y') }}</p>
+                            <p><strong>Current Members:</strong> {{ team.members|length }}/{{ team.event.max_team_size }}</p>
+                        </div>
+                        
+                        <div class="mb-4">
+                            {{ form.name.label(class="form-label") }}
+                            {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                            {% for error in form.name.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">Choose a unique team name that represents your group</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{{ url_for('dashboard.team_detail', team_id=team.id) }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Team
+                            </a>
+                            {{ form.submit(class="btn btn-warning") }}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,256 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Manage Teams - Admin - ESummit{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Admin Menu</h5>
+                    <div class="list-group">
+                        <a href="{{ url_for('admin.index') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a href="{{ url_for('admin.events') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-alt"></i> Events
+                        </a>
+                        <a href="{{ url_for('admin.users') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                        <a href="{{ url_for('admin.teams') }}" class="list-group-item list-group-item-action active">
+                            <i class="fas fa-users-cog"></i> Teams
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="h3 mb-0">Manage Teams</h2>
+                    <p class="text-muted mb-0">View and manage event teams</p>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('admin.teams') }}" class="row g-3">
+                        <div class="col-md-3">
+                            <select name="event" class="form-select">
+                                <option value="">All Events</option>
+                                {% for event in events %}
+                                <option value="{{ event.id }}" {% if request.args.get('event')|int == event.id %}selected{% endif %}>
+                                    {{ event.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select name="status" class="form-select">
+                                <option value="">All Statuses</option>
+                                <option value="pending" {% if request.args.get('status') == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="approved" {% if request.args.get('status') == 'approved' %}selected{% endif %}>Approved</option>
+                                <option value="rejected" {% if request.args.get('status') == 'rejected' %}selected{% endif %}>Rejected</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input type="text" name="search" class="form-control" placeholder="Search teams..." value="{{ request.args.get('search', '') }}">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('admin.teams') }}" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-sync"></i> Reset
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Teams Table -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Team</th>
+                                    <th>Event</th>
+                                    <th>Members</th>
+                                    <th>Status</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for team in teams.items %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary bg-opacity-10 rounded me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <i class="fas fa-users text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ team.name }}</h6>
+                                                <small class="text-muted">{{ team.leader.full_name }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>{{ team.event.name }}</div>
+                                        <small class="text-muted">{{ team.event.event_type }}</small>
+                                    </td>
+                                    <td>
+                                        <div>{{ team.members|length }}</div>
+                                        <small class="text-muted">
+                                            {% if team.event.min_team_size and team.event.max_team_size %}
+                                                of {{ team.event.min_team_size }}-{{ team.event.max_team_size }}
+                                            {% endif %}
+                                        </small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ team.status_color }}">{{ team.status }}</span>
+                                    </td>
+                                    <td>{{ team.created_at.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ url_for('admin.team_details', team_id=team.id) }}" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            {% if team.status == 'pending' %}
+                                            <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#approveTeamModal{{ team.id }}">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectTeamModal{{ team.id }}">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            {% endif %}
+                                        </div>
+
+                                        {% if team.status == 'pending' %}
+                                        <!-- Approve Team Modal -->
+                                        <div class="modal fade" id="approveTeamModal{{ team.id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Approve Team</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to approve team <strong>{{ team.name }}</strong>?</p>
+                                                        <p class="text-muted mb-0">This will allow the team to participate in {{ team.event.name }}.</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form method="POST" action="{{ url_for('admin.approve_team', team_id=team.id) }}">
+                                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                            <button type="submit" class="btn btn-success">
+                                                                <i class="fas fa-check"></i> Approve Team
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Reject Team Modal -->
+                                        <div class="modal fade" id="rejectTeamModal{{ team.id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Reject Team</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to reject team <strong>{{ team.name }}</strong>?</p>
+                                                        <div class="alert alert-warning">
+                                                            <i class="fas fa-exclamation-triangle"></i> This will:
+                                                            <ul class="mb-0">
+                                                                <li>Remove the team from the event</li>
+                                                                <li>Notify all team members</li>
+                                                            </ul>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Reason for rejection</label>
+                                                            <textarea name="reason" class="form-control" rows="3" required></textarea>
+                                                            <div class="form-text">This message will be sent to the team members.</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form method="POST" action="{{ url_for('admin.reject_team', team_id=team.id) }}">
+                                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                            <button type="submit" class="btn btn-danger">
+                                                                <i class="fas fa-times"></i> Reject Team
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <i class="fas fa-users-slash text-muted mb-2"></i>
+                                        <p class="lead mb-0">No teams found</p>
+                                        <p class="text-muted">Try adjusting your filters</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            {% if teams.pages > 1 %}
+            <nav aria-label="Team pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {% if not teams.has_prev %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('admin.teams', page=teams.prev_num, **request.args) if teams.has_prev else '#' }}">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                    {% for page in teams.iter_pages() %}
+                        {% if page %}
+                            <li class="page-item {% if page == teams.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('admin.teams', page=page, **request.args) }}">{{ page }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="page-item {% if not teams.has_next %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('admin.teams', page=teams.next_num, **request.args) if teams.has_next else '#' }}">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-opacity-10 {
+    --bs-bg-opacity: 0.1;
+}
+</style>
+{% endblock %} 

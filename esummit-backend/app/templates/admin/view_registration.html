@@ -1,0 +1,236 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}View Registration - Admin - ESummit{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Admin Menu</h5>
+                    <div class="list-group">
+                        <a href="{{ url_for('admin.index') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a href="{{ url_for('admin.events') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-alt"></i> Events
+                        </a>
+                        <a href="{{ url_for('admin.users') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                        <a href="{{ url_for('admin.teams') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users-cog"></i> Teams
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="h3 mb-0">Registration Details</h2>
+                    <p class="text-muted mb-0">View registration information</p>
+                </div>
+                <div class="btn-group">
+                    <a href="{{ url_for('admin.registrations') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Registrations
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Registration Info -->
+                <div class="col-md-8">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-transparent">
+                            <h5 class="card-title mb-0">Registration Information</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Registration ID</label>
+                                    <p class="mb-0">{{ registration.id }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Status</label>
+                                    <p class="mb-0">
+                                        <span class="badge bg-{{ registration.status_color }}">{{ registration.status }}</span>
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Registration Date</label>
+                                    <p class="mb-0">{{ registration.registration_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                                </div>
+                                {% if registration.status == 'rejected' and registration.rejection_reason %}
+                                <div class="col-12">
+                                    <label class="form-label text-muted">Rejection Reason</label>
+                                    <p class="mb-0">{{ registration.rejection_reason }}</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Event Details -->
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-transparent">
+                            <h5 class="card-title mb-0">Event Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label text-muted">Event Name</label>
+                                    <p class="mb-0">{{ registration.event.name }}</p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Event Type</label>
+                                    <p class="mb-0">
+                                        <span class="badge bg-info">{{ registration.event.event_type }}</span>
+                                        {% if registration.event.is_team_event %}
+                                            <span class="badge bg-secondary">Team Event</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label text-muted">Event Date</label>
+                                    <p class="mb-0">{{ registration.event.start_date.strftime('%Y-%m-%d %H:%M') }}</p>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label text-muted">Venue</label>
+                                    <p class="mb-0">{{ registration.event.venue }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- User Details -->
+                <div class="col-md-4">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-transparent">
+                            <h5 class="card-title mb-0">User Details</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="text-center mb-4">
+                                <div class="bg-primary bg-opacity-10 rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 100px; height: 100px;">
+                                    <i class="fas fa-user fa-3x text-primary"></i>
+                                </div>
+                                <h5 class="mb-1">{{ registration.user.full_name }}</h5>
+                                <p class="text-muted mb-0">{{ registration.user.email }}</p>
+                            </div>
+                            <hr>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="form-label text-muted">Username</label>
+                                    <p class="mb-0">{{ registration.user.username }}</p>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label text-muted">Role</label>
+                                    <p class="mb-0">
+                                        <span class="badge bg-{{ 'primary' if registration.user.is_admin else 'secondary' }}">
+                                            {{ 'Admin' if registration.user.is_admin else 'User' }}
+                                        </span>
+                                    </p>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label text-muted">Joined</label>
+                                    <p class="mb-0">{{ registration.user.created_at.strftime('%Y-%m-%d') }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('admin.users') }}?search={{ registration.user.email }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-user"></i> View User Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    {% if registration.status == 'pending' %}
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-transparent">
+                            <h5 class="card-title mb-0">Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#approveModal">
+                                    <i class="fas fa-check"></i> Approve Registration
+                                </button>
+                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal">
+                                    <i class="fas fa-times"></i> Reject Registration
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Approve Modal -->
+<div class="modal fade" id="approveModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Approve Registration</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to approve the registration for <strong>{{ registration.user.full_name }}</strong> in <strong>{{ registration.event.name }}</strong>?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('admin.approve_registration', registration_id=registration.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Approve Registration
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div class="modal fade" id="rejectModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Reject Registration</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to reject the registration for <strong>{{ registration.user.full_name }}</strong> in <strong>{{ registration.event.name }}</strong>?</p>
+                <div class="mb-3">
+                    <label class="form-label">Reason for Rejection</label>
+                    <textarea name="reason" class="form-control" rows="3" required></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form method="POST" action="{{ url_for('admin.reject_registration', registration_id=registration.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times"></i> Reject Registration
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-opacity-10 {
+    --bs-bg-opacity: 0.1;
+}
+</style>
+{% endblock %} 

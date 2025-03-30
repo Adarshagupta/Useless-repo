@@ -1,0 +1,154 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Hackathons - ESummit{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Hero Section -->
+    <div class="bg-primary text-white rounded-3 p-5 mb-4">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-4 fw-bold mb-3">Hackathons</h1>
+                <p class="lead mb-4">Join exciting hackathons, showcase your skills, and compete with the best teams from across the country. Build innovative solutions and win amazing prizes!</p>
+                {% if current_user.is_authenticated %}
+                    <a href="#register" class="btn btn-light btn-lg">
+                        <i class="fas fa-code"></i> Register Now
+                    </a>
+                {% else %}
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg">
+                        <i class="fas fa-sign-in-alt"></i> Login to Register
+                    </a>
+                {% endif %}
+            </div>
+            <div class="col-lg-4 text-center">
+                <i class="fas fa-laptop-code fa-6x opacity-75"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form method="GET" action="{{ url_for('main.hackathons') }}" class="row g-3">
+                <div class="col-md-4">
+                    <select name="status" class="form-select">
+                        <option value="">All Status</option>
+                        <option value="upcoming" {% if request.args.get('status') == 'upcoming' %}selected{% endif %}>Upcoming</option>
+                        <option value="ongoing" {% if request.args.get('status') == 'ongoing' %}selected{% endif %}>Ongoing</option>
+                        <option value="completed" {% if request.args.get('status') == 'completed' %}selected{% endif %}>Completed</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <select name="prize" class="form-select">
+                        <option value="">All Prize Ranges</option>
+                        <option value="10000" {% if request.args.get('prize') == '10000' %}selected{% endif %}>₹10,000+</option>
+                        <option value="50000" {% if request.args.get('prize') == '50000' %}selected{% endif %}>₹50,000+</option>
+                        <option value="100000" {% if request.args.get('prize') == '100000' %}selected{% endif %}>₹1,00,000+</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <input type="text" name="search" class="form-control" placeholder="Search hackathons..." value="{{ request.args.get('search', '') }}">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hackathons List -->
+    <div class="row g-4" id="register">
+        {% for hackathon in hackathons %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                {% if hackathon.image_url %}
+                    <img src="{{ hackathon.image_url }}" class="card-img-top" alt="{{ hackathon.name }}">
+                {% else %}
+                    <img src="{{ url_for('static', filename='img/event-default.jpg') }}" class="card-img-top" alt="{{ hackathon.name }}">
+                {% endif %}
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0">{{ hackathon.name }}</h5>
+                        <span class="badge bg-{{ hackathon.status_color }}">{{ hackathon.status }}</span>
+                    </div>
+                    <p class="card-text text-muted mb-3">{{ hackathon.description[:150] }}...</p>
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-calendar-alt text-primary me-2"></i>
+                            <span>{{ hackathon.start_date.strftime('%B %d, %Y') }}</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-users text-primary me-2"></i>
+                            <span>{{ hackathon.min_team_size }}-{{ hackathon.max_team_size }} members per team</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-trophy text-primary me-2"></i>
+                            <span>Prize Pool: {% if hackathon.prize_pool %}₹{{ '{:,}'.format(hackathon.prize_pool) }}{% else %}TBA{% endif %}</span>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        {% if current_user.is_authenticated %}
+                            {% if hackathon.is_registered(current_user) %}
+                                <button class="btn btn-success" disabled>
+                                    <i class="fas fa-check"></i> Registered
+                                </button>
+                            {% else %}
+                                <a href="{{ url_for('main.hackathon_details', hackathon_id=hackathon.id) }}" class="btn btn-primary">
+                                    <i class="fas fa-users"></i> Form Team
+                                </a>
+                            {% endif %}
+                        {% else %}
+                            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">
+                                <i class="fas fa-sign-in-alt"></i> Login to Register
+                            </a>
+                        {% endif %}
+                        <a href="{{ url_for('main.hackathon_details', hackathon_id=hackathon.id) }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-info-circle"></i> View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="fas fa-code-branch fa-4x text-muted mb-3"></i>
+                <h3>No Hackathons Found</h3>
+                <p class="text-muted">Check back later for upcoming hackathons or try adjusting your filters.</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <nav aria-label="Hackathon pagination" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('main.hackathons', page=pagination.prev_num, **request.args) if pagination.has_prev else '#' }}">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </a>
+            </li>
+            {% for page in pagination.iter_pages() %}
+                {% if page %}
+                    <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('main.hackathons', page=page, **request.args) }}">{{ page }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('main.hackathons', page=pagination.next_num, **request.args) if pagination.has_next else '#' }}">
+                    Next <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %} 

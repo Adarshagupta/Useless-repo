@@ -1,0 +1,276 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Dashboard - ESummit{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row g-4">
+        <!-- Sidebar -->
+        <div class="col-lg-3">
+        <!-- User Profile Card -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header blue-bg text-white">
+                    <h5 class="mb-0 fw-semibold">Profile</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="avatar-circle mb-3">
+                            <span class="initials">{{ current_user.full_name[0] }}</span>
+                        </div>
+                        <h5 class="fw-semibold mb-1">{{ current_user.full_name }}</h5>
+                        <p class="text-muted">Student</p>
+                    </div>
+                    <ul class="list-unstyled mb-4">
+                        <li class="mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-box me-3">
+                                    <i class="fas fa-envelope"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">Email</small>
+                                    <span class="fs-6">{{ current_user.email }}</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li class="mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="icon-box me-3">
+                                    <i class="fas fa-phone"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">Phone</small>
+                                    <span class="fs-6">{{ current_user.phone }}</span>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="d-flex align-items-center">
+                                <div class="icon-box me-3">
+                                    <i class="fas fa-university"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">College</small>
+                                    <span class="fs-6">{{ current_user.college }}</span>
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+                    <a href="{{ url_for('dashboard.profile') }}" class="btn btn-warning w-100">
+                        Edit Profile
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header blue-bg text-white">
+                    <h5 class="mb-0 fw-semibold">Quick Links</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        <a href="{{ url_for('dashboard.events') }}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <div class="icon-box me-3 bg-primary-light">
+                                <i class="fas fa-calendar-alt text-primary"></i>
+                            </div>
+                            <span>Browse Events</span>
+                        </a>
+                        <a href="{{ url_for('dashboard.teams') }}" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <div class="icon-box me-3 bg-success-light">
+                                <i class="fas fa-users text-success"></i>
+                            </div>
+                            <span>My Teams</span>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <div class="icon-box me-3 bg-warning-light">
+                                <i class="fas fa-certificate text-warning"></i>
+                            </div>
+                            <span>Certificates</span>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+                            <div class="icon-box me-3 bg-info-light">
+                                <i class="fas fa-question-circle text-info"></i>
+                            </div>
+                            <span>Help Center</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <!-- Stats Row -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="stats-icon bg-warning-light me-3">
+                                    <i class="fas fa-calendar-check text-warning"></i>
+                                </div>
+                                <div>
+                                    <p class="text-muted mb-1 fs-6">Registered Events</p>
+                                    <h3 class="fw-semibold mb-0">{{ registered_events|length }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="stats-icon bg-primary-light me-3">
+                                    <i class="fas fa-users text-primary"></i>
+                                </div>
+                                <div>
+                                    <p class="text-muted mb-1 fs-6">My Teams</p>
+                                    <h3 class="fw-semibold mb-0">{{ teams|length }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center">
+                                <div class="stats-icon bg-success-light me-3">
+                                    <i class="fas fa-trophy text-success"></i>
+                                </div>
+                                <div>
+                                    <p class="text-muted mb-1 fs-6">Achievements</p>
+                                    <h3 class="fw-semibold mb-0">0</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Registered Events -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header blue-bg text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold">Your Registered Events</h5>
+                    <a href="{{ url_for('dashboard.events') }}" class="btn btn-light btn-sm">
+                        Register New
+                    </a>
+                </div>
+                <div class="card-body p-4">
+                    {% if registered_events %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Event</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                            {% for registration in registered_events %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="event-icon me-3 bg-primary-light text-primary rounded p-2">
+                                                        <i class="fas fa-calendar"></i>
+                                                    </div>
+                                                    <div>
+                                                        <h6 class="mb-0 fw-semibold">{{ registration.event.name }}</h6>
+                                                        <small class="text-muted">{{ registration.event.description[:50] }}{% if registration.event.description|length > 50 %}...{% endif %}</small>
+                                    </div>
+                                </div>
+                                            </td>
+                                            <td>{{ registration.event.start_date.strftime('%b %d, %Y') }}</td>
+                                            <td><span class="badge bg-success rounded-pill">Registered</span></td>
+                                            <td>
+                                                <a href="#" class="btn btn-sm btn-light">
+                                                    Details
+                                                </a>
+                                            </td>
+                                        </tr>
+                            {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <div class="event-icon mx-auto bg-primary-light p-4 rounded-circle" style="width: 90px; height: 90px;">
+                                    <i class="fas fa-calendar-alt fa-3x text-primary"></i>
+                                </div>
+                            </div>
+                            <h5 class="text-muted fw-normal mb-2">No registered events</h5>
+                            <p class="text-muted mb-4">Explore our events and join the ones that interest you</p>
+                            <a href="{{ url_for('dashboard.events') }}" class="btn btn-warning">
+                                Browse Events
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Team Information -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header blue-bg text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-semibold">Your Teams</h5>
+                    <a href="{{ url_for('dashboard.teams') }}" class="btn btn-light btn-sm">
+                        Create Team
+                    </a>
+                </div>
+                <div class="card-body p-4">
+                    {% if teams %}
+                        <div class="row">
+                            {% for team in teams %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card border-0 shadow-sm h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                                <h5 class="mb-0 fw-semibold">{{ team.name }}</h5>
+                                                <span class="badge bg-primary rounded-pill">{{ team.members|length }} members</span>
+                                            </div>
+                                            <div class="mb-3">
+                                                <div class="d-flex align-items-center mb-2">
+                                                    <div class="icon-box me-2 bg-primary-light">
+                                                        <i class="fas fa-calendar-alt text-primary"></i>
+                                                    </div>
+                                                    <span>{{ team.event.name }}</span>
+                                                </div>
+                                                <div class="d-flex align-items-center">
+                                                    <div class="icon-box me-2 bg-success-light">
+                                                        <i class="fas fa-clock text-success"></i>
+                                                    </div>
+                                                    <span>Created {{ team.created_at.strftime('%b %d, %Y') }}</span>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex justify-content-end">
+                                                <a href="{{ url_for('dashboard.team_detail', team_id=team.id) }}" class="btn btn-sm btn-light">
+                                                    Team Details
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <div class="mb-4">
+                                <div class="event-icon mx-auto bg-success-light p-4 rounded-circle" style="width: 90px; height: 90px;">
+                                    <i class="fas fa-users fa-3x text-success"></i>
+                                </div>
+                            </div>
+                            <h5 class="text-muted fw-normal mb-2">No teams yet</h5>
+                            <p class="text-muted mb-4">Create a team or accept invitations to join existing teams</p>
+                            <a href="{{ url_for('dashboard.teams') }}" class="btn btn-warning">
+                                Create or Join Team
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

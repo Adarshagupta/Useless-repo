@@ -1,0 +1,164 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Send Announcement - Admin - ESummit{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Admin Menu</h5>
+                    <div class="list-group">
+                        <a href="{{ url_for('admin.index') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a href="{{ url_for('admin.events') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-alt"></i> Events
+                        </a>
+                        <a href="{{ url_for('admin.users') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                        <a href="{{ url_for('admin.teams') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users-cog"></i> Teams
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="h3 mb-0">Send Announcement</h2>
+                    <p class="text-muted mb-0">Send announcements to users</p>
+                </div>
+                <div class="btn-group">
+                    <a href="{{ url_for('admin.index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Announcement Form -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.send_announcement') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        
+                        <div class="mb-4">
+                            <label class="form-label">Target Audience</label>
+                            <select name="target" class="form-select" required onchange="toggleEventSelect()">
+                                <option value="">Select Target</option>
+                                <option value="all">All Users</option>
+                                <option value="event">Event Participants</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-4" id="eventSelect" style="display: none;">
+                            <label class="form-label">Select Event</label>
+                            <select name="event" class="form-select">
+                                <option value="">Select Event</option>
+                                {% for event in events %}
+                                <option value="{{ event.id }}">{{ event.name }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="form-text">Announcement will be sent to all registered participants of the selected event.</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Announcement Title</label>
+                            <input type="text" name="title" class="form-control" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label">Message</label>
+                            <textarea name="message" class="form-control" rows="6" required></textarea>
+                            <div class="form-text">You can use Markdown formatting in your message.</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="send_email" id="sendEmail" checked>
+                                <label class="form-check-label" for="sendEmail">
+                                    Also send as email
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#previewModal">
+                                <i class="fas fa-eye"></i> Preview
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Send Announcement
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Preview Announcement</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title" id="previewTitle"></h5>
+                        <div class="card-text" id="previewMessage"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleEventSelect() {
+    const target = document.querySelector('select[name="target"]').value;
+    const eventSelect = document.getElementById('eventSelect');
+    const eventInput = document.querySelector('select[name="event"]');
+    
+    if (target === 'event') {
+        eventSelect.style.display = 'block';
+        eventInput.required = true;
+    } else {
+        eventSelect.style.display = 'none';
+        eventInput.required = false;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    const previewBtn = document.querySelector('[data-bs-target="#previewModal"]');
+    
+    previewBtn.addEventListener('click', function() {
+        const title = form.querySelector('[name="title"]').value;
+        const message = form.querySelector('[name="message"]').value;
+        
+        document.getElementById('previewTitle').textContent = title;
+        document.getElementById('previewMessage').innerHTML = message;
+    });
+});
+</script>
+
+<style>
+.bg-opacity-10 {
+    --bs-bg-opacity: 0.1;
+}
+</style>
+{% endblock %} 

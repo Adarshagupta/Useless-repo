@@ -1,0 +1,414 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}{{ event.name }} - ESummit{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <!-- Event Details -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                {% if event.image_url %}
+                <img src="{{ event.image_url }}" class="card-img-top" alt="{{ event.name }}">
+                {% else %}
+                <img src="{{ url_for('static', filename='img/event-default.jpg') }}" class="card-img-top" alt="{{ event.name }}">
+                {% endif %}
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h2 class="card-title">{{ event.name }}</h2>
+                        <span class="badge bg-{{ event.status_color }} fs-6">{{ event.status }}</span>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="card-text">{{ event.description }}</p>
+                    </div>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-calendar"></i> Date & Time</h5>
+                                    <p class="card-text">
+                                        <strong>Start:</strong> {{ event.start_date.strftime('%B %d, %Y %H:%M') }}<br>
+                                        {% if event.end_date %}
+                                        <strong>End:</strong> {{ event.end_date.strftime('%B %d, %Y %H:%M') }}<br>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <h5 class="card-title"><i class="fas fa-users"></i> Participation</h5>
+                                    <p class="card-text">
+                                        <strong>Type:</strong> {{ "Team Event" if event.is_team_event else "Individual Event" }}<br>
+                                        {% if event.is_team_event %}
+                                        <strong>Team Size:</strong> {{ event.min_team_size }} - {{ event.max_team_size }} members<br>
+                                        {% endif %}
+                                        {% if event.max_participants %}
+                                        <strong>Spots Available:</strong> {{ event.max_participants - event.registrations|length }} / {{ event.max_participants }}
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if event.prize_pool or event.prizes %}
+                    <div class="mb-4">
+                        <h4><i class="fas fa-trophy"></i> Prizes</h4>
+                        {% if event.prize_pool %}
+                        <p class="lead">Total Prize Pool: ₹{{ event.prize_pool }}</p>
+                        {% endif %}
+                        {% if event.prizes %}
+                        <div class="row row-cols-1 row-cols-md-3 g-3">
+                            {% for prize in event.prizes %}
+                            <div class="col">
+                                <div class="card h-100 border-warning">
+                                    <div class="card-body text-center">
+                                        <h5 class="card-title">{{ prize.position }}</h5>
+                                        <p class="card-text">₹{{ prize.amount }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if event.rules %}
+                    <div class="mb-4">
+                        <h4><i class="fas fa-gavel"></i> Rules & Guidelines</h4>
+                        <ul class="list-group list-group-flush">
+                            {% for rule in event.rules %}
+                            <li class="list-group-item">{{ rule }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% endif %}
+
+                    {% if event.timeline %}
+                    <div class="mb-4">
+                        <h4><i class="fas fa-clock"></i> Timeline</h4>
+                        <div class="timeline">
+                            {% for item in event.timeline %}
+                            <div class="timeline-item">
+                                <div class="timeline-date">{{ item.date.strftime('%B %d, %Y') }}</div>
+                                <div class="timeline-content">
+                                    <h5>{{ item.title }}</h5>
+                                    <p>{{ item.description }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Registration Sidebar -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Registration</h4>
+                    {% if current_user.is_authenticated %}
+                        {% if is_registered %}
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle"></i> You are registered for this event
+                                {% if registration and registration.team %}
+                                <p class="mb-0 mt-2">
+                                    <strong>Team:</strong> {{ registration.team.name }}<br>
+                                    <a href="{{ url_for('dashboard.team_details', team_id=registration.team.id) }}" class="btn btn-outline-success btn-sm mt-2">
+                                        View Team Details
+                                    </a>
+                                </p>
+                                {% endif %}
+                            </div>
+                        {% else %}
+                            {% if event.is_registration_open %}
+                                {% if event.is_team_event %}
+                                    <div class="mb-3">
+                                        <h5>Team Options</h5>
+                                        <div class="d-grid gap-2">
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createTeamModal">
+                                                <i class="fas fa-plus"></i> Create New Team
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#joinTeamModal">
+                                                <i class="fas fa-users"></i> Join Existing Team
+                                            </button>
+                                        </div>
+                                    </div>
+                                {% else %}
+                                    <form method="POST" action="{{ url_for('main.register_event', event_id=event.id) }}" enctype="multipart/form-data">
+                                        {% if form %}{{ form.hidden_tag() }}{% endif %}
+                                        
+                                        <div class="mb-3">
+                                            <h5>Registration Details</h5>
+                                        </div>
+                                        
+                                        {% if form and form._fields is defined %}
+                                            {% if 'name' in form._fields %}
+                                            <div class="mb-3">
+                                                {{ form.name.label(class="form-label") }}
+                                                {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                                                {% for error in form.name.errors %}
+                                                    <div class="invalid-feedback">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+                                            
+                                            {% if 'email' in form._fields %}
+                                            <div class="mb-3">
+                                                {{ form.email.label(class="form-label") }}
+                                                {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), value=current_user.email) }}
+                                                {% for error in form.email.errors %}
+                                                    <div class="invalid-feedback">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+                                            
+                                            {% if 'phone' in form._fields %}
+                                            <div class="mb-3">
+                                                {{ form.phone.label(class="form-label") }}
+                                                {{ form.phone(class="form-control" + (" is-invalid" if form.phone.errors else "")) }}
+                                                {% for error in form.phone.errors %}
+                                                    <div class="invalid-feedback">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+                                            
+                                            {% if 'institution' in form._fields %}
+                                            <div class="mb-3">
+                                                {{ form.institution.label(class="form-label") }}
+                                                {{ form.institution(class="form-control" + (" is-invalid" if form.institution.errors else "")) }}
+                                                {% for error in form.institution.errors %}
+                                                    <div class="invalid-feedback">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+                                            
+                                            {% if event.event_type == 'hackathon' and 'skills' in form._fields %}
+                                            <div class="mb-3">
+                                                {{ form.skills.label(class="form-label") }}
+                                                {{ form.skills(class="form-control" + (" is-invalid" if form.skills.errors else "")) }}
+                                                {% for error in form.skills.errors %}
+                                                    <div class="invalid-feedback">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                {{ form.experience.label(class="form-label") }}
+                                                {{ form.experience(class="form-control" + (" is-invalid" if form.experience.errors else "")) }}
+                                                {% for error in form.experience.errors %}
+                                                    <div class="invalid-feedback">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                {{ form.expectations.label(class="form-label") }}
+                                                {{ form.expectations(class="form-control" + (" is-invalid" if form.expectations.errors else "")) }}
+                                                {% for error in form.expectations.errors %}
+                                                    <div class="invalid-feedback">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                {{ form.proposal_document.label(class="form-label") }}
+                                                {{ form.proposal_document(class="form-control" + (" is-invalid" if form.proposal_document.errors else "")) }}
+                                                {% for error in form.proposal_document.errors %}
+                                                    <div class="invalid-feedback">{{ error }}</div>
+                                                {% endfor %}
+                                                <div class="form-text">Upload your project proposal (PDF/PPT format only)</div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                {{ form.github_profile.label(class="form-label") }}
+                                                {{ form.github_profile(class="form-control" + (" is-invalid" if form.github_profile.errors else "")) }}
+                                                {% for error in form.github_profile.errors %}
+                                                    <div class="invalid-feedback">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                {{ form.tshirt_size.label(class="form-label") }}
+                                                {{ form.tshirt_size(class="form-select" + (" is-invalid" if form.tshirt_size.errors else "")) }}
+                                                {% for error in form.tshirt_size.errors %}
+                                                    <div class="invalid-feedback">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                            {% else %}
+                                            
+                                            {% if 'why_join' in form._fields %}
+                                            <div class="mb-3">
+                                                {{ form.why_join.label(class="form-label") }}
+                                                {{ form.why_join(class="form-control" + (" is-invalid" if form.why_join.errors else "")) }}
+                                                {% for error in form.why_join.errors %}
+                                                    <div class="invalid-feedback">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+                                            
+                                            {% if 'experience' in form._fields %}
+                                            <div class="mb-3">
+                                                {{ form.experience.label(class="form-label") }}
+                                                {{ form.experience(class="form-control" + (" is-invalid" if form.experience.errors else "")) }}
+                                                {% for error in form.experience.errors %}
+                                                    <div class="invalid-feedback">{{ error }}</div>
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+                                            
+                                            {% if 'document' in form._fields %}
+                                            <div class="mb-3">
+                                                {{ form.document.label(class="form-label") }}
+                                                {{ form.document(class="form-control" + (" is-invalid" if form.document.errors else "")) }}
+                                                {% for error in form.document.errors %}
+                                                    <div class="invalid-feedback">{{ error }}</div>
+                                                {% endfor %}
+                                                <div class="form-text">PDF or PowerPoint files only</div>
+                                            </div>
+                                            {% endif %}
+                                            {% endif %}
+                                        {% endif %}
+                                        
+                                        <div class="d-grid mt-4">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-check"></i> Register Now
+                                            </button>
+                                        </div>
+                                    </form>
+                                {% endif %}
+                            {% else %}
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-exclamation-triangle"></i> Registration is closed
+                                </div>
+                            {% endif %}
+                        {% endif %}
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Please log in to register for this event
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Log In
+                            </a>
+                            <a href="{{ url_for('auth.register', next=request.path) }}" class="btn btn-outline-primary">
+                                <i class="fas fa-user-plus"></i> Register
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Event Stats -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Event Stats</h4>
+                    <div class="row text-center">
+                        <div class="col">
+                            <h3>{{ event.registrations|length }}</h3>
+                            <small class="text-muted">Registered</small>
+                        </div>
+                        {% if event.is_team_event %}
+                        <div class="col">
+                            <h3>{{ event.teams|length }}</h3>
+                            <small class="text-muted">Teams</small>
+                        </div>
+                        {% endif %}
+                        {% if event.views %}
+                        <div class="col">
+                            <h3>{{ event.views }}</h3>
+                            <small class="text-muted">Views</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contact Info -->
+            {% if event.contact_info %}
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Contact Information</h4>
+                    {% for contact in event.contact_info %}
+                    <div class="mb-2">
+                        <h6>{{ contact.name }}</h6>
+                        <p class="mb-0">
+                            {% if contact.email %}
+                            <i class="fas fa-envelope"></i> {{ contact.email }}<br>
+                            {% endif %}
+                            {% if contact.phone %}
+                            <i class="fas fa-phone"></i> {{ contact.phone }}
+                            {% endif %}
+                        </p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Create Team Modal -->
+{% if current_user.is_authenticated and not is_registered and event.is_team_event %}
+<div class="modal fade" id="createTeamModal" tabindex="-1" aria-labelledby="createTeamModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createTeamModalLabel">Create New Team</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('main.create_team', event_id=event.id) }}">
+                <div class="modal-body">
+                    {{ team_form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ team_form.name.label(class="form-label") }}
+                        {{ team_form.name(class="form-control" + (" is-invalid" if team_form.name.errors else "")) }}
+                        {% for error in team_form.name.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Team</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Join Team Modal -->
+<div class="modal fade" id="joinTeamModal" tabindex="-1" aria-labelledby="joinTeamModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="joinTeamModalLabel">Join Existing Team</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="POST" action="{{ url_for('main.join_team', event_id=event.id) }}">
+                <div class="modal-body">
+                    {{ join_form.hidden_tag() }}
+                    <div class="mb-3">
+                        {{ join_form.team_code.label(class="form-label") }}
+                        {{ join_form.team_code(class="form-control" + (" is-invalid" if join_form.team_code.errors else "")) }}
+                        {% for error in join_form.team_code.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                        <small class="form-text text-muted">Ask your team leader for the team code</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Join Team</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %} 

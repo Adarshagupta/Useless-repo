@@ -1,0 +1,132 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Create Event{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Create New Event</h2>
+                    
+                    <form method="POST">
+                        {{ form.csrf_token }}
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <label for="name" class="form-label">Event Name</label>
+                                {{ form.name(class="form-control", placeholder="Enter event name") }}
+                                {% if form.name.errors %}
+                                    {% for error in form.name.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <label for="description" class="form-label">Description</label>
+                                {{ form.description(class="form-control", rows="5", placeholder="Enter event description") }}
+                                {% if form.description.errors %}
+                                    {% for error in form.description.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="event_type" class="form-label">Event Type</label>
+                                {{ form.event_type(class="form-select") }}
+                                {% if form.event_type.errors %}
+                                    {% for error in form.event_type.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="venue" class="form-label">Venue</label>
+                                {{ form.venue(class="form-control", placeholder="Enter venue") }}
+                                {% if form.venue.errors %}
+                                    {% for error in form.venue.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="start_date" class="form-label">Start Date</label>
+                                {{ form.start_date(class="form-control", type="datetime-local") }}
+                                {% if form.start_date.errors %}
+                                    {% for error in form.start_date.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="end_date" class="form-label">End Date</label>
+                                {{ form.end_date(class="form-control", type="datetime-local") }}
+                                {% if form.end_date.errors %}
+                                    {% for error in form.end_date.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label for="min_team_size" class="form-label">Minimum Team Size</label>
+                                {{ form.min_team_size(class="form-control", type="number", min="1", max="10") }}
+                                {% if form.min_team_size.errors %}
+                                    {% for error in form.min_team_size.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="max_team_size" class="form-label">Maximum Team Size</label>
+                                {{ form.max_team_size(class="form-control", type="number", min="1", max="10") }}
+                                {% if form.max_team_size.errors %}
+                                    {% for error in form.max_team_size.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-12">
+                                <label for="image_url" class="form-label">Image URL (Optional)</label>
+                                {{ form.image_url(class="form-control", placeholder="Enter image URL") }}
+                                {% if form.image_url.errors %}
+                                    {% for error in form.image_url.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                                <div class="form-text">
+                                    Provide a URL for the event banner image. Leave empty to use default.
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('dashboard.events') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Back to Events
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus me-1"></i> Create Event
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

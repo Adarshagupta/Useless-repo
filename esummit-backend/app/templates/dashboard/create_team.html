@@ -1,0 +1,70 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Create Team - {{ event.name }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h2 class="card-title mb-4">Create Team for {{ event.name }}</h2>
+                    
+                    <form method="POST">
+                        {{ form.csrf_token }}
+                        
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Team Name</label>
+                            {{ form.name(class="form-control", placeholder="Enter your team name") }}
+                            {% if form.name.errors %}
+                                {% for error in form.name.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="member_emails" class="form-label">Invite Team Members (Optional)</label>
+                            {{ form.member_emails(class="form-control", placeholder="Enter email addresses, separated by commas") }}
+                            {% if form.member_emails.errors %}
+                                {% for error in form.member_emails.errors %}
+                                    <div class="invalid-feedback d-block">{{ error }}</div>
+                                {% endfor %}
+                            {% endif %}
+                            <div class="form-text">
+                                Enter the email addresses of team members you want to invite, separated by commas.
+                                You can add more members later.
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mb-4">
+                            <h5 class="alert-heading mb-2">Event Details</h5>
+                            <p class="mb-2">
+                                <strong>Event Type:</strong> {{ event.event_type|title }}
+                            </p>
+                            <p class="mb-2">
+                                <strong>Date:</strong> {{ event.start_date.strftime('%B %d, %Y') }}
+                            </p>
+                            <p class="mb-2">
+                                <strong>Venue:</strong> {{ event.venue }}
+                            </p>
+                            <p class="mb-0">
+                                <strong>Team Size:</strong> {{ event.min_team_size }}-{{ event.max_team_size }} members
+                            </p>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ url_for('dashboard.events') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-1"></i> Back to Events
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-users me-1"></i> Create Team
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

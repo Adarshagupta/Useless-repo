@@ -1,0 +1,234 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Edit Event - Admin - ESummit{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Admin Menu</h5>
+                    <div class="list-group">
+                        <a href="{{ url_for('admin.index') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a href="{{ url_for('admin.events') }}" class="list-group-item list-group-item-action active">
+                            <i class="fas fa-calendar-alt"></i> Events
+                        </a>
+                        <a href="{{ url_for('admin.users') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                        <a href="{{ url_for('admin.teams') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users-cog"></i> Teams
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="h3 mb-0">Edit Event</h2>
+                    <p class="text-muted mb-0">Update event details</p>
+                </div>
+                <a href="{{ url_for('admin.events') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Events
+                </a>
+            </div>
+
+            <!-- Event Form -->
+            <form method="POST" action="{{ url_for('admin.edit_event', event_id=event.id) }}">
+                {{ form.csrf_token }}
+                
+                <!-- Basic Information -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title mb-0">Basic Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Event Name</label>
+                                {{ form.name(class="form-control", placeholder="Enter event name") }}
+                                {% if form.name.errors %}
+                                    {% for error in form.name.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Event Type</label>
+                                {{ form.event_type(class="form-select") }}
+                                {% if form.event_type.errors %}
+                                    {% for error in form.event_type.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label">Description</label>
+                                {{ form.description(class="form-control", rows="4", placeholder="Enter event description") }}
+                                {% if form.description.errors %}
+                                    {% for error in form.description.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Date and Time -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title mb-0">Date and Time</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Start Date & Time</label>
+                                {{ form.start_date(class="form-control", type="datetime-local") }}
+                                {% if form.start_date.errors %}
+                                    {% for error in form.start_date.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">End Date & Time</label>
+                                {{ form.end_date(class="form-control", type="datetime-local") }}
+                                {% if form.end_date.errors %}
+                                    {% for error in form.end_date.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Venue and Capacity -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title mb-0">Venue and Capacity</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Venue</label>
+                                {{ form.venue(class="form-control", placeholder="Enter venue") }}
+                                {% if form.venue.errors %}
+                                    {% for error in form.venue.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Capacity</label>
+                                {{ form.capacity(class="form-control", min="1") }}
+                                {% if form.capacity.errors %}
+                                    {% for error in form.capacity.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                                <div class="form-text">Leave empty for unlimited capacity</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Team Settings -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title mb-0">Team Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <div class="form-check form-switch">
+                                    {{ form.is_team_event(class="form-check-input", onchange="toggleTeamSizes()") }}
+                                    <label class="form-check-label" for="is_team_event">This is a team event</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 team-size-field">
+                                <label class="form-label">Minimum Team Size</label>
+                                {{ form.min_team_size(class="form-control", min="1") }}
+                                {% if form.min_team_size.errors %}
+                                    {% for error in form.min_team_size.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 team-size-field">
+                                <label class="form-label">Maximum Team Size</label>
+                                {{ form.max_team_size(class="form-control", min="1") }}
+                                {% if form.max_team_size.errors %}
+                                    {% for error in form.max_team_size.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Image URL -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title mb-0">Event Image</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label">Image URL</label>
+                                {{ form.image_url(class="form-control", placeholder="Enter image URL") }}
+                                {% if form.image_url.errors %}
+                                    {% for error in form.image_url.errors %}
+                                        <div class="invalid-feedback d-block">{{ error }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                                <div class="form-text">Enter a URL for the event banner image. Leave empty to use default.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="d-flex justify-content-end gap-2">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleTeamSizes() {
+    const isTeamEvent = document.getElementById('is_team_event').checked;
+    const teamSizeFields = document.querySelectorAll('.team-size-field');
+    teamSizeFields.forEach(field => {
+        field.style.display = isTeamEvent ? 'block' : 'none';
+        const input = field.querySelector('input');
+        if (input) {
+            input.required = isTeamEvent;
+        }
+    });
+}
+
+// Initialize team size fields visibility
+document.addEventListener('DOMContentLoaded', function() {
+    toggleTeamSizes();
+});
+</script>
+
+<style>
+.bg-opacity-10 {
+    --bs-bg-opacity: 0.1;
+}
+</style>
+{% endblock %} 

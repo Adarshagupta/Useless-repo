@@ -1,0 +1,97 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}ESummit - Home{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="yellow-bg text-dark py-5 mb-5 rounded-4">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h1 class="display-4 fw-bold">Welcome to ESummit</h1>
+                <p class="lead">Join us for an exciting journey of innovation, learning, and networking.</p>
+                <a href="{{ url_for('main.events') }}" class="btn btn-primary btn-lg">Explore Events</a>
+            </div>
+            <div class="col-md-6">
+                <img src="{{ url_for('static', filename='img/hero.jpg') }}" alt="ESummit" class="img-fluid rounded-4 shadow">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Upcoming Events Section -->
+<section class="mb-5">
+    <h2 class="text-center mb-4">Upcoming Events</h2>
+    <div class="row">
+        {% for event in events[:3] %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                {% if event.image_url %}
+                <img src="{{ event.image_url }}" class="card-img-top" alt="{{ event.name }}">
+                {% else %}
+                <img src="{{ url_for('static', filename='img/event-default.jpg') }}" class="card-img-top" alt="{{ event.name }}">
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ event.name }}</h5>
+                    <p class="card-text">{{ event.description[:150] }}...</p>
+                    <p class="card-text">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar"></i> {{ event.start_date.strftime('%B %d, %Y') }}
+                        </small>
+                    </p>
+                    <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="btn btn-primary">Learn More</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% if events|length > 3 %}
+    <div class="text-center">
+        <a href="{{ url_for('main.events') }}" class="btn btn-outline-primary">View All Events</a>
+    </div>
+    {% endif %}
+</section>
+
+<!-- Features Section -->
+<section class="py-5 mb-4">
+    <div class="container">
+        <h2 class="text-center mb-4">Why Join ESummit?</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="feature-box text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h4>Hackathons</h4>
+                    <p>Participate in exciting hackathons and showcase your skills.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-box text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h4>Networking</h4>
+                    <p>Connect with industry experts and like-minded individuals.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-box text-center">
+                    <div class="feature-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <h4>Innovation</h4>
+                    <p>Learn about the latest technologies and innovative solutions.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="yellow-bg rounded-4 p-5 text-center">
+    <h2 class="mb-3">Ready to join the next big event?</h2>
+    <p class="lead mb-4">Register now and be part of the innovation community.</p>
+    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg px-5">Register Today</a>
+</section>
+{% endblock %} 

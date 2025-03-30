@@ -1,0 +1,137 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Events - ESummit{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Events Header -->
+    <div class="text-center mb-5">
+        <h1 class="display-4 fw-bold">ESummit Events</h1>
+        <p class="lead">Discover exciting opportunities to showcase your skills and win amazing prizes</p>
+    </div>
+
+    <!-- Event Filters -->
+    <div class="row mb-4">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm yellow-border">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('main.events') }}" class="row g-3">
+                        <div class="col-md-4">
+                            <select name="type" class="form-select">
+                                <option value="">All Event Types</option>
+                                <option value="hackathon" {% if request.args.get('type') == 'hackathon' %}selected{% endif %}>Hackathons</option>
+                                <option value="workshop" {% if request.args.get('type') == 'workshop' %}selected{% endif %}>Workshops</option>
+                                <option value="competition" {% if request.args.get('type') == 'competition' %}selected{% endif %}>Competitions</option>
+                                <option value="talk" {% if request.args.get('type') == 'talk' %}selected{% endif %}>Talks</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <select name="status" class="form-select">
+                                <option value="">All Statuses</option>
+                                <option value="upcoming" {% if request.args.get('status') == 'upcoming' %}selected{% endif %}>Upcoming</option>
+                                <option value="ongoing" {% if request.args.get('status') == 'ongoing' %}selected{% endif %}>Ongoing</option>
+                                <option value="past" {% if request.args.get('status') == 'past' %}selected{% endif %}>Past</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter"></i> Filter Events
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Events Grid -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for event in events %}
+        <div class="col">
+            <div class="card h-100">
+                {% if event.image_url %}
+                <img src="{{ event.image_url }}" class="card-img-top" alt="{{ event.name }}">
+                {% else %}
+                <img src="{{ url_for('static', filename='img/event-default.jpg') }}" class="card-img-top" alt="{{ event.name }}">
+                {% endif %}
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="card-title mb-0">{{ event.name }}</h5>
+                        <span class="badge bg-{{ event.status_color }}">{{ event.status }}</span>
+                    </div>
+                    <p class="card-text">{{ event.description[:150] }}...</p>
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar"></i> {{ event.start_date.strftime('%B %d, %Y') }}
+                            {% if event.end_date %}
+                            - {{ event.end_date.strftime('%B %d, %Y') }}
+                            {% endif %}
+                        </small>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            {% if event.is_team_event %}
+                            <span class="badge yellow-bg text-dark">
+                                <i class="fas fa-users"></i> Team Event
+                            </span>
+                            {% endif %}
+                            {% if event.prize_pool %}
+                            <span class="badge bg-success">
+                                <i class="fas fa-trophy"></i> ₹{{ event.prize_pool }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="btn btn-outline-primary btn-sm">
+                            Learn More
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <small class="text-muted">
+                        <i class="fas fa-users"></i> {{ event.registrations|length }} Registered
+                        {% if event.max_participants %}
+                        | {{ event.max_participants - event.registrations|length }} spots left
+                        {% endif %}
+                    </small>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12 text-center py-5">
+            <i class="fas fa-calendar-times fa-4x yellow-text mb-3"></i>
+            <h3>No events found</h3>
+            <p>Try adjusting your filters or check back later for new events</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if pagination.pages > 1 %}
+    <nav aria-label="Event pagination" class="mt-5">
+        <ul class="pagination justify-content-center">
+            <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('main.events', page=pagination.prev_num, **request.args) if pagination.has_prev else '#' }}">
+                    <i class="fas fa-chevron-left"></i> Previous
+                </a>
+            </li>
+            {% for page in pagination.iter_pages() %}
+                {% if page %}
+                    <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                        <a class="page-link" href="{{ url_for('main.events', page=page, **request.args) }}">{{ page }}</a>
+                    </li>
+                {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+                {% endif %}
+            {% endfor %}
+            <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                <a class="page-link" href="{{ url_for('main.events', page=pagination.next_num, **request.args) if pagination.has_next else '#' }}">
+                    Next <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %} 

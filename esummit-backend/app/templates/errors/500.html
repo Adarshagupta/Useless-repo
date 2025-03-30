@@ -1,0 +1,37 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Server Error - ESummit{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h1 class="display-1 text-danger mb-4">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </h1>
+                    <h2 class="mb-4">Internal Server Error</h2>
+                    <p class="lead mb-4">Something went wrong on our end. We're working to fix it.</p>
+                    <div class="mb-4">
+                        <p>You can try:</p>
+                        <ul class="list-unstyled">
+                            <li>Refreshing the page</li>
+                            <li>Going back to the previous page</li>
+                            <li>Trying again later</li>
+                        </ul>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <a href="javascript:location.reload()" class="btn btn-primary">
+                            <i class="fas fa-sync-alt"></i> Refresh Page
+                        </a>
+                        <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-home"></i> Go to Homepage
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
