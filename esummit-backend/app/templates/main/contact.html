@@ -1,0 +1,182 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}ESummit - Contact Us{% endblock %}
+
+{% block content %}
+<!-- Header Section -->
+<div class="text-center mb-5">
+    <h1 class="display-4 fw-bold">Contact Us</h1>
+    <p class="lead">Get in touch with our team for any inquiries or support</p>
+</div>
+
+<!-- Contact Section -->
+<div class="row mb-5">
+    <!-- Contact Form -->
+    <div class="col-lg-7 mb-4">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h2 class="card-title mb-4">Send us a message</h2>
+                <form action="#" method="POST">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">Your Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="email" class="form-label">Email Address</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="subject" class="form-label">Subject</label>
+                        <input type="text" class="form-control" id="subject" name="subject" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message</label>
+                        <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary px-4">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Contact Information -->
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body p-4">
+                <h2 class="card-title mb-4">Contact Information</h2>
+                <div class="mb-4">
+                    <h5 class="fw-bold mb-2"><i class="fas fa-map-marker-alt text-primary me-2"></i> Address</h5>
+                    <p class="mb-0">123 Tech Park, Innovation Street</p>
+                    <p>San Francisco, CA 94103, USA</p>
+                </div>
+                <div class="mb-4">
+                    <h5 class="fw-bold mb-2"><i class="fas fa-envelope text-primary me-2"></i> Email</h5>
+                    <p class="mb-0"><a href="mailto:info@esummit.com" class="text-decoration-none">info@esummit.com</a></p>
+                    <p><a href="mailto:support@esummit.com" class="text-decoration-none">support@esummit.com</a></p>
+                </div>
+                <div class="mb-4">
+                    <h5 class="fw-bold mb-2"><i class="fas fa-phone-alt text-primary me-2"></i> Phone</h5>
+                    <p class="mb-0"><a href="tel:+1-123-456-7890" class="text-decoration-none">+1 (123) 456-7890</a></p>
+                    <p><a href="tel:+1-987-654-3210" class="text-decoration-none">+1 (987) 654-3210</a></p>
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-2"><i class="fas fa-clock text-primary me-2"></i> Business Hours</h5>
+                    <p class="mb-0">Monday - Friday: 9:00 AM - 6:00 PM</p>
+                    <p>Saturday: 10:00 AM - 2:00 PM</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Social Media -->
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <h3 class="card-title mb-3">Follow Us</h3>
+                <div class="d-flex justify-content-between">
+                    <a href="#" class="btn btn-outline-primary btn-sm">
+                        <i class="fab fa-facebook-f"></i> Facebook
+                    </a>
+                    <a href="#" class="btn btn-outline-primary btn-sm">
+                        <i class="fab fa-twitter"></i> Twitter
+                    </a>
+                    <a href="#" class="btn btn-outline-primary btn-sm">
+                        <i class="fab fa-linkedin-in"></i> LinkedIn
+                    </a>
+                    <a href="#" class="btn btn-outline-primary btn-sm">
+                        <i class="fab fa-instagram"></i> Instagram
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Map Section -->
+<div class="mb-5">
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="ratio ratio-21x9">
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3153.7462621840594!2d-122.400501684689!3d37.78729797975714!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8085807c25f91ff5%3A0x75b76fe98d8526f8!2sSan%20Francisco%2C%20CA%2094103%2C%20USA!5e0!3m2!1sen!2sin!4v1625147094815!5m2!1sen!2sin" 
+                width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- FAQ Section -->
+<section class="mb-5">
+    <h2 class="text-center mb-4">Frequently Asked Questions</h2>
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item border-0 mb-3">
+                    <h3 class="accordion-header" id="headingOne">
+                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="false" aria-controls="collapseOne">
+                            How can I register for an event?
+                        </button>
+                    </h3>
+                    <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            You can register for events by creating an account on our platform, browsing the available events, and clicking on the "Register" button on the event page.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item border-0 mb-3">
+                    <h3 class="accordion-header" id="headingTwo">
+                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                            How do I form a team for hackathons?
+                        </button>
+                    </h3>
+                    <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            After registering for a hackathon, you can create a team by going to your dashboard and selecting "Create Team." You can then invite team members using their email addresses.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item border-0 mb-3">
+                    <h3 class="accordion-header" id="headingThree">
+                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                            Can I get a refund for a paid event?
+                        </button>
+                    </h3>
+                    <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Refund policies vary by event. Most events offer a full refund if canceled at least 7 days before the event date. Please check the specific event's terms and conditions for detailed refund information.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item border-0">
+                    <h3 class="accordion-header" id="headingFour">
+                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+                            How can I become a sponsor?
+                        </button>
+                    </h3>
+                    <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            We offer various sponsorship packages for companies interested in supporting our events. Please contact our sponsorship team at <a href="mailto:sponsors@esummit.com">sponsors@esummit.com</a> for more information.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="bg-light rounded-4 p-5 text-center">
+    <h2 class="mb-3">Subscribe to Our Newsletter</h2>
+    <p class="lead mb-4">Stay updated with our latest events, hackathons, and tech news.</p>
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <form action="#" method="POST" class="d-flex">
+                <input type="email" class="form-control me-2" placeholder="Enter your email" required>
+                <button type="submit" class="btn btn-primary">Subscribe</button>
+            </form>
+        </div>
+    </div>
+</section>
+{% endblock %} 

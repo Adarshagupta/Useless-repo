@@ -1,0 +1,179 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Registration Details - Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid p-0">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-dark mb-0">Registration Details</h1>
+        <div>
+            <a href="{{ url_for('dashboard.admin_registrations') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-1"></i> Back to Registrations
+            </a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Registration Info -->
+        <div class="col-lg-8 mb-4">
+            <div class="card border-0 shadow-lg rounded-4 h-100">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="card-title fw-bold mb-0">
+                        <i class="fas fa-clipboard-check text-primary me-2"></i>Registration Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small d-block">Registration ID</label>
+                            <div class="fw-bold">{{ registration.id }}</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small d-block">Registration Date</label>
+                            <div class="fw-bold">{{ registration.registration_date.strftime('%B %d, %Y, %I:%M %p') }}</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small d-block">Status</label>
+                            <div>
+                                <span class="badge bg-success">{{ registration.status|title }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small d-block">Payment Status</label>
+                            <div>
+                                <span class="badge {% if registration.payment_status == 'paid' %}bg-success{% else %}bg-warning{% endif %}">
+                                    {{ registration.payment_status|title }}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        {% if registration.team_id %}
+                        <div class="col-12 mb-3">
+                            <label class="text-muted small d-block">Team</label>
+                            <div>
+                                <a href="{{ url_for('dashboard.team_details', team_id=registration.team_id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-users me-1"></i> View Team Details
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if registration.full_name or registration.email or registration.phone or registration.institution %}
+                        <div class="col-12 mt-3">
+                            <h6 class="text-primary mb-3">Additional Information</h6>
+                            
+                            {% if registration.full_name %}
+                            <div class="mb-3">
+                                <label class="text-muted small d-block">Full Name</label>
+                                <div class="fw-bold">{{ registration.full_name }}</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if registration.email %}
+                            <div class="mb-3">
+                                <label class="text-muted small d-block">Email</label>
+                                <div class="fw-bold">{{ registration.email }}</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if registration.phone %}
+                            <div class="mb-3">
+                                <label class="text-muted small d-block">Phone</label>
+                                <div class="fw-bold">{{ registration.phone }}</div>
+                            </div>
+                            {% endif %}
+                            
+                            {% if registration.institution %}
+                            <div class="mb-3">
+                                <label class="text-muted small d-block">Institution</label>
+                                <div class="fw-bold">{{ registration.institution }}</div>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if registration.why_join %}
+                        <div class="col-12 mb-3 mt-3">
+                            <label class="text-muted small d-block">Why Join</label>
+                            <div class="border rounded p-3 bg-light">{{ registration.why_join }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if registration.experience %}
+                        <div class="col-12 mb-3">
+                            <label class="text-muted small d-block">Experience</label>
+                            <div class="border rounded p-3 bg-light">{{ registration.experience }}</div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if registration.document_filename %}
+                        <div class="col-12 mb-3">
+                            <label class="text-muted small d-block">Document</label>
+                            <div>
+                                <a href="{{ url_for('main.download_file', filename=registration.document_filename) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-download me-1"></i> Download Document
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User and Event Info -->
+        <div class="col-lg-4">
+            <!-- User Info -->
+            <div class="card border-0 shadow-lg rounded-4 mb-4">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="card-title fw-bold mb-0">
+                        <i class="fas fa-user text-primary me-2"></i>User Information
+                    </h5>
+                </div>
+                <div class="card-body text-center">
+                    <div class="avatar bg-primary bg-gradient text-white rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3 shadow" style="width: 80px; height: 80px; font-size: 2rem;">
+                        {{ registration.user.full_name[0] }}
+                    </div>
+                    <h5 class="fw-bold mb-1">{{ registration.user.full_name }}</h5>
+                    <p class="text-muted mb-3">{{ registration.user.email }}</p>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('dashboard.admin_user_details', user_id=registration.user.id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-user-circle me-1"></i> View User Profile
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Event Info -->
+            <div class="card border-0 shadow-lg rounded-4">
+                <div class="card-header bg-white py-3 border-0">
+                    <h5 class="card-title fw-bold mb-0">
+                        <i class="fas fa-calendar-alt text-primary me-2"></i>Event Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <h5 class="fw-bold">{{ registration.event.name }}</h5>
+                    <p class="text-muted mb-4">{{ registration.event.event_type|title }}</p>
+                    
+                    <div class="mb-3">
+                        <label class="text-muted small d-block">Date</label>
+                        <div class="fw-bold">{{ registration.event.start_date.strftime('%B %d, %Y') }}</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="text-muted small d-block">Venue</label>
+                        <div class="fw-bold">{{ registration.event.venue }}</div>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <a href="{{ url_for('main.event_details', event_id=registration.event.id) }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-calendar-day me-1"></i> View Event Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

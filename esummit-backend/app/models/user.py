@@ -17,6 +17,12 @@ class User(db.Model, UserMixin):
     is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
+    # OTP related fields
+    otp_secret = db.Column(db.String(6), nullable=True)
+    otp_created_at = db.Column(db.DateTime, nullable=True)
+    otp_verified = db.Column(db.Boolean, default=False)
+    is_email_verified = db.Column(db.Boolean, default=False)
+    
     # Relationships
     event_registrations = db.relationship('EventRegistration', backref='user', lazy=True)
     team_memberships = db.relationship('TeamMember', backref='user', lazy=True)

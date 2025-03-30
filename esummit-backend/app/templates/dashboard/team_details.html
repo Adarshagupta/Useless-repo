@@ -56,27 +56,77 @@
                         {% if team.hackathon_registration %}
                             <div class="mb-4">
                                 <h5 class="text-muted mb-3">Hackathon Project</h5>
-                                <div class="card">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="card-title mb-0">{{ team.hackathon_registration.project_name }}</h5>
+                                    </div>
                                     <div class="card-body">
-                                        <h5 class="card-title">{{ team.hackathon_registration.project_name }}</h5>
-                                        <p class="card-text">{{ team.hackathon_registration.project_description }}</p>
-                                        <div class="mb-3">
-                                            <strong>Tech Stack:</strong>
-                                            <p class="mb-0">{{ team.hackathon_registration.tech_stack }}</p>
+                                        <div class="mb-4">
+                                            <h6 class="fw-bold text-primary mb-2"><i class="fas fa-info-circle me-2"></i>Project Description</h6>
+                                            <p class="card-text">{{ team.hackathon_registration.project_description }}</p>
                                         </div>
-                                        {% if team.hackathon_registration.github_url %}
-                                            <div class="mb-3">
-                                                <strong>GitHub Repository:</strong>
-                                                <a href="{{ team.hackathon_registration.github_url }}" target="_blank" class="d-block">
-                                                    {{ team.hackathon_registration.github_url }}
+                                        
+                                        {% if team.hackathon_registration.problem_statement %}
+                                        <div class="mb-4">
+                                            <h6 class="fw-bold text-primary mb-2"><i class="fas fa-question-circle me-2"></i>Problem Statement</h6>
+                                            <p class="card-text">{{ team.hackathon_registration.problem_statement }}</p>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if team.hackathon_registration.solution_approach %}
+                                        <div class="mb-4">
+                                            <h6 class="fw-bold text-primary mb-2"><i class="fas fa-lightbulb me-2"></i>Solution Approach</h6>
+                                            <p class="card-text">{{ team.hackathon_registration.solution_approach }}</p>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if team.hackathon_registration.tech_stack %}
+                                        <div class="mb-4">
+                                            <h6 class="fw-bold text-primary mb-2"><i class="fas fa-laptop-code me-2"></i>Tech Stack</h6>
+                                            <div class="d-flex flex-wrap gap-2">
+                                                {% set tech_list = team.hackathon_registration.tech_stack.split(',') if team.hackathon_registration.tech_stack is string else [team.hackathon_registration.tech_stack] %}
+                                                {% for tech in tech_list %}
+                                                <span class="badge bg-light text-dark border">{{ tech|trim }}</span>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if team.hackathon_registration.team_background %}
+                                        <div class="mb-4">
+                                            <h6 class="fw-bold text-primary mb-2"><i class="fas fa-users me-2"></i>Team Background</h6>
+                                            <p class="card-text">{{ team.hackathon_registration.team_background }}</p>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if team.hackathon_registration.github_url or team.hackathon_registration.other_links %}
+                                        <div class="mb-4">
+                                            <h6 class="fw-bold text-primary mb-2"><i class="fas fa-link me-2"></i>Project Links</h6>
+                                            
+                                            {% if team.hackathon_registration.github_url %}
+                                            <div class="mb-2">
+                                                <a href="{{ team.hackathon_registration.github_url }}" target="_blank" class="btn btn-sm btn-outline-dark me-2">
+                                                    <i class="fab fa-github me-1"></i> GitHub Repository
                                                 </a>
                                             </div>
-                                        {% endif %}
-                                        {% if team.hackathon_registration.other_links %}
+                                            {% endif %}
+                                            
+                                            {% if team.hackathon_registration.other_links %}
                                             <div>
-                                                <strong>Other Links:</strong>
-                                                <p class="mb-0">{{ team.hackathon_registration.other_links }}</p>
+                                                <h6 class="text-muted mb-1">Additional Links:</h6>
+                                                <p class="mb-0">{{ team.hackathon_registration.other_links|urlize }}</p>
                                             </div>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+                                        
+                                        {% if team.hackathon_registration.proposal_document_filename %}
+                                        <div>
+                                            <h6 class="fw-bold text-primary mb-2"><i class="fas fa-file-pdf me-2"></i>Proposal Document</h6>
+                                            <a href="{{ url_for('main.download_file', filename=team.hackathon_registration.proposal_document_filename) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-download me-1"></i> Download Proposal
+                                            </a>
+                                        </div>
                                         {% endif %}
                                     </div>
                                 </div>

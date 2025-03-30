@@ -284,7 +284,8 @@ def team_details(team_id):
         user_id=current_user.id
     ).first() is not None
     
-    if team.leader_id != current_user.id and not is_member:
+    # Allow access if user is admin, team leader, or team member
+    if not current_user.is_admin and team.leader_id != current_user.id and not is_member:
         flash('You do not have permission to view this team.', 'danger')
         return redirect(url_for('dashboard.teams'))
     
@@ -561,6 +562,21 @@ def admin_registrations():
                          pagination=pagination,
                          events=events,
                          selected_event_id=event_id)
+
+@dashboard_bp.route('/admin/registrations/<int:registration_id>')
+@login_required
+def admin_registration_details(registration_id):
+    """Admin view of registration details"""
+    # Check if user has admin privileges
+    if not current_user.is_admin:
+        flash('You do not have permission to access the admin dashboard.', 'danger')
+        return redirect(url_for('dashboard.index'))
+    
+    # Get the registration
+    registration = EventRegistration.query.get_or_404(registration_id)
+    
+    return render_template('dashboard/admin/registration_details.html',
+                         registration=registration)
 
 @dashboard_bp.route('/admin/hackathons')
 @login_required

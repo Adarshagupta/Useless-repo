@@ -19,6 +19,13 @@ services:
       - DATABASE_URL=postgresql://neondb_owner:npg_tTgQ5xiIRO0p@ep-steep-term-a13n1hve-pooler.ap-southeast-1.aws.neon.tech/neondb?sslmode=require
       - USE_SQLITE=false
       - SECRET_KEY=development_key_change_in_production
+      # Mail Settings
+      - MAIL_SERVER=smtp.gmail.com
+      - MAIL_PORT=587
+      - MAIL_USE_TLS=true
+      - MAIL_USERNAME=your-email@gmail.com
+      - MAIL_PASSWORD=your-app-password
+      - MAIL_DEFAULT_SENDER=your-email@gmail.com
     restart: unless-stopped
 
 volumes:

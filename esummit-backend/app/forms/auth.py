@@ -30,6 +30,10 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Remember Me')
     submit = SubmitField('Login')
 
+class OTPVerificationForm(FlaskForm):
+    otp = StringField('Enter OTP', validators=[DataRequired(), Length(min=6, max=6)])
+    submit = SubmitField('Verify')
+
 class RequestResetForm(FlaskForm):
     email = StringField('Email', validators=[DataRequired(), Email()])
     submit = SubmitField('Request Password Reset')
@@ -40,6 +44,6 @@ class RequestResetForm(FlaskForm):
             raise ValidationError('There is no account with that email. You must register first.')
 
 class ResetPasswordForm(FlaskForm):
-    password = PasswordField('New Password', validators=[DataRequired()])
-    confirm_password = PasswordField('Confirm New Password', validators=[DataRequired(), EqualTo('password')])
+    password = PasswordField('Password', validators=[DataRequired()])
+    confirm_password = PasswordField('Confirm Password', validators=[DataRequired(), EqualTo('password')])
     submit = SubmitField('Reset Password')

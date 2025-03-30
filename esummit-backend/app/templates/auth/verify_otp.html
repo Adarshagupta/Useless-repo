@@ -1,0 +1,62 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Verify OTP - ESummit{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card fade-in">
+                <div class="card-body p-5">
+                    <h3 class="text-center fw-bold mb-4">
+                        {% if action == 'registration' %}
+                            Verify Your Email
+                        {% else %}
+                            Two-Factor Authentication
+                        {% endif %}
+                    </h3>
+                    <p class="text-center text-muted mb-4">
+                        {% if action == 'registration' %}
+                            We've sent a 6-digit OTP to your email address.<br>Please enter it below to complete your registration.
+                        {% else %}
+                            We've sent a 6-digit OTP to your email address.<br>Please enter it below to continue.
+                        {% endif %}
+                    </p>
+                    
+                    <div class="alert alert-info mb-4">
+                        <strong>Development Note:</strong> During development, you can use the master OTP <strong>425387</strong> to bypass the email verification.
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('auth.verify_otp', action=action) }}">
+                        {{ form.hidden_tag() }}
+                        <div class="mb-4">
+                            <div class="text-center">
+                                {{ form.otp(class="form-control form-control-lg text-center", placeholder="Enter 6-digit OTP") }}
+                                {% for error in form.otp.errors %}
+                                    <span class="text-danger">{{ error }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="d-grid mb-4">
+                            {{ form.submit(class="btn btn-primary py-2") }}
+                        </div>
+                    </form>
+                    
+                    <div class="text-center">
+                        <p class="small text-muted mb-3">Didn't receive the OTP?</p>
+                        <form method="POST" action="{{ url_for('auth.resend_otp', action=action) }}">
+                            <button type="submit" class="btn btn-link">Resend OTP</button>
+                        </form>
+                    </div>
+                    
+                    <div class="mt-4 text-center">
+                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Login
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
