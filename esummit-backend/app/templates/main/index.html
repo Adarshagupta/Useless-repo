@@ -4,100 +4,339 @@
 
 {% block content %}
 <!-- Hero Section -->
-<div class="hero-section py-5 mb-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-md-6 hero-content">
-                <h1 class="display-3 fw-bold mb-4"><span class="text-dark">E-</span><span class="text-accent">SUMMIT</span></h1>
-                <p class="lead mb-4">Elevate your entrepreneurial journey through innovation, collaboration, and exceptional networking opportunities.</p>
-                <div class="cta-buttons">
-                    <a href="{{ url_for('main.events') }}" class="btn btn-dark btn-lg me-3">Explore Events</a>
-                    <a href="{{ url_for('auth.register') }}" class="btn btn-outline-dark btn-lg">Join Now</a>
+<div class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="container position-relative">
+        <div class="row align-items-center min-vh-80">
+            <div class="col-lg-6 hero-content text-center text-lg-start">
+                <div class="animate-element">
+                    <h6 class="text-uppercase fw-bold text-white-50 tracking-wider mb-3">Welcome to</h6>
+                    <h1 class="hero-title mb-4">E-<span class="text-gradient">SUMMIT</span></h1>
+                    <p class="hero-subtitle mb-5">Elevate your entrepreneurial journey through innovation, collaboration, and exceptional networking opportunities.</p>
+                    <div class="cta-buttons d-flex flex-wrap justify-content-center justify-content-lg-start gap-3">
+                        <a href="{{ url_for('main.events') }}" class="btn btn-glow btn-lg">Explore Events</a>
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-outline-light btn-lg">Join Now</a>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-6 mt-5 mt-md-0">
-                <div class="hero-image-container">
-                    <img src="{{ url_for('static', filename='img/hero.jpg') }}" alt="E-Summit" class="img-fluid hero-image">
+            <div class="col-lg-6 mt-5 mt-lg-0 d-none d-lg-block">
+                <div class="hero-image-wrapper">
+                    <div class="hero-image-container">
+                        <img src="{{ url_for('static', filename='img/hero.jpg') }}" alt="E-Summit" class="img-fluid hero-image">
+                    </div>
+                    <div class="hero-shape-1"></div>
+                    <div class="hero-shape-2"></div>
+                    <div class="hero-floating-badge badge-1">Innovation</div>
+                    <div class="hero-floating-badge badge-2">Networking</div>
+                    <div class="hero-floating-badge badge-3">Growth</div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="hero-wave">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="#ffffff" fill-opacity="1" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,122.7C672,117,768,139,864,149.3C960,160,1056,160,1152,138.7C1248,117,1344,75,1392,53.3L1440,32L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>
+    </div>
 </div>
 
 <!-- Upcoming Events Section -->
-<section class="events-section py-5 mb-5">
+<section class="events-section py-5 mb-5" id="events">
     <div class="container">
         <div class="section-header text-center mb-5">
-            <h6 class="text-accent text-uppercase fw-bold tracking-wide mb-2">What's Next</h6>
-            <h2 class="display-5 fw-bold">Upcoming Events</h2>
+            <div class="section-icon mb-3">
+                <i class="fas fa-calendar-alt"></i>
+            </div>
+            <h6 class="text-primary text-uppercase fw-bold tracking-wider mb-2">What's Next</h6>
+            <h2 class="section-title">Upcoming <span class="text-gradient">Events</span></h2>
+            <div class="section-divider"></div>
+            <p class="section-subtitle mx-auto">Join our upcoming events and be part of the entrepreneurial revolution</p>
         </div>
-        <div class="row g-4">
-            {% for event in events[:3] %}
-            <div class="col-md-4">
-                <div class="event-card h-100">
-                    <div class="event-image">
-                        {% if event.image_url %}
-                        <img src="{{ event.image_url }}" class="img-fluid" alt="{{ event.name }}">
-                        {% else %}
-                        <img src="{{ url_for('static', filename='img/event-default.jpg') }}" class="img-fluid" alt="{{ event.name }}">
-                        {% endif %}
-                        <div class="event-date">
-                            <span class="day">{{ event.start_date.strftime('%d') }}</span>
-                            <span class="month">{{ event.start_date.strftime('%b') }}</span>
+
+        <div class="events-slider position-relative">
+            <div class="row g-4">
+                {% for event in events[:3] %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="event-card h-100">
+                        <div class="event-image">
+                            {% if event.image_url %}
+                            <img src="{{ event.image_url }}" class="img-fluid" alt="{{ event.name }}">
+                            {% else %}
+                            <img src="{{ url_for('static', filename='img/event-default.jpg') }}" class="img-fluid" alt="{{ event.name }}">
+                            {% endif %}
+                            <div class="event-date">
+                                <span class="day">{{ event.start_date.strftime('%d') }}</span>
+                                <span class="month">{{ event.start_date.strftime('%b') }}</span>
+                            </div>
+                            <div class="event-overlay">
+                                <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="event-link">
+                                    <i class="fas fa-external-link-alt"></i>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="event-content">
+                            <div class="event-meta">
+                                <span class="event-category"><i class="fas fa-tag me-1"></i> {{ event.event_type|title }}</span>
+                                <span class="event-time"><i class="fas fa-clock me-1"></i> {{ event.start_date.strftime('%I:%M %p') }}</span>
+                            </div>
+                            <h4 class="event-title">{{ event.name }}</h4>
+                            <p class="event-description">{{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}</p>
+                            <div class="event-footer">
+                                <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="btn btn-link text-primary p-0">
+                                    Learn More <i class="fas fa-arrow-right ms-1"></i>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                    <div class="event-content">
-                        <h4 class="event-title">{{ event.name }}</h4>
-                        <p class="event-description">{{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}</p>
-                        <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="btn btn-link text-accent p-0">
-                            Learn More <i class="fas fa-arrow-right ms-1"></i>
-                        </a>
-                    </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
+
+            <div class="events-navigation d-none d-md-block">
+                <button class="nav-prev"><i class="fas fa-chevron-left"></i></button>
+                <button class="nav-next"><i class="fas fa-chevron-right"></i></button>
+            </div>
         </div>
+
         {% if events|length > 3 %}
         <div class="text-center mt-5">
-            <a href="{{ url_for('main.events') }}" class="btn btn-outline-dark btn-lg">View All Events</a>
+            <a href="{{ url_for('main.events') }}" class="btn btn-primary btn-lg btn-with-icon">
+                <span>View All Events</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
         </div>
         {% endif %}
     </div>
 </section>
 
 <!-- Features Section -->
-<section class="features-section py-5 mb-5">
+<section class="features-section py-5 mb-5" id="features">
+    <div class="features-bg"></div>
+    <div class="container position-relative">
+        <div class="section-header text-center mb-5">
+            <div class="section-icon mb-3">
+                <i class="fas fa-star"></i>
+            </div>
+            <h6 class="text-primary text-uppercase fw-bold tracking-wider mb-2">Why Join Us</h6>
+            <h2 class="section-title">The E-Summit <span class="text-gradient">Experience</span></h2>
+            <div class="section-divider"></div>
+            <p class="section-subtitle mx-auto">Discover what makes our summit the premier entrepreneurial event of the year</p>
+        </div>
+
+        <div class="features-wrapper">
+            <div class="row g-4 justify-content-center">
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-card-inner">
+                            <div class="feature-icon">
+                                <i class="fas fa-laptop-code"></i>
+                            </div>
+                            <h4 class="feature-title">Hackathons</h4>
+                            <p class="feature-description">Collaborate with talented developers and solve real-world challenges in our competitive hackathons.</p>
+                            <div class="feature-hover">
+                                <a href="#" class="feature-link">Learn More</a>
+                            </div>
+                        </div>
+                        <div class="feature-shape"></div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card featured">
+                        <div class="feature-card-inner">
+                            <div class="feature-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div class="feature-badge">Popular</div>
+                            <h4 class="feature-title">Networking</h4>
+                            <p class="feature-description">Connect with industry leaders, investors, and fellow entrepreneurs to expand your professional network.</p>
+                            <div class="feature-hover">
+                                <a href="#" class="feature-link">Learn More</a>
+                            </div>
+                        </div>
+                        <div class="feature-shape"></div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-card-inner">
+                            <div class="feature-icon">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <h4 class="feature-title">Innovation</h4>
+                            <p class="feature-description">Discover cutting-edge technologies and innovative business solutions through workshops and talks.</p>
+                            <div class="feature-hover">
+                                <a href="#" class="feature-link">Learn More</a>
+                            </div>
+                        </div>
+                        <div class="feature-shape"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="features-stats mt-5 pt-4">
+                <div class="row g-4 text-center">
+                    <div class="col-6 col-md-3">
+                        <div class="stat-item">
+                            <div class="stat-number"><span class="counter">50</span>+</div>
+                            <div class="stat-label">Events</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-item">
+                            <div class="stat-number"><span class="counter">1000</span>+</div>
+                            <div class="stat-label">Participants</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-item">
+                            <div class="stat-number"><span class="counter">25</span>+</div>
+                            <div class="stat-label">Speakers</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="stat-item">
+                            <div class="stat-number"><span class="counter">10</span>+</div>
+                            <div class="stat-label">Hackathons</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="testimonials-section py-5 mb-5" id="testimonials">
     <div class="container">
         <div class="section-header text-center mb-5">
-            <h6 class="text-accent text-uppercase fw-bold tracking-wide mb-2">Why Join Us</h6>
-            <h2 class="display-5 fw-bold">The E-Summit Experience</h2>
+            <div class="section-icon mb-3">
+                <i class="fas fa-quote-right"></i>
+            </div>
+            <h6 class="text-primary text-uppercase fw-bold tracking-wider mb-2">Success Stories</h6>
+            <h2 class="section-title">What Our <span class="text-gradient">Participants</span> Say</h2>
+            <div class="section-divider"></div>
+            <p class="section-subtitle mx-auto">Hear from entrepreneurs who have transformed their ideas into reality through E-Summit</p>
         </div>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-laptop-code"></i>
+
+        <div class="testimonials-slider">
+            <div class="row">
+                <div class="col-lg-10 mx-auto">
+                    <div class="testimonial-wrapper">
+                        <div class="testimonial-items">
+                            <!-- Testimonial 1 -->
+                            <div class="testimonial-item active">
+                                <div class="testimonial-content">
+                                    <div class="testimonial-quote">
+                                        <p>"E-Summit was a game-changer for my startup. The connections I made and insights I gained helped me secure funding and scale my business beyond what I thought possible."</p>
+                                    </div>
+                                    <div class="testimonial-author">
+                                        <div class="author-image">
+                                            <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Sarah Johnson">
+                                        </div>
+                                        <div class="author-info">
+                                            <h5>Sarah Johnson</h5>
+                                            <p>Founder, TechInnovate</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Testimonial 2 -->
+                            <div class="testimonial-item">
+                                <div class="testimonial-content">
+                                    <div class="testimonial-quote">
+                                        <p>"The hackathon at E-Summit pushed our team to develop a solution in 48 hours that we've now turned into our core product. The mentorship was invaluable."</p>
+                                    </div>
+                                    <div class="testimonial-author">
+                                        <div class="author-image">
+                                            <img src="https://randomuser.me/api/portraits/men/54.jpg" alt="Michael Chen">
+                                        </div>
+                                        <div class="author-info">
+                                            <h5>Michael Chen</h5>
+                                            <p>CTO, DataFlow Systems</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Testimonial 3 -->
+                            <div class="testimonial-item">
+                                <div class="testimonial-content">
+                                    <div class="testimonial-quote">
+                                        <p>"As a first-time entrepreneur, E-Summit provided me with the knowledge, network, and confidence to launch my business. The community continues to support me."</p>
+                                    </div>
+                                    <div class="testimonial-author">
+                                        <div class="author-image">
+                                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Priya Sharma">
+                                        </div>
+                                        <div class="author-info">
+                                            <h5>Priya Sharma</h5>
+                                            <p>CEO, EcoSolutions</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="testimonial-controls">
+                            <button class="control-prev"><i class="fas fa-chevron-left"></i></button>
+                            <div class="control-indicators">
+                                <span class="indicator active"></span>
+                                <span class="indicator"></span>
+                                <span class="indicator"></span>
+                            </div>
+                            <button class="control-next"><i class="fas fa-chevron-right"></i></button>
+                        </div>
                     </div>
-                    <h4 class="feature-title">Hackathons</h4>
-                    <p class="feature-description">Collaborate with talented developers and solve real-world challenges in our competitive hackathons.</p>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <h4 class="feature-title">Networking</h4>
-                    <p class="feature-description">Connect with industry leaders, investors, and fellow entrepreneurs to expand your professional network.</p>
-                </div>
+        </div>
+    </div>
+</section>
+
+<!-- Partners Section -->
+<section class="partners-section py-5 mb-5" id="partners">
+    <div class="container">
+        <div class="section-header text-center mb-5">
+            <div class="section-icon mb-3">
+                <i class="fas fa-handshake"></i>
             </div>
-            <div class="col-md-4">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-lightbulb"></i>
+            <h6 class="text-primary text-uppercase fw-bold tracking-wider mb-2">Our Partners</h6>
+            <h2 class="section-title">Trusted by <span class="text-gradient">Industry Leaders</span></h2>
+            <div class="section-divider"></div>
+        </div>
+
+        <div class="partners-logos">
+            <div class="row g-4 align-items-center justify-content-center">
+                <div class="col-6 col-md-3 col-lg-2">
+                    <div class="partner-logo">
+                        <img src="https://via.placeholder.com/150x80?text=Partner" alt="Partner Logo">
                     </div>
-                    <h4 class="feature-title">Innovation</h4>
-                    <p class="feature-description">Discover cutting-edge technologies and innovative business solutions through workshops and talks.</p>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <div class="partner-logo">
+                        <img src="https://via.placeholder.com/150x80?text=Partner" alt="Partner Logo">
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <div class="partner-logo">
+                        <img src="https://via.placeholder.com/150x80?text=Partner" alt="Partner Logo">
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <div class="partner-logo">
+                        <img src="https://via.placeholder.com/150x80?text=Partner" alt="Partner Logo">
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <div class="partner-logo">
+                        <img src="https://via.placeholder.com/150x80?text=Partner" alt="Partner Logo">
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 col-lg-2">
+                    <div class="partner-logo">
+                        <img src="https://via.placeholder.com/150x80?text=Partner" alt="Partner Logo">
+                    </div>
                 </div>
             </div>
         </div>
@@ -105,115 +344,167 @@
 </section>
 
 <!-- Call to Action -->
-<section class="cta-section py-5 mb-5 text-center">
+<section class="cta-section py-5 mb-5" id="register">
+    <div class="cta-overlay"></div>
+    <div class="container position-relative">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="cta-card text-center">
+                    <div class="cta-shape-1"></div>
+                    <div class="cta-shape-2"></div>
+                    <h2 class="cta-title mb-4">Ready to embark on your <span class="text-gradient">entrepreneurial journey</span>?</h2>
+                    <p class="cta-subtitle mb-5">Join our community of innovators and make your mark in the startup ecosystem. The next big idea could be yours!</p>
+                    <div class="cta-actions">
+                        <a href="{{ url_for('auth.register') }}" class="btn btn-glow btn-lg me-3">Register Today</a>
+                        <a href="{{ url_for('main.contact') }}" class="btn btn-outline-light btn-lg">Contact Us</a>
+                    </div>
+                    <div class="cta-note mt-4">
+                        <p class="small text-white-50">Limited spots available. Early registration ends soon!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Newsletter Section -->
+<section class="newsletter-section py-5 mb-5" id="newsletter">
     <div class="container">
-        <h2 class="display-5 fw-bold mb-4">Ready to embark on your entrepreneurial journey?</h2>
-        <p class="lead mb-4">Join our community of innovators and make your mark in the startup ecosystem.</p>
-        <a href="{{ url_for('auth.register') }}" class="btn btn-dark btn-lg px-5 fw-bold">Register Today</a>
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="newsletter-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-5">
+                            <div class="newsletter-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-7">
+                            <div class="newsletter-content">
+                                <h3 class="mb-3">Stay Updated</h3>
+                                <p class="mb-4">Subscribe to our newsletter for the latest updates on events, speakers, and opportunities.</p>
+                                <form class="newsletter-form">
+                                    <div class="input-group">
+                                        <input type="email" class="form-control" placeholder="Your email address" required>
+                                        <button class="btn btn-primary" type="submit">Subscribe</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
 <style>
-    /* Yellow-themed color scheme */
+    /* Blue-themed color scheme */
     :root {
-        --primary: #ffd100;
-        --primary-light: #fff3b0;
-        --primary-dark: #ffc400;
-        --accent: #ff9500;
+        --primary: #3F51B5;
+        --primary-light: #C5CAE9;
+        --primary-dark: #303F9F;
+        --accent: #536DFE;
         --dark: #212121;
         --light: #ffffff;
     }
-    
+
     body {
         background-color: var(--light);
         color: var(--dark);
     }
-    
+
     .btn-primary {
         background-color: var(--primary);
         border-color: var(--primary);
-        color: var(--dark);
+        color: white;
     }
-    
+
     .btn-primary:hover {
         background-color: var(--primary-dark);
         border-color: var(--primary-dark);
-        color: var(--dark);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(63, 81, 181, 0.2);
     }
-    
+
     .btn-dark {
         background-color: var(--dark);
         border-color: var(--dark);
     }
-    
+
     .btn-dark:hover {
         background-color: #000;
         border-color: #000;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     }
-    
+
     .text-accent {
         color: var(--accent) !important;
     }
-    
+
     /* Hero section styling */
     .hero-section {
         position: relative;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
         padding: 6rem 0;
         overflow: hidden;
+        color: white;
     }
-    
+
     .hero-content {
         position: relative;
         z-index: 2;
     }
-    
+
     .hero-image-container {
         position: relative;
         overflow: hidden;
-        border-radius: 8px;
-        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        border-radius: 12px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.2);
     }
-    
+
     .hero-image {
         transition: transform 0.5s ease;
     }
-    
+
     .hero-image:hover {
         transform: scale(1.05);
     }
-    
+
     /* Event cards styling */
     .event-card {
         background-color: #fff;
         border: none;
-        border-radius: 8px;
+        border-radius: 12px;
         overflow: hidden;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        height: 100%;
     }
-    
+
     .event-card:hover {
         transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+        box-shadow: var(--shadow-md);
     }
-    
+
     .event-image {
         position: relative;
         overflow: hidden;
     }
-    
+
     .event-image img {
         height: 200px;
         object-fit: cover;
         width: 100%;
         transition: transform 0.5s ease;
     }
-    
+
     .event-card:hover .event-image img {
         transform: scale(1.1);
     }
-    
+
     .event-date {
         position: absolute;
         top: 15px;
@@ -227,92 +518,110 @@
         display: flex;
         flex-direction: column;
     }
-    
+
     .event-date .day {
         font-size: 1.5rem;
         line-height: 1;
     }
-    
+
     .event-date .month {
         font-size: 0.8rem;
         text-transform: uppercase;
     }
-    
+
     .event-content {
         padding: 1.5rem;
     }
-    
+
     .event-title {
         font-weight: 700;
         margin-bottom: 1rem;
     }
-    
+
     .event-description {
         color: #6c757d;
         margin-bottom: 1.5rem;
     }
-    
+
     /* Feature cards styling */
     .features-section {
-        background-color: var(--primary-light);
+        background-color: #E8EAF6;
     }
-    
+
     .feature-card {
         padding: 2rem;
         text-align: center;
-        border-radius: 8px;
+        border-radius: 12px;
         background-color: white;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-        transition: transform 0.3s ease;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
         height: 100%;
+        border-top: 4px solid var(--primary);
     }
-    
+
     .feature-card:hover {
         transform: translateY(-10px);
-        box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+        box-shadow: var(--shadow-md);
     }
-    
+
     .feature-icon {
         font-size: 2.5rem;
-        color: var(--accent);
+        color: var(--primary);
         margin-bottom: 1.5rem;
+        background-color: rgba(63, 81, 181, 0.1);
+        width: 70px;
+        height: 70px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        margin: 0 auto 1.5rem;
+        transition: all 0.3s ease;
     }
-    
+
+    .feature-card:hover .feature-icon {
+        background-color: var(--primary);
+        color: white;
+        transform: scale(1.05);
+    }
+
     .feature-title {
         font-weight: 600;
         margin-bottom: 1rem;
         color: var(--dark);
     }
-    
+
     .feature-description {
         color: #6c757d;
     }
-    
+
     /* CTA section styling */
     .cta-section {
         background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-        border-radius: 10px;
-        color: var(--dark);
+        border-radius: 12px;
+        color: white;
+        box-shadow: var(--shadow);
     }
-    
+
     /* Typography enhancements */
     .display-3, .display-5 {
         font-weight: 800;
         letter-spacing: -0.5px;
     }
-    
+
     .tracking-wide {
         letter-spacing: 2px;
     }
-    
+
     /* Animation utilities */
     .btn {
         transition: all 0.3s ease;
     }
-    
+
     .btn-outline-dark:hover {
         background-color: var(--dark);
         color: white;
+        transform: translateY(-2px);
     }
 </style>
-{% endblock %} 
+{% endblock %}

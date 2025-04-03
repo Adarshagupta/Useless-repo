@@ -1,0 +1,148 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}My Registrations{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 fw-bold mb-1">My Registrations</h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">My Registrations</li>
+                </ol>
+            </nav>
+        </div>
+        <div>
+            <a href="{{ url_for('dashboard.events') }}" class="btn btn-primary">
+                <i class="fas fa-plus-circle me-2"></i> Register for Events
+            </a>
+        </div>
+    </div>
+    
+    <!-- Registrations List -->
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white py-3 border-0">
+            <h5 class="fw-bold mb-0">My Event Registrations</h5>
+        </div>
+        <div class="card-body p-0">
+            {% if registrations %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Event</th>
+                            <th>Type</th>
+                            <th>Date</th>
+                            <th>Team</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for registration in registrations %}
+                        <tr>
+                            <td class="ps-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-circle bg-primary-light text-accent rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                        <i class="fas {% if registration.event.event_type == 'hackathon' %}fa-laptop-code{% elif registration.event.event_type == 'workshop' %}fa-chalkboard-teacher{% elif registration.event.event_type == 'competition' %}fa-trophy{% else %}fa-calendar-alt{% endif %}"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0 fw-semibold">{{ registration.event.name }}</h6>
+                                        <small class="text-muted">ID: {{ registration.id }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="badge bg-primary-light text-dark">{{ registration.event.event_type|title }}</span>
+                            </td>
+                            <td>
+                                <div>{{ registration.event.start_date.strftime('%d %b, %Y') }}</div>
+                                <small class="text-muted">{{ registration.event.start_date.strftime('%I:%M %p') }}</small>
+                            </td>
+                            <td>
+                                {% if registration.event.is_team_event %}
+                                {% set team = registration.get_team() %}
+                                {% if team %}
+                                <a href="{{ url_for('dashboard.team_details', team_id=team.id) }}" class="badge bg-accent text-white">
+                                    {{ team.name }}
+                                </a>
+                                {% else %}
+                                <span class="badge bg-warning text-dark">No Team</span>
+                                {% endif %}
+                                {% else %}
+                                <span class="badge bg-light text-muted">Individual</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if registration.status == 'confirmed' %}
+                                <span class="badge bg-success">Confirmed</span>
+                                {% elif registration.status == 'pending' %}
+                                <span class="badge bg-warning text-dark">Pending</span>
+                                {% else %}
+                                <span class="badge bg-secondary">{{ registration.status|title }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end pe-4">
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-light rounded-circle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li>
+                                            <a class="dropdown-item" href="{{ url_for('main.event_details', event_id=registration.event.id) }}">
+                                                <i class="fas fa-eye me-2 text-accent"></i> View Event
+                                            </a>
+                                        </li>
+                                        {% if registration.event.is_team_event and not team %}
+                                        <li>
+                                            <a class="dropdown-item" href="{{ url_for('dashboard.create_team', event_id=registration.event.id) }}">
+                                                <i class="fas fa-users me-2 text-accent"></i> Create Team
+                                            </a>
+                                        </li>
+                                        {% endif %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li>
+                                            <a class="dropdown-item text-danger" href="#">
+                                                <i class="fas fa-times-circle me-2"></i> Cancel Registration
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <div class="empty-icon bg-primary-light text-accent rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                    <i class="fas fa-calendar-times fa-2x"></i>
+                </div>
+                <h3 class="h4 fw-bold mb-2">No Registrations Found</h3>
+                <p class="text-muted mb-4">You haven't registered for any events yet.</p>
+                <a href="{{ url_for('dashboard.events') }}" class="btn btn-primary">
+                    <i class="fas fa-search me-2"></i> Browse Events
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+    .icon-circle {
+        transition: transform 0.2s ease;
+    }
+    
+    tr:hover .icon-circle {
+        transform: scale(1.1);
+    }
+    
+    .empty-icon {
+        font-size: 1rem;
+    }
+</style>
+{% endblock %} 

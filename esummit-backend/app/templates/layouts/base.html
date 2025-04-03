@@ -4,185 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}ESummit{% endblock %}</title>
-    
+
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <!-- Custom CSS -->
-    <style>
-        body {
-            background-color: #f8f9fa;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .navbar {
-            background-color: white !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            padding: 0.5rem 1rem;
-        }
-        
-        .navbar-brand {
-            font-weight: bold;
-            color: #212529 !important;
-        }
-        
-        .navbar-nav .nav-link {
-            color: #212529 !important;
-        }
-        
-        .navbar-nav .nav-link:hover {
-            color: #007bff !important;
-        }
-        
-        .dropdown-toggle::after {
-            display: none;
-        }
-        
-        .sidebar {
-            width: 200px;
-            min-height: calc(100vh - 56px);
-            background-color: white;
-            border-right: 1px solid #eaecef;
-            padding: 1rem 0;
-        }
-        
-        .content-wrapper {
-            display: flex;
-            flex: 1;
-        }
-        
-        .content {
-            flex: 1;
-            padding: 1.5rem 2rem;
-            background-color: #f8f9fa;
-        }
-        
-        .nav-link {
-            color: #495057;
-            padding: 0.5rem 1rem;
-            margin-bottom: 0.25rem;
-            border-radius: 0;
-            font-size: 0.875rem;
-        }
-        
-        .nav-link:hover {
-            color: #007bff;
-            background-color: #f1f8ff;
-        }
-        
-        .nav-link.active {
-            color: #007bff;
-            background-color: #f1f8ff;
-            border-left: 3px solid #007bff;
-        }
-        
-        .nav-link i {
-            width: 18px;
-            text-align: center;
-            margin-right: 10px;
-            color: #6c757d;
-        }
-        
-        .nav-link.active i {
-            color: #007bff;
-        }
-        
-        .header-section {
-            font-size: 11px;
-            text-transform: uppercase;
-            padding-left: 1rem;
-            padding-top: 1.5rem;
-            padding-bottom: 0.5rem;
-            color: #6c757d;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 
-        .auth-img {
-            background-size: cover;
-            background-position: center;
-            min-height: 50vh;
-        }
-
-        /* Event cards */
-        .event-card {
-            transition: all 0.3s ease;
-            height: 100%;
-        }
-        
-        .event-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-        
-        .event-img {
-            height: 200px;
-            object-fit: cover;
-        }
-        
-        /* Team styles */
-        .team-card {
-            transition: all 0.3s ease;
-            height: 100%;
-        }
-        
-        .team-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        /* Stat cards */
-        .stat-card {
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-            transition: all 0.3s ease;
-        }
-        
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-        }
-        
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 600;
-        }
-        
-        .stat-label {
-            color: #6c757d;
-            font-size: 0.875rem;
-        }
-        
-        /* Table styles */
-        .table-hover tbody tr:hover {
-            background-color: #f1f8ff;
-        }
-        
-        /* Buttons */
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-        
-        .btn-primary:hover {
-            background-color: #0069d9;
-            border-color: #0062cc;
-        }
-    </style>
-    
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light">
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background-color: var(--primary-color);">
         <div class="container">
             <a class="navbar-brand" href="/">
-                <i class="fas fa-bolt"></i> ESummit
+                <i class="fas fa-bolt"></i> <span class="fw-bold">ESummit</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -190,37 +32,53 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.events') }}">Events</a>
+                        <a class="nav-link {% if request.path == url_for('main.events') %}active fw-semibold{% endif %}" href="{{ url_for('main.events') }}">
+                            <i class="fas fa-calendar-alt me-1"></i> Events
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.hackathons') }}">Hackathons</a>
+                        <a class="nav-link {% if request.path == url_for('main.hackathons') %}active fw-semibold{% endif %}" href="{{ url_for('main.hackathons') }}">
+                            <i class="fas fa-laptop-code me-1"></i> Hackathons
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.about') }}">About</a>
+                        <a class="nav-link {% if request.path == url_for('main.about') %}active fw-semibold{% endif %}" href="{{ url_for('main.about') }}">
+                            <i class="fas fa-info-circle me-1"></i> About
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.contact') }}">Contact</a>
+                        <a class="nav-link {% if request.path == url_for('main.contact') %}active fw-semibold{% endif %}" href="{{ url_for('main.contact') }}">
+                            <i class="fas fa-envelope me-1"></i> Contact
+                        </a>
                     </li>
                 </ul>
                 <ul class="navbar-nav ms-auto">
                     {% if current_user.is_authenticated %}
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            {% if current_user.is_admin %}admin{% else %}{{ current_user.username }}{% endif %} <i class="fas fa-chevron-down" style="font-size: 0.75rem; margin-left: 0.25rem;"></i>
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="avatar-xs me-2 bg-white rounded-circle d-flex align-items-center justify-content-center">
+                                <span class="text-primary fw-bold">{{ current_user.username[0].upper() }}</span>
+                            </div>
+                            <span>{% if current_user.is_admin %}Admin{% else %}{{ current_user.username }}{% endif %}</span>
+                            <i class="fas fa-chevron-down ms-1" style="font-size: 0.75rem;"></i>
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                            <li><a class="dropdown-item" href="{{ url_for('dashboard.index') }}">Dashboard</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('dashboard.profile') }}">Profile</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{{ url_for('dashboard.index') }}"><i class="fas fa-tachometer-alt me-2 text-primary"></i>Dashboard</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('dashboard.profile') }}"><i class="fas fa-user-circle me-2 text-primary"></i>Profile</a></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">Logout</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2 text-danger"></i>Logout</a></li>
                         </ul>
                     </li>
                     {% else %}
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+                        <a class="nav-link btn btn-outline-light btn-sm px-3 me-2" href="{{ url_for('auth.login') }}">
+                            <i class="fas fa-sign-in-alt me-1"></i> Login
+                        </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+                        <a class="nav-link btn btn-light btn-sm px-3 text-primary" href="{{ url_for('auth.register') }}">
+                            <i class="fas fa-user-plus me-1"></i> Register
+                        </a>
                     </li>
                     {% endif %}
                 </ul>
@@ -233,70 +91,87 @@
         {% if current_user.is_authenticated and request.path.startswith('/dashboard') %}
         <!-- Sidebar Navigation -->
         <div class="sidebar">
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/dashboard' %}active{% endif %}" href="{{ url_for('dashboard.index') }}">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard
+            <div class="sidebar-header p-3 mb-3" style="background-color: var(--primary-color); color: white;">
+                <div class="d-flex align-items-center">
+                    <div class="avatar-sm bg-white rounded-circle d-flex align-items-center justify-content-center me-2">
+                        <span class="text-primary fw-bold">{{ current_user.username[0].upper() }}</span>
+                    </div>
+                    <div>
+                        <h6 class="mb-0 fw-semibold text-white">{{ current_user.username }}</h6>
+                        <small class="text-white-50">{{ "Administrator" if current_user.is_admin else "Member" }}</small>
+                    </div>
+                </div>
+            </div>
+            <ul class="nav flex-column px-2">
+                <li class="nav-item mb-1">
+                    <a class="nav-link rounded {% if request.path == '/dashboard' %}active{% endif %}" href="{{ url_for('dashboard.index') }}">
+                        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if '/dashboard/events' in request.path and not '/admin/' in request.path %}active{% endif %}" href="{{ url_for('dashboard.events') }}">
-                        <i class="fas fa-calendar-alt"></i> Events
+                <li class="nav-item mb-1">
+                    <a class="nav-link rounded {% if '/dashboard/events' in request.path and not '/admin/' in request.path %}active{% endif %}" href="{{ url_for('dashboard.events') }}">
+                        <i class="fas fa-calendar-alt me-2"></i> Events
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if '/dashboard/teams' in request.path and not '/admin/' in request.path %}active{% endif %}" href="{{ url_for('dashboard.teams') }}">
-                        <i class="fas fa-users"></i> My Teams
+                <li class="nav-item mb-1">
+                    <a class="nav-link rounded {% if '/dashboard/teams' in request.path and not '/admin/' in request.path %}active{% endif %}" href="{{ url_for('dashboard.teams') }}">
+                        <i class="fas fa-users me-2"></i> My Teams
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/dashboard/profile' %}active{% endif %}" href="{{ url_for('dashboard.profile') }}">
-                        <i class="fas fa-user-circle"></i> Profile
+                <li class="nav-item mb-1">
+                    <a class="nav-link rounded {% if request.path == '/dashboard/profile' %}active{% endif %}" href="{{ url_for('dashboard.profile') }}">
+                        <i class="fas fa-user-circle me-2"></i> Profile
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/dashboard/faq' %}active{% endif %}" href="{{ url_for('dashboard.faq') }}">
-                        <i class="fas fa-question-circle"></i> Instructions
+                <li class="nav-item mb-1">
+                    <a class="nav-link rounded {% if request.path == '/dashboard/faq' %}active{% endif %}" href="{{ url_for('dashboard.faq') }}">
+                        <i class="fas fa-question-circle me-2"></i> Instructions
                     </a>
                 </li>
-                
+
                 {% if current_user.is_admin %}
                 <!-- Admin Section -->
-                <li class="nav-item">
-                    <div class="header-section">Administration</div>
+                <li class="nav-item mt-3 mb-2">
+                    <div class="header-section text-uppercase fw-bold text-primary small px-3">Administration</div>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/dashboard/admin' %}active{% endif %}" href="{{ url_for('dashboard.admin_dashboard') }}">
-                        <i class="fas fa-cogs"></i> Admin Dashboard
+                <li class="nav-item mb-1">
+                    <a class="nav-link rounded {% if request.path == '/dashboard/admin' %}active{% endif %}" href="{{ url_for('dashboard.admin_dashboard') }}">
+                        <i class="fas fa-cogs me-2"></i> Admin Dashboard
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/dashboard/admin/users' %}active{% endif %}" href="{{ url_for('dashboard.admin_users') }}">
-                        <i class="fas fa-user-shield"></i> Manage Users
+                <li class="nav-item mb-1">
+                    <a class="nav-link rounded {% if request.path == '/dashboard/admin/users' %}active{% endif %}" href="{{ url_for('dashboard.admin_users') }}">
+                        <i class="fas fa-user-shield me-2"></i> Manage Users
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/dashboard/admin/events' %}active{% endif %}" href="{{ url_for('dashboard.admin_events') }}">
-                        <i class="fas fa-calendar-check"></i> Manage Events
+                <li class="nav-item mb-1">
+                    <a class="nav-link rounded {% if request.path == '/dashboard/admin/events' %}active{% endif %}" href="{{ url_for('dashboard.admin_events') }}">
+                        <i class="fas fa-calendar-check me-2"></i> Manage Events
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/dashboard/admin/teams' %}active{% endif %}" href="{{ url_for('dashboard.admin_teams') }}">
-                        <i class="fas fa-user-friends"></i> Manage Teams
+                <li class="nav-item mb-1">
+                    <a class="nav-link rounded {% if request.path == '/dashboard/admin/teams' %}active{% endif %}" href="{{ url_for('dashboard.admin_teams') }}">
+                        <i class="fas fa-user-friends me-2"></i> Manage Teams
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/dashboard/admin/registrations' %}active{% endif %}" href="{{ url_for('dashboard.admin_registrations') }}">
-                        <i class="fas fa-clipboard-list"></i> Event Registrations
+                <li class="nav-item mb-1">
+                    <a class="nav-link rounded {% if request.path == '/dashboard/admin/registrations' %}active{% endif %}" href="{{ url_for('dashboard.admin_registrations') }}">
+                        <i class="fas fa-clipboard-list me-2"></i> Event Registrations
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/dashboard/admin/hackathons' %}active{% endif %}" href="{{ url_for('dashboard.admin_hackathons') }}">
-                        <i class="fas fa-laptop-code"></i> Hackathon Projects
+                <li class="nav-item mb-1">
+                    <a class="nav-link rounded {% if request.path == '/dashboard/admin/hackathons' %}active{% endif %}" href="{{ url_for('dashboard.admin_hackathons') }}">
+                        <i class="fas fa-laptop-code me-2"></i> Hackathon Projects
                     </a>
                 </li>
                 {% endif %}
             </ul>
+
+            <div class="sidebar-footer p-3 mt-auto">
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-danger btn-sm w-100">
+                    <i class="fas fa-sign-out-alt me-1"></i> Logout
+                </a>
+            </div>
         </div>
         {% endif %}
 
@@ -305,21 +180,91 @@
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     {% for category, message in messages %}
-                        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                            {{ message }}
+                        <div class="alert alert-{{ category }} alert-dismissible fade show shadow-sm" role="alert">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-circle{% elif category == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %} me-2"></i>
+                                <div>{{ message }}</div>
+                            </div>
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     {% endfor %}
                 {% endif %}
             {% endwith %}
-            
+
             {% block content %}{% endblock %}
         </div>
     </div>
 
+    <!-- Footer -->
+    <footer class="footer py-4 mt-auto">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
+                    <a href="/" class="d-inline-flex align-items-center text-decoration-none">
+                        <i class="fas fa-bolt text-primary me-2"></i>
+                        <span class="fw-bold text-dark">ESummit</span>
+                    </a>
+                    <p class="text-muted small mt-2 mb-0">© 2023 ESummit. All rights reserved.</p>
+                </div>
+                <div class="col-md-4 text-center mb-3 mb-md-0">
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-facebook"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center text-md-end">
+                    <ul class="list-inline mb-0">
+                        <li class="list-inline-item"><a href="{{ url_for('main.about') }}" class="text-muted small">About</a></li>
+                        <li class="list-inline-item"><a href="{{ url_for('main.contact') }}" class="text-muted small">Contact</a></li>
+                        <li class="list-inline-item"><a href="#" class="text-muted small">Privacy Policy</a></li>
+                        <li class="list-inline-item"><a href="#" class="text-muted small">Terms</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Custom JS -->
+    <script>
+        // Initialize tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+
+            // Mobile sidebar toggle
+            const toggleSidebar = () => {
+                const sidebar = document.querySelector('.sidebar');
+                if (sidebar) {
+                    sidebar.classList.toggle('show');
+                }
+            };
+
+            // Add toggle button for mobile if on dashboard
+            if (document.querySelector('.sidebar')) {
+                const navbarBrand = document.querySelector('.navbar-brand');
+                const toggleBtn = document.createElement('button');
+                toggleBtn.className = 'btn btn-sm d-md-none me-2';
+                toggleBtn.innerHTML = '<i class="fas fa-bars"></i>';
+                toggleBtn.addEventListener('click', toggleSidebar);
+                navbarBrand.parentNode.insertBefore(toggleBtn, navbarBrand);
+
+                // Close sidebar when clicking outside on mobile
+                document.querySelector('.content').addEventListener('click', function() {
+                    if (window.innerWidth < 768 && document.querySelector('.sidebar.show')) {
+                        toggleSidebar();
+                    }
+                });
+            }
+        });
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
-</html> 
+</html>

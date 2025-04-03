@@ -20,8 +20,8 @@
                             <div class="card h-100">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center mb-3">
-                                        <div class="me-3 text-primary">
-                                            <i class="fas fa-calendar-alt fa-2x"></i>
+                                        <div class="me-3 stats-icon">
+                                            <i class="fas fa-calendar-alt"></i>
                                         </div>
                                         <h5 class="text-dark mb-0">Regular Events</h5>
                                     </div>
@@ -34,14 +34,14 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Team Events -->
                         <div class="col-md-4 mb-3 mb-md-0">
                             <div class="card h-100">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center mb-3">
-                                        <div class="me-3 text-info">
-                                            <i class="fas fa-users fa-2x"></i>
+                                        <div class="me-3 stats-icon">
+                                            <i class="fas fa-users"></i>
                                         </div>
                                         <h5 class="text-dark mb-0">Team Events</h5>
                                     </div>
@@ -54,14 +54,14 @@
                                 </div>
                             </div>
                         </div>
-                        
+
                         <!-- Hackathons -->
                         <div class="col-md-4">
                             <div class="card h-100">
                                 <div class="card-body">
                                     <div class="d-flex align-items-center mb-3">
-                                        <div class="me-3 text-warning">
-                                            <i class="fas fa-laptop-code fa-2x"></i>
+                                        <div class="me-3 stats-icon">
+                                            <i class="fas fa-laptop-code"></i>
                                         </div>
                                         <h5 class="text-dark mb-0">Hackathons</h5>
                                     </div>
@@ -92,14 +92,14 @@
                             <div class="stat-label">Registered Events</div>
                             <div class="stat-value text-dark">{{ events|length }}</div>
                         </div>
-                        <div class="text-warning">
-                            <i class="fas fa-calendar-check fa-2x"></i>
+                        <div class="stats-icon">
+                            <i class="fas fa-calendar-check"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <!-- My Teams -->
         <div class="col-md-4 mb-3 mb-md-0">
             <div class="card stat-card h-100">
@@ -109,14 +109,14 @@
                             <div class="stat-label">My Teams</div>
                             <div class="stat-value text-dark">{{ teams|length }}</div>
                         </div>
-                        <div class="text-info">
-                            <i class="fas fa-user-friends fa-2x"></i>
+                        <div class="stats-icon">
+                            <i class="fas fa-user-friends"></i>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
+
         <!-- Achievements -->
         <div class="col-md-4">
             <div class="card stat-card h-100">
@@ -126,8 +126,8 @@
                             <div class="stat-label">Achievements</div>
                             <div class="stat-value text-dark">0</div>
                         </div>
-                        <div class="text-success">
-                            <i class="fas fa-award fa-2x"></i>
+                        <div class="stats-icon">
+                            <i class="fas fa-award"></i>
                         </div>
                     </div>
                 </div>
@@ -163,7 +163,7 @@
                             </td>
                             <td>{{ event.start_date.strftime('%b %d, %Y') }}</td>
                             <td>
-                                <span class="badge bg-success">Registered</span>
+                                <span class="badge bg-primary">Registered</span>
                             </td>
                             <td>
                                 <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="btn btn-sm btn-outline-primary">
@@ -221,7 +221,7 @@
                                     <span class="badge bg-warning">Incomplete</span>
                                     {% endif %}
                                 {% else %}
-                                    <span class="badge bg-info">Registered</span>
+                                    <span class="badge bg-primary">Registered</span>
                                 {% endif %}
                             </td>
                             <td>
@@ -245,4 +245,4 @@
         </div>
     </div>
 </div>
-{% endblock %} 
+{% endblock %}

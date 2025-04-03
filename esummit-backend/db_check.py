@@ -25,7 +25,7 @@ def check_database_connection():
     
     # Get database URL
     db_url = os.environ.get('DATABASE_URL')
-    
+
     if not db_url:
         logging.error("No DATABASE_URL environment variable found")
         return False
