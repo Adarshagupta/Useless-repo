@@ -31,19 +31,19 @@ def handle_db_errors(f):
 def save_document(uploaded_file):
     if not uploaded_file:
         return None
-        
+
     # Create upload directory if it doesn't exist
     upload_dir = os.path.join(current_app.root_path, 'static', 'uploads', 'documents')
     os.makedirs(upload_dir, exist_ok=True)
-    
+
     # Generate a unique filename
     filename = secure_filename(uploaded_file.filename)
     unique_filename = f"{uuid.uuid4().hex}_{filename}"
-    
+
     # Save the file
     file_path = os.path.join(upload_dir, unique_filename)
     uploaded_file.save(file_path)
-    
+
     return unique_filename
 
 @main_bp.route('/')
@@ -62,26 +62,26 @@ def events():
     """Events listing page"""
     page = request.args.get('page', 1, type=int)
     per_page = 9  # Number of events per page
-    
+
     # Get filtered events
     events_query = Event.query.order_by(Event.start_date)
-    
+
     # Apply filters if provided
     event_type = request.args.get('type')
     status = request.args.get('status')
     search = request.args.get('search')
-    
+
     if event_type:
         events_query = events_query.filter_by(event_type=event_type)
     if status:
         events_query = events_query.filter_by(status=status)
     if search:
         events_query = events_query.filter(Event.name.ilike(f'%{search}%'))
-    
+
     # Get paginated results
     pagination = events_query.paginate(page=page, per_page=per_page, error_out=False)
     events = pagination.items
-    
+
     return render_template('main/events.html', events=events, pagination=pagination)
 
 @main_bp.route('/events/<int:event_id>')
@@ -89,7 +89,7 @@ def events():
 def event_details(event_id):
     """Event details page"""
     event = Event.query.get_or_404(event_id)
-    
+
     # Check if user is registered
     is_registered = False
     registration = None
@@ -100,12 +100,12 @@ def event_details(event_id):
             user_id=current_user.id,
             event_id=event_id
         ).first()
-        
+
         is_registered = registration is not None
-    
+
     # Create a registration form
     form = EventRegistrationForm() if event.event_type != 'hackathon' else HackathonParticipantForm()
-    
+
     # Create team forms if it's a team event
     team_form = None
     join_form = None
@@ -113,9 +113,9 @@ def event_details(event_id):
         from app.forms.team import TeamForm, TeamJoinForm
         team_form = TeamForm()
         join_form = TeamJoinForm()
-    
-    return render_template('main/event_details.html', 
-                           event=event, 
+
+    return render_template('main/event_details.html',
+                           event=event,
                            is_registered=is_registered,
                            registration=registration,
                            form=form,
@@ -128,27 +128,51 @@ def hackathons():
     """Hackathons listing page"""
     page = request.args.get('page', 1, type=int)
     per_page = 9  # Number of hackathons per page
-    
+
     # Get filtered hackathons
     hackathons_query = Event.query.filter_by(event_type='hackathon').order_by(Event.start_date)
-    
+
     # Apply filters if provided
     status = request.args.get('status')
     prize = request.args.get('prize')
     search = request.args.get('search')
-    
+
     if status:
         hackathons_query = hackathons_query.filter_by(status=status)
     if prize:
         hackathons_query = hackathons_query.filter(Event.prize_pool >= int(prize))
     if search:
         hackathons_query = hackathons_query.filter(Event.name.ilike(f'%{search}%'))
-    
+
     # Get paginated results
     pagination = hackathons_query.paginate(page=page, per_page=per_page, error_out=False)
     hackathons = pagination.items
-    
+
     return render_template('main/hackathons.html', hackathons=hackathons, pagination=pagination)
+
+@main_bp.route('/pitching')
+def pitching():
+    """Pitching events listing page"""
+    page = request.args.get('page', 1, type=int)
+    per_page = 9  # Number of pitching events per page
+
+    # Get filtered pitching events
+    pitching_query = Event.query.filter_by(event_type='pitching').order_by(Event.start_date)
+
+    # Apply filters if provided
+    status = request.args.get('status')
+    search = request.args.get('search')
+
+    if status:
+        pitching_query = pitching_query.filter_by(status=status)
+    if search:
+        pitching_query = pitching_query.filter(Event.name.ilike(f'%{search}%'))
+
+    # Get paginated results
+    pagination = pitching_query.paginate(page=page, per_page=per_page, error_out=False)
+    pitching_events = pagination.items
+
+    return render_template('main/pitching.html', pitching_events=pitching_events, pagination=pagination)
 
 @main_bp.route('/contact')
 def contact():
@@ -160,7 +184,7 @@ def contact():
 def hackathon_details(hackathon_id):
     """Hackathon details page"""
     hackathon = Event.query.filter_by(id=hackathon_id, event_type='hackathon').first_or_404()
-    
+
     # Check if user is registered
     is_registered = False
     registration = None
@@ -171,22 +195,55 @@ def hackathon_details(hackathon_id):
             user_id=current_user.id,
             event_id=hackathon_id
         ).first()
-        
+
         is_registered = registration is not None
-    
+
     # Create registration form
     form = HackathonParticipantForm()
-    
+
     # Create team forms since hackathons are team events
     from app.forms.team import TeamForm, TeamJoinForm
     team_form = TeamForm()
     join_form = TeamJoinForm()
-    
-    return render_template('main/event_details.html', 
-                           event=hackathon, 
+
+    return render_template('main/event_details.html',
+                           event=hackathon,
                            is_registered=is_registered,
                            registration=registration,
                            form=form,
+                           team_form=team_form,
+                           join_form=join_form,
+                           current_time=datetime.utcnow())
+
+@main_bp.route('/pitching/<int:pitching_id>')
+@handle_db_errors
+def pitching_details(pitching_id):
+    """Pitching event details page"""
+    pitching_event = Event.query.filter_by(id=pitching_id, event_type='pitching').first_or_404()
+
+    # Check if user is registered
+    is_registered = False
+    registration = None
+    if current_user.is_authenticated:
+        # Get the actual registration if it exists
+        from app.models.registration import EventRegistration
+        registration = EventRegistration.query.filter_by(
+            user_id=current_user.id,
+            event_id=pitching_id
+        ).first()
+
+        is_registered = registration is not None
+
+    # Create team forms since pitching events are team events
+    from app.forms.team import TeamForm, TeamJoinForm
+    team_form = TeamForm()
+    join_form = TeamJoinForm()
+
+    return render_template('main/event_details.html',
+                           event=pitching_event,
+                           is_registered=is_registered,
+                           registration=registration,
+                           form=None,  # No individual registration form for pitching events
                            team_form=team_form,
                            join_form=join_form,
                            current_time=datetime.utcnow())
@@ -196,20 +253,20 @@ def hackathon_details(hackathon_id):
 def register_event(event_id):
     """Register for an event"""
     event = Event.query.get_or_404(event_id)
-    
+
     # Check if registration is open
     if not event.is_registration_open:
         flash('Registration is closed for this event.', 'warning')
         return redirect(url_for('main.event_details', event_id=event_id))
-    
+
     # Check if already registered
     if event.is_registered(current_user):
         flash('You are already registered for this event.', 'info')
         return redirect(url_for('main.event_details', event_id=event_id))
-    
+
     # Get the appropriate form
     form = EventRegistrationForm() if event.event_type != 'hackathon' else HackathonParticipantForm()
-    
+
     if form.validate_on_submit():
         try:
             # Handle document upload
@@ -218,7 +275,7 @@ def register_event(event_id):
                 document_filename = save_document(form.document.data)
             elif hasattr(form, 'proposal_document') and form.proposal_document.data:
                 document_filename = save_document(form.proposal_document.data)
-                
+
             # Create registration
             from app.models.registration import EventRegistration
             registration = EventRegistration(
@@ -234,7 +291,7 @@ def register_event(event_id):
                 document_filename=document_filename
             )
             db.session.add(registration)
-            
+
             db.session.commit()
             flash('You have successfully registered for this event!', 'success')
         except Exception as e:
@@ -246,7 +303,7 @@ def register_event(event_id):
             for field, errors in form.errors.items():
                 for error in errors:
                     flash(f"{field}: {error}", 'danger')
-    
+
     return redirect(url_for('main.event_details', event_id=event_id))
 
 @main_bp.route('/create_team/<int:event_id>', methods=['POST'])
@@ -254,21 +311,21 @@ def register_event(event_id):
 def create_team(event_id):
     """Create a team for an event"""
     event = Event.query.get_or_404(event_id)
-    
+
     # Check if the event allows teams
     if not event.is_team_event:
         flash('This event does not support team participation.', 'danger')
         return redirect(url_for('main.event_details', event_id=event_id))
-    
+
     # Check if user is already registered
     if event.is_registered(current_user):
         flash('You are already registered for this event.', 'warning')
         return redirect(url_for('main.event_details', event_id=event_id))
-    
+
     # Get form data
     from app.forms.team import TeamForm
     team_form = TeamForm()
-    
+
     if team_form.validate_on_submit():
         try:
             # Create the team
@@ -280,7 +337,7 @@ def create_team(event_id):
             )
             db.session.add(team)
             db.session.flush()  # Get the team ID
-            
+
             # Add the leader as a team member
             team_member = TeamMember(
                 team_id=team.id,
@@ -288,7 +345,7 @@ def create_team(event_id):
                 role='leader'
             )
             db.session.add(team_member)
-            
+
             # Create event registration linked to the team
             from app.models.registration import EventRegistration
             registration = EventRegistration(
@@ -298,13 +355,13 @@ def create_team(event_id):
                 team_id=team.id
             )
             db.session.add(registration)
-            
+
             db.session.commit()
             flash(f'Team "{team.name}" created successfully!', 'success')
-            
+
             # Redirect to team details page
             return redirect(url_for('dashboard.team_details', team_id=team.id))
-            
+
         except Exception as e:
             db.session.rollback()
             import traceback
@@ -316,7 +373,7 @@ def create_team(event_id):
         for field, errors in team_form.errors.items():
             for error in errors:
                 flash(f"{field}: {error}", 'danger')
-    
+
     return redirect(url_for('main.event_details', event_id=event_id))
 
 @main_bp.route('/join_team/<int:event_id>', methods=['POST'])
@@ -324,28 +381,28 @@ def create_team(event_id):
 def join_team(event_id):
     """Join an existing team"""
     event = Event.query.get_or_404(event_id)
-    
+
     # Check if the event allows teams
     if not event.is_team_event:
         flash('This event does not support team participation.', 'danger')
         return redirect(url_for('main.event_details', event_id=event_id))
-    
+
     # Check if user is already registered
     if event.is_registered(current_user):
         flash('You are already registered for this event.', 'warning')
         return redirect(url_for('main.event_details', event_id=event_id))
-    
+
     # Get form data
     from app.forms.team import TeamJoinForm
     join_form = TeamJoinForm()
-    
+
     if join_form.validate_on_submit():
         try:
             team_code = join_form.team_code.data
-            
+
             # Find the team
             from app.models.team import Team, TeamMember
-            
+
             # Try to convert to integer for ID lookup
             try:
                 team_id = int(team_code)
@@ -353,17 +410,17 @@ def join_team(event_id):
             except ValueError:
                 # If not an integer, maybe it's a name
                 team = Team.query.filter_by(name=team_code, event_id=event_id).first()
-            
+
             if not team:
                 flash('Team not found. Please check the code and try again.', 'warning')
                 return redirect(url_for('main.event_details', event_id=event_id))
-            
+
             # Check if team is full
             team_members = TeamMember.query.filter_by(team_id=team.id).count()
             if event.max_team_size and team_members >= event.max_team_size:
                 flash('This team is already full.', 'warning')
                 return redirect(url_for('main.event_details', event_id=event_id))
-            
+
             # Add user to team
             team_member = TeamMember(
                 team_id=team.id,
@@ -371,7 +428,7 @@ def join_team(event_id):
                 role='member'
             )
             db.session.add(team_member)
-            
+
             # Create event registration linked to the team
             from app.models.registration import EventRegistration
             registration = EventRegistration(
@@ -381,13 +438,13 @@ def join_team(event_id):
                 team_id=team.id
             )
             db.session.add(registration)
-            
+
             db.session.commit()
             flash(f'You have joined the team "{team.name}"!', 'success')
-            
+
             # Redirect to team details page
             return redirect(url_for('dashboard.team_details', team_id=team.id))
-            
+
         except Exception as e:
             db.session.rollback()
             logging.error(f"Team join error: {str(e)}")
@@ -396,5 +453,5 @@ def join_team(event_id):
         for field, errors in join_form.errors.items():
             for error in errors:
                 flash(f"{field}: {error}", 'danger')
-    
+
     return redirect(url_for('main.event_details', event_id=event_id))

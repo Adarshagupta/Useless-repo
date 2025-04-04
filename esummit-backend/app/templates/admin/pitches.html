@@ -1,0 +1,320 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Pitch Registrations - Admin - ESummit{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3 col-lg-2">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Admin Menu</h5>
+                    <div class="list-group">
+                        <a href="{{ url_for('admin.index') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                        <a href="{{ url_for('admin.events') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-calendar-alt"></i> Events
+                        </a>
+                        <a href="{{ url_for('admin.users') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users"></i> Users
+                        </a>
+                        <a href="{{ url_for('admin.teams') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-users-cog"></i> Teams
+                        </a>
+                        <a href="{{ url_for('admin.registrations') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-clipboard-list"></i> Registrations
+                        </a>
+                        <a href="{{ url_for('admin.hackathons') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-laptop-code"></i> Hackathons
+                        </a>
+                        <a href="{{ url_for('admin.pitches') }}" class="list-group-item list-group-item-action active">
+                            <i class="fas fa-lightbulb"></i> Pitches
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-lg-10">
+            <!-- Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="h3 mb-0">Pitch Registrations</h2>
+                    <p class="text-muted mb-0">View and manage pitch registrations</p>
+                </div>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exportModal">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filters -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('admin.pitches') }}" class="row g-3">
+                        <div class="col-md-3">
+                            <select name="event" class="form-select">
+                                <option value="">All Pitching Events</option>
+                                {% for event in events %}
+                                <option value="{{ event.id }}" {% if request.args.get('event')|int == event.id %}selected{% endif %}>
+                                    {{ event.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select name="status" class="form-select">
+                                <option value="">All Statuses</option>
+                                <option value="pending" {% if request.args.get('status') == 'pending' %}selected{% endif %}>Pending</option>
+                                <option value="approved" {% if request.args.get('status') == 'approved' %}selected{% endif %}>Approved</option>
+                                <option value="rejected" {% if request.args.get('status') == 'rejected' %}selected{% endif %}>Rejected</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="input-group">
+                                <input type="text" name="search" class="form-control" placeholder="Search teams..." value="{{ request.args.get('search', '') }}">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <a href="{{ url_for('admin.pitches') }}" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-sync"></i> Reset
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Pitches Table -->
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Team</th>
+                                    <th>Pitch Title</th>
+                                    <th>Event</th>
+                                    <th>Registration Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for pitch in pitches %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <div class="bg-primary bg-opacity-10 rounded me-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                <i class="fas fa-users text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="mb-0">{{ pitch.team.name }}</h6>
+                                                <small class="text-muted">Leader: {{ pitch.team.leader.full_name }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>{{ pitch.pitch_title }}</div>
+                                        <small class="text-muted">{{ pitch.pitch_summary[:50] }}{% if pitch.pitch_summary|length > 50 %}...{% endif %}</small>
+                                    </td>
+                                    <td>
+                                        <div>{{ pitch.event.name }}</div>
+                                        <small class="text-muted">{{ pitch.event.start_date.strftime('%Y-%m-%d') }}</small>
+                                    </td>
+                                    <td>
+                                        <div>{{ pitch.registration_date.strftime('%Y-%m-%d') }}</div>
+                                        <small class="text-muted">{{ pitch.registration_date.strftime('%H:%M') }}</small>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-{{ pitch.status_color }}">{{ pitch.status }}</span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-sm btn-outline-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ pitch.id }}">
+                                                <i class="fas fa-check"></i>
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ pitch.id }}">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            <a href="{{ url_for('admin.view_pitch', pitch_id=pitch.id) }}" class="btn btn-sm btn-outline-info">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </div>
+
+                                        <!-- Approve Modal -->
+                                        <div class="modal fade" id="approveModal{{ pitch.id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Approve Pitch</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to approve the pitch <strong>"{{ pitch.pitch_title }}"</strong> from team <strong>{{ pitch.team.name }}</strong>?</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form method="POST" action="{{ url_for('admin.approve_pitch', pitch_id=pitch.id) }}">
+                                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                            <button type="submit" class="btn btn-success">
+                                                                <i class="fas fa-check"></i> Approve Pitch
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Reject Modal -->
+                                        <div class="modal fade" id="rejectModal{{ pitch.id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Reject Pitch</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to reject the pitch <strong>"{{ pitch.pitch_title }}"</strong> from team <strong>{{ pitch.team.name }}</strong>?</p>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Reason for Rejection</label>
+                                                            <textarea name="reason" class="form-control" rows="3" required></textarea>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form method="POST" action="{{ url_for('admin.reject_pitch', pitch_id=pitch.id) }}">
+                                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                            <input type="hidden" name="reason" id="rejection_reason_{{ pitch.id }}">
+                                                            <button type="submit" class="btn btn-danger">
+                                                                <i class="fas fa-times"></i> Reject Pitch
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4">
+                                        <i class="fas fa-lightbulb text-muted mb-2 fa-2x"></i>
+                                        <p class="lead mb-0">No pitch registrations found</p>
+                                        <p class="text-muted">Try adjusting your filters</p>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            {% if pagination.pages > 1 %}
+            <nav aria-label="Pitch pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('admin.pitches', page=pagination.prev_num, **request.args) if pagination.has_prev else '#' }}">
+                            <i class="fas fa-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                    {% for page in pagination.iter_pages() %}
+                        {% if page %}
+                            <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                                <a class="page-link" href="{{ url_for('admin.pitches', page=page, **request.args) }}">{{ page }}</a>
+                            </li>
+                        {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+                    <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                        <a class="page-link" href="{{ url_for('admin.pitches', page=pagination.next_num, **request.args) if pagination.has_next else '#' }}">
+                            Next <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Export Pitch Registrations</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('admin.export_pitches') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label class="form-label">Export Format</label>
+                        <select name="format" class="form-select" required>
+                            <option value="csv">CSV</option>
+                            <option value="excel">Excel</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Fields to Include</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="fields" value="team_details" id="fieldTeamDetails" checked>
+                            <label class="form-check-label" for="fieldTeamDetails">Team Details</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="fields" value="event_details" id="fieldEventDetails" checked>
+                            <label class="form-check-label" for="fieldEventDetails">Event Details</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="fields" value="pitch_details" id="fieldPitchDetails" checked>
+                            <label class="form-check-label" for="fieldPitchDetails">Pitch Details</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-opacity-10 {
+    --bs-bg-opacity: 0.1;
+}
+</style>
+
+<script>
+// Add event listeners to all reject modals
+document.addEventListener('DOMContentLoaded', function() {
+    // Get all reject modals
+    const rejectModals = document.querySelectorAll('[id^="rejectModal"]');
+
+    // Add event listener to each modal
+    rejectModals.forEach(modal => {
+        const pitchId = modal.id.replace('rejectModal', '');
+        const textarea = modal.querySelector('textarea[name="reason"]');
+        const hiddenInput = document.getElementById('rejection_reason_' + pitchId);
+
+        // Update hidden input when form is submitted
+        const form = modal.querySelector('form');
+        form.addEventListener('submit', function() {
+            hiddenInput.value = textarea.value;
+        });
+    });
+});
+</script>
+{% endblock %}

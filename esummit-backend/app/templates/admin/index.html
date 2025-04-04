@@ -23,6 +23,15 @@
                         <a href="{{ url_for('admin.teams') }}" class="list-group-item list-group-item-action">
                             <i class="fas fa-users-cog"></i> Teams
                         </a>
+                        <a href="{{ url_for('admin.registrations') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-clipboard-list"></i> Registrations
+                        </a>
+                        <a href="{{ url_for('admin.hackathons') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-laptop-code"></i> Hackathons
+                        </a>
+                        <a href="{{ url_for('admin.pitches') }}" class="list-group-item list-group-item-action">
+                            <i class="fas fa-lightbulb"></i> Pitches
+                        </a>
                     </div>
                 </div>
             </div>
@@ -96,7 +105,7 @@
                             <div class="d-flex align-items-start justify-content-between">
                                 <div>
                                     <h6 class="card-subtitle text-muted mb-1">Total Registrations</h6>
-                                    <h2 class="card-title mb-0">{{ registrations_count }}</h2>
+                                    <h2 class="card-title mb-0">{{ registration_count }}</h2>
                                 </div>
                                 <div class="bg-info bg-opacity-10 rounded-3 p-3">
                                     <i class="fas fa-ticket-alt text-info fa-2x"></i>
@@ -105,6 +114,28 @@
                             <div class="mt-3">
                                 <a href="{{ url_for('admin.registrations') }}" class="text-decoration-none">
                                     View all registrations <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pitch Registrations Card -->
+                <div class="col-sm-6 col-xl-3">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start justify-content-between">
+                                <div>
+                                    <h6 class="card-subtitle text-muted mb-1">Pitch Registrations</h6>
+                                    <h2 class="card-title mb-0">{{ pitch_count }}</h2>
+                                </div>
+                                <div class="bg-purple bg-opacity-10 rounded-3 p-3">
+                                    <i class="fas fa-lightbulb text-purple fa-2x"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <a href="{{ url_for('admin.pitches') }}" class="text-decoration-none">
+                                    View all pitches <i class="fas fa-arrow-right"></i>
                                 </a>
                             </div>
                         </div>
@@ -171,6 +202,62 @@
                                                 <i class="fas fa-history fa-3x text-muted mb-3"></i>
                                                 <p class="lead mb-0">No recent activity</p>
                                                 <p class="text-muted">New activities will appear here</p>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Pitch Registrations -->
+            <div class="row g-4 mb-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">Recent Pitch Registrations</h5>
+                            <a href="{{ url_for('admin.pitches') }}" class="btn btn-sm btn-outline-primary">
+                                View All <i class="fas fa-arrow-right"></i>
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Team</th>
+                                            <th>Pitch Title</th>
+                                            <th>Event</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for pitch in recent_pitches %}
+                                        <tr>
+                                            <td>{{ pitch.registration_date.strftime('%Y-%m-%d') }}</td>
+                                            <td>{{ pitch.team.name }}</td>
+                                            <td>{{ pitch.pitch_title }}</td>
+                                            <td>{{ pitch.event.name }}</td>
+                                            <td>
+                                                <span class="badge bg-{{ pitch.status_color }}">{{ pitch.status }}</span>
+                                            </td>
+                                            <td>
+                                                <a href="{{ url_for('admin.view_pitch', pitch_id=pitch.id) }}" class="btn btn-sm btn-outline-info">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4">
+                                                <i class="fas fa-lightbulb fa-3x text-muted mb-3"></i>
+                                                <p class="lead mb-0">No pitch registrations yet</p>
+                                                <p class="text-muted">New pitch registrations will appear here</p>
                                             </td>
                                         </tr>
                                         {% endfor %}
@@ -260,5 +347,11 @@
 .card:hover {
     transform: translateY(-2px);
 }
+.text-purple {
+    color: #6f42c1;
+}
+.bg-purple {
+    background-color: #6f42c1;
+}
 </style>
-{% endblock %} 
+{% endblock %}

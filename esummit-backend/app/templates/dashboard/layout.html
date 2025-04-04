@@ -1,0 +1,345 @@
+{% extends "layouts/base.html" %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="dashboard-sidebar" id="dashboard-sidebar">
+        <div class="sidebar-header">
+            <div class="user-info">
+                <div class="user-avatar bg-primary text-white">{{ current_user.username[0].upper() }}</div>
+                <div class="user-details">
+                    <h6 class="mb-0">{{ current_user.full_name or current_user.username }}</h6>
+                    <span class="badge bg-{{ 'danger' if current_user.is_admin else 'info' }} rounded-pill">{{ "Administrator" if current_user.is_admin else "Member" }}</span>
+                </div>
+            </div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('dashboard.index') }}" class="nav-item {% if request.endpoint == 'dashboard.index' %}active{% endif %}">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="{{ url_for('dashboard.events') }}" class="nav-item {% if request.endpoint == 'dashboard.events' %}active{% endif %}">
+                <i class="fas fa-calendar-alt"></i>
+                <span>My Events</span>
+            </a>
+            <a href="{{ url_for('dashboard.teams') }}" class="nav-item {% if request.endpoint == 'dashboard.teams' or request.endpoint == 'dashboard.team_details' %}active{% endif %}">
+                <i class="fas fa-users"></i>
+                <span>My Teams</span>
+            </a>
+            <a href="{{ url_for('dashboard.profile') }}" class="nav-item {% if request.endpoint == 'dashboard.profile' %}active{% endif %}">
+                <i class="fas fa-user-circle"></i>
+                <span>Profile</span>
+            </a>
+            <a href="{{ url_for('dashboard.faq') }}" class="nav-item {% if request.endpoint == 'dashboard.faq' %}active{% endif %}">
+                <i class="fas fa-question-circle"></i>
+                <span>Instructions</span>
+            </a>
+            {% if current_user.is_admin %}
+            <div class="nav-divider"></div>
+            <div class="nav-header">Admin</div>
+            <a href="{{ url_for('admin.index') }}" class="nav-item">
+                <i class="fas fa-cogs"></i>
+                <span>Admin Dashboard</span>
+            </a>
+            <a href="{{ url_for('admin.users') }}" class="nav-item">
+                <i class="fas fa-user-shield"></i>
+                <span>Manage Users</span>
+            </a>
+            <a href="{{ url_for('admin.events') }}" class="nav-item">
+                <i class="fas fa-calendar-check"></i>
+                <span>Manage Events</span>
+            </a>
+            <a href="{{ url_for('admin.teams') }}" class="nav-item">
+                <i class="fas fa-user-friends"></i>
+                <span>Manage Teams</span>
+            </a>
+            <a href="{{ url_for('admin.registrations') }}" class="nav-item">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Event Registrations</span>
+            </a>
+            <a href="{{ url_for('admin.hackathons') }}" class="nav-item">
+                <i class="fas fa-laptop-code"></i>
+                <span>Hackathon Projects</span>
+            </a>
+            <a href="{{ url_for('admin.pitches') }}" class="nav-item">
+                <i class="fas fa-lightbulb"></i>
+                <span>Pitch Registrations</span>
+            </a>
+            {% endif %}
+            <div class="nav-divider"></div>
+            <a href="{{ url_for('auth.logout') }}" class="nav-item text-danger">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <button id="sidebar-toggle" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="dashboard-main" id="dashboard-main">
+        <div class="mobile-header d-lg-none">
+            <button id="mobile-sidebar-toggle" class="btn btn-sm btn-outline-primary">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="{{ url_for('main.index') }}" class="mobile-logo">ESummit</a>
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-outline-danger">
+                <i class="fas fa-sign-out-alt"></i>
+            </a>
+        </div>
+        {% block dashboard_content %}{% endblock %}
+    </div>
+</div>
+
+<style>
+    /* Dashboard Layout */
+    .dashboard-container {
+        display: flex;
+        min-height: calc(100vh - 56px);
+        background-color: #f8f9fa;
+    }
+
+    /* Sidebar Styles */
+    .dashboard-sidebar {
+        width: 260px;
+        background-color: #fff;
+        border-right: 1px solid rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+        position: fixed;
+        top: 56px;
+        left: 0;
+        bottom: 0;
+        z-index: 1000;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .sidebar-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .user-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.2rem;
+        margin-right: 1rem;
+    }
+
+    .user-details h6 {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .sidebar-nav {
+        flex: 1;
+        padding: 1rem 0;
+        overflow-y: auto;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 0.75rem 1.5rem;
+        color: #495057;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .nav-item:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+        color: #007bff;
+    }
+
+    .nav-item.active {
+        background-color: rgba(0, 123, 255, 0.1);
+        color: #007bff;
+        border-left: 3px solid #007bff;
+    }
+
+    .nav-item i {
+        width: 24px;
+        font-size: 1rem;
+        margin-right: 0.75rem;
+        text-align: center;
+    }
+
+    .nav-divider {
+        height: 1px;
+        background-color: rgba(0, 0, 0, 0.1);
+        margin: 0.5rem 1.5rem;
+    }
+
+    .nav-header {
+        padding: 0.5rem 1.5rem;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        color: #6c757d;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .sidebar-footer {
+        padding: 1rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+    /* Main Content Styles */
+    .dashboard-main {
+        flex: 1;
+        margin-left: 260px;
+        padding: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .mobile-header {
+        display: none;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        margin-bottom: 1rem;
+    }
+
+    .mobile-logo {
+        font-weight: bold;
+        color: #007bff;
+        text-decoration: none;
+        font-size: 1.25rem;
+    }
+
+    /* Responsive Styles */
+    @media (max-width: 991.98px) {
+        .dashboard-sidebar {
+            transform: translateX(-100%);
+        }
+
+        .dashboard-sidebar.show {
+            transform: translateX(0);
+        }
+
+        .dashboard-main {
+            margin-left: 0;
+        }
+
+        .mobile-header {
+            display: flex;
+        }
+    }
+
+    /* Collapsed Sidebar */
+    .dashboard-sidebar.collapsed {
+        width: 70px;
+    }
+
+    .dashboard-sidebar.collapsed .user-details,
+    .dashboard-sidebar.collapsed .nav-item span,
+    .dashboard-sidebar.collapsed .nav-header {
+        display: none;
+    }
+
+    .dashboard-sidebar.collapsed .nav-item {
+        padding: 0.75rem;
+        justify-content: center;
+    }
+
+    .dashboard-sidebar.collapsed .nav-item i {
+        margin-right: 0;
+    }
+
+    .dashboard-sidebar.collapsed ~ .dashboard-main {
+        margin-left: 70px;
+    }
+
+    .dashboard-sidebar.collapsed .sidebar-footer button i {
+        transform: rotate(180deg);
+    }
+
+    /* Card Styles */
+    .content-card {
+        background-color: #fff;
+        border-radius: 0.5rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 1rem 1.5rem;
+        background-color: #fff;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header h2 {
+        margin-bottom: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Sidebar toggle
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sidebar = document.getElementById('dashboard-sidebar');
+        const main = document.getElementById('dashboard-main');
+        
+        if (sidebarToggle && sidebar && main) {
+            sidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                
+                // Save preference to localStorage
+                if (sidebar.classList.contains('collapsed')) {
+                    localStorage.setItem('sidebarCollapsed', 'true');
+                } else {
+                    localStorage.setItem('sidebarCollapsed', 'false');
+                }
+            });
+            
+            // Check localStorage for saved preference
+            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+                sidebar.classList.add('collapsed');
+            }
+        }
+        
+        // Mobile sidebar toggle
+        const mobileSidebarToggle = document.getElementById('mobile-sidebar-toggle');
+        
+        if (mobileSidebarToggle && sidebar) {
+            mobileSidebarToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('show');
+            });
+            
+            // Close sidebar when clicking outside
+            document.addEventListener('click', function(event) {
+                if (window.innerWidth < 992 && 
+                    !sidebar.contains(event.target) && 
+                    !mobileSidebarToggle.contains(event.target) &&
+                    sidebar.classList.contains('show')) {
+                    sidebar.classList.remove('show');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

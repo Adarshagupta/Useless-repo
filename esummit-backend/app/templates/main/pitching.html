@@ -1,0 +1,141 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Pitching Events{% endblock %}
+
+{% block content %}
+<div class="pitching-container">
+    <!-- Header Section -->
+    <div class="container py-5">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold text-primary">Pitching Events</h1>
+                <p class="lead mb-4">Present your innovative ideas, get feedback from industry experts, and win funding for your startup.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container py-3">
+        <!-- Filters -->
+        <div class="filters-section mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('main.pitching') }}" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="">All Statuses</option>
+                                <option value="upcoming" {% if request.args.get('status') == 'upcoming' %}selected{% endif %}>Upcoming</option>
+                                <option value="ongoing" {% if request.args.get('status') == 'ongoing' %}selected{% endif %}>Ongoing</option>
+                                <option value="completed" {% if request.args.get('status') == 'completed' %}selected{% endif %}>Completed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Search</label>
+                            <div class="input-group">
+                                <input type="text" name="search" class="form-control" placeholder="Search pitching events..." value="{{ request.args.get('search', '') }}">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <a href="{{ url_for('main.pitching') }}" class="btn btn-outline-secondary w-100">
+                                <i class="fas fa-sync-alt"></i> Reset
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Events Grid -->
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mb-4">
+            {% for event in pitching_events %}
+            <div class="col">
+                <div class="card h-100 shadow-sm hover-card">
+                    <div class="position-relative">
+                        {% if event.image_url %}
+                        <img src="{{ event.image_url }}" class="card-img-top" alt="{{ event.name }}">
+                        {% else %}
+                        <img src="{{ url_for('static', filename='img/event-placeholder.jpg') }}" class="card-img-top" alt="{{ event.name }}">
+                        {% endif %}
+                        <div class="position-absolute top-0 end-0 p-2">
+                            <span class="badge bg-{{ event.status_color }} rounded-pill">{{ event.status|replace('_', ' ')|title }}</span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ event.name }}</h5>
+                        <p class="card-text text-muted">{{ event.subtitle or event.description|truncate(100) }}</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="text-muted small">
+                                <i class="fas fa-calendar-alt me-1"></i> {{ event.start_date.strftime('%b %d, %Y') }}
+                            </div>
+                            <div class="text-muted small">
+                                <i class="fas fa-map-marker-alt me-1"></i> {{ event.venue }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0">
+                        <div class="d-grid">
+                            <a href="{{ url_for('main.pitching_details', pitching_id=event.id) }}" class="btn btn-outline-primary">
+                                <i class="fas fa-info-circle me-1"></i> View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12">
+                <div class="alert alert-info text-center py-5">
+                    <i class="fas fa-lightbulb fa-3x mb-3"></i>
+                    <h4>No pitching events found</h4>
+                    <p class="mb-0">Check back later for upcoming pitching opportunities!</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination.pages > 1 %}
+        <nav aria-label="Page navigation">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('main.pitching', page=pagination.prev_num, **request.args) if pagination.has_prev else '#' }}">
+                        <i class="fas fa-chevron-left"></i> Previous
+                    </a>
+                </li>
+                {% for page in pagination.iter_pages() %}
+                    {% if page %}
+                        <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('main.pitching', page=page, **request.args) }}">{{ page }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('main.pitching', page=pagination.next_num, **request.args) if pagination.has_next else '#' }}">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .hover-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .hover-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+    }
+</style>
+{% endblock %}

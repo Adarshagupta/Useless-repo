@@ -1,684 +1,380 @@
-{% extends "layouts/base.html" %}
+{% extends "dashboard/layout.html" %}
 
 {% block title %}Dashboard{% endblock %}
 
-{% block content %}
-<div class="dashboard-container">
-    <!-- Sidebar -->
-    <div class="dashboard-sidebar">
-        <div class="sidebar-header">
-            <div class="user-info">
-                <div class="user-avatar">{{ current_user.username[0].upper() }}</div>
-                <div class="user-details">
-                    <h6>{{ current_user.username }}</h6>
-                    <span>{{ "Administrator" if current_user.is_admin else "Member" }}</span>
-                </div>
-            </div>
-        </div>
-        <nav class="sidebar-nav">
-            <a href="{{ url_for('dashboard.index') }}" class="nav-item active">
-                <i class="fas fa-tachometer-alt"></i>
-                <span>Dashboard</span>
-            </a>
-            <a href="{{ url_for('dashboard.events') }}" class="nav-item">
-                <i class="fas fa-calendar-alt"></i>
-                <span>My Events</span>
-            </a>
-            <a href="{{ url_for('dashboard.teams') }}" class="nav-item">
-                <i class="fas fa-users"></i>
-                <span>My Teams</span>
-            </a>
-            <a href="{{ url_for('dashboard.profile') }}" class="nav-item">
-                <i class="fas fa-user-circle"></i>
-                <span>Profile</span>
-            </a>
-            <a href="{{ url_for('dashboard.faq') }}" class="nav-item">
-                <i class="fas fa-question-circle"></i>
-                <span>Instructions</span>
-            </a>
-            {% if current_user.is_admin %}
-            <div class="nav-divider"></div>
-            <div class="nav-header">Admin</div>
-            <a href="{{ url_for('dashboard.admin_dashboard') }}" class="nav-item">
-                <i class="fas fa-cogs"></i>
-                <span>Admin Dashboard</span>
-            </a>
-            <a href="{{ url_for('dashboard.admin_users') }}" class="nav-item">
-                <i class="fas fa-user-shield"></i>
-                <span>Manage Users</span>
-            </a>
-            <a href="{{ url_for('dashboard.admin_events') }}" class="nav-item">
-                <i class="fas fa-calendar-check"></i>
-                <span>Manage Events</span>
-            </a>
-            <a href="{{ url_for('dashboard.admin_teams') }}" class="nav-item">
-                <i class="fas fa-user-friends"></i>
-                <span>Manage Teams</span>
-            </a>
-            <a href="{{ url_for('dashboard.admin_registrations') }}" class="nav-item">
-                <i class="fas fa-clipboard-list"></i>
-                <span>Event Registrations</span>
-            </a>
-            <a href="{{ url_for('dashboard.admin_hackathons') }}" class="nav-item">
-                <i class="fas fa-laptop-code"></i>
-                <span>Hackathon Projects</span>
-            </a>
-            {% endif %}
-        </nav>
+{% block dashboard_content %}
+<div class="content-header mb-4">
+    <div>
+        <h1 class="mb-0">Welcome, {{ current_user.first_name or current_user.username }}!</h1>
+        <p class="text-muted">Here's an overview of your activities</p>
     </div>
+    <div class="header-actions">
+        <a href="{{ url_for('main.events') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i> Register for Event
+        </a>
+    </div>
+</div>
 
-    <!-- Main Content -->
-    <div class="dashboard-main">
-        <div class="dashboard-header">
-            <h1>Welcome back, {{ current_user.username }}!</h1>
-            <div class="header-actions">
-                <a href="{{ url_for('main.events') }}" class="btn btn-primary">
-                    <i class="fas fa-plus"></i> Register for Event
-                </a>
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <!-- Registered Events Card -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stats-card">
+            <div class="stats-icon bg-primary-light">
+                <i class="fas fa-calendar-check text-primary"></i>
+            </div>
+            <div class="stats-info">
+                <h3>{{ registered_events|length }}</h3>
+                <p>Registered Events</p>
             </div>
         </div>
-
-        <!-- Registration Instructions -->
-        <div class="content-card mb-4">
-            <div class="card-header">
-                <h2>Registration Instructions</h2>
+    </div>
+    
+    <!-- Teams Card -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stats-card">
+            <div class="stats-icon bg-success-light">
+                <i class="fas fa-users text-success"></i>
             </div>
-            <div class="card-body p-0">
-                <div class="row m-0">
-                    <!-- Regular Events -->
-                    <div class="col-md-4 p-3 border-end">
-                        <div class="instruction-block">
-                            <div class="instruction-icon">
-                                <i class="fas fa-calendar-alt"></i>
-                            </div>
-                            <h5>Regular Events</h5>
-                            <ol>
-                                <li>Browse available events</li>
-                                <li>Click "Register" on event page</li>
-                                <li>Fill required information</li>
-                                <li>Submit your registration</li>
-                            </ol>
-                        </div>
-                    </div>
-
-                    <!-- Team Events -->
-                    <div class="col-md-4 p-3 border-end">
-                        <div class="instruction-block">
-                            <div class="instruction-icon">
-                                <i class="fas fa-users"></i>
-                            </div>
-                            <h5>Team Events</h5>
-                            <ol>
-                                <li>Create a team first</li>
-                                <li>Add team members</li>
-                                <li>Complete team registration</li>
-                                <li>All members must join before deadline</li>
-                            </ol>
-                        </div>
-                    </div>
-
-                    <!-- Hackathons -->
-                    <div class="col-md-4 p-3">
-                        <div class="instruction-block">
-                            <div class="instruction-icon">
-                                <i class="fas fa-laptop-code"></i>
-                            </div>
-                            <h5>Hackathons</h5>
-                            <ol>
-                                <li>Create a team first</li>
-                                <li>Add team members</li>
-                                <li>Go to Team Details page</li>
-                                <li>Click "Register for Hackathon"</li>
-                                <li>Complete project information</li>
-                            </ol>
-                        </div>
-                    </div>
-                </div>
+            <div class="stats-info">
+                <h3>{{ team_memberships|length }}</h3>
+                <p>Team Memberships</p>
             </div>
         </div>
-
-        <div class="dashboard-stats">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-calendar-check"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ registered_events|length }}</h3>
-                    <p>Registered Events</p>
-                </div>
+    </div>
+    
+    <!-- Upcoming Events Card -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stats-card">
+            <div class="stats-icon bg-info-light">
+                <i class="fas fa-calendar-day text-info"></i>
             </div>
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ teams|length }}</h3>
-                    <p>Active Teams</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-trophy"></i>
-                </div>
-                <div class="stat-info">
-                    <h3>{{ completed_events|length }}</h3>
-                    <p>Completed Events</p>
-                </div>
+            <div class="stats-info">
+                <h3>{{ upcoming_events|length }}</h3>
+                <p>Upcoming Events</p>
             </div>
         </div>
+    </div>
+    
+    <!-- Profile Completion Card -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stats-card">
+            <div class="stats-icon bg-warning-light">
+                <i class="fas fa-user-check text-warning"></i>
+            </div>
+            <div class="stats-info">
+                <h3>100%</h3>
+                <p>Profile Completion</p>
+            </div>
+        </div>
+    </div>
+</div>
 
-        <div class="dashboard-content">
-            <div class="row">
-                <!-- Registered Events -->
-                <div class="col-md-8">
-                    <div class="content-card">
-                        <div class="card-header">
-                            <h2>My Registered Events</h2>
-                            <a href="{{ url_for('dashboard.events') }}" class="btn btn-link">View All</a>
-                        </div>
-                        <div class="card-body p-0">
-                            {% if events %}
-                            <div class="table-responsive">
-                                <table class="table table-hover mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Event</th>
-                                            <th>Date</th>
-                                            <th>Status</th>
-                                            <th>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for event in events %}
-                                        <tr>
-                                            <td>
-                                                <strong>{{ event.name }}</strong>
-                                                <small class="d-block text-muted">{{ event.event_type|title }}</small>
-                                            </td>
-                                            <td>{{ event.start_date.strftime('%b %d, %Y') }}</td>
-                                            <td>
-                                                <span class="badge bg-primary">Registered</span>
-                                            </td>
-                                            <td>
-                                                <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-eye"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
-                            </div>
-                            {% else %}
-                            <div class="empty-state">
-                                <i class="fas fa-calendar-times"></i>
-                                <p>You haven't registered for any events yet.</p>
-                                <a href="{{ url_for('main.events') }}" class="btn btn-primary btn-sm">Browse Events</a>
-                            </div>
-                            {% endif %}
-                        </div>
+<!-- Registration Instructions -->
+<div class="content-card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>Registration Instructions</h2>
+        <a href="{{ url_for('dashboard.faq') }}" class="btn btn-sm btn-outline-primary">View All Instructions</a>
+    </div>
+    <div class="card-body p-0">
+        <div class="row m-0">
+            <!-- Regular Events -->
+            <div class="col-md-4 p-4 border-end">
+                <div class="instruction-block text-center">
+                    <div class="instruction-icon bg-primary-light text-primary">
+                        <i class="fas fa-calendar-alt"></i>
                     </div>
+                    <h5 class="mt-3 mb-3">Regular Events</h5>
+                    <ol class="text-start">
+                        <li>Browse available events</li>
+                        <li>Click "Register" on event page</li>
+                        <li>Fill required information</li>
+                        <li>Submit your registration</li>
+                    </ol>
                 </div>
+            </div>
 
-                <!-- Teams Section -->
-                <div class="col-md-4">
-                    <div class="content-card">
-                        <div class="card-header">
-                            <h2>My Teams</h2>
-                            <a href="{{ url_for('dashboard.teams') }}" class="btn btn-link">View All</a>
-                        </div>
-                        <div class="card-body">
-                            {% if teams %}
-                            <div class="team-list">
-                                {% for team in teams %}
-                                <div class="team-item">
-                                    <div class="team-avatar">{{ team.name[0].upper() }}</div>
-                                    <div class="team-info">
-                                        <h4>{{ team.name }}</h4>
-                                        <p>{{ team.members|length }} members</p>
-                                        <div class="team-meta">
-                                            <span class="badge {% if team.event.event_type == 'hackathon' %}bg-info{% else %}bg-primary{% endif %}">
-                                                {{ team.event.event_type|title }}
-                                            </span>
-                                            {% if team.leader_id == current_user.id %}
-                                            <span class="badge bg-secondary">Team Leader</span>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                    <a href="{{ url_for('dashboard.team_details', team_id=team.id) }}" class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-chevron-right"></i>
-                                    </a>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            <div class="empty-state">
-                                <i class="fas fa-users"></i>
-                                <p>No teams yet</p>
-                                <a href="{{ url_for('dashboard.teams') }}" class="btn btn-primary btn-sm">Create Team</a>
-                            </div>
-                            {% endif %}
-                        </div>
+            <!-- Team Events -->
+            <div class="col-md-4 p-4 border-end">
+                <div class="instruction-block text-center">
+                    <div class="instruction-icon bg-success-light text-success">
+                        <i class="fas fa-users"></i>
                     </div>
+                    <h5 class="mt-3 mb-3">Team Events</h5>
+                    <ol class="text-start">
+                        <li>Create a team or join existing</li>
+                        <li>Add team members (if leader)</li>
+                        <li>Complete team registration</li>
+                        <li>Submit required documents</li>
+                    </ol>
+                </div>
+            </div>
+
+            <!-- Hackathons -->
+            <div class="col-md-4 p-4">
+                <div class="instruction-block text-center">
+                    <div class="instruction-icon bg-info-light text-info">
+                        <i class="fas fa-laptop-code"></i>
+                    </div>
+                    <h5 class="mt-3 mb-3">Hackathons</h5>
+                    <ol class="text-start">
+                        <li>Register your team</li>
+                        <li>Submit project proposal</li>
+                        <li>Develop your solution</li>
+                        <li>Present to judges</li>
+                    </ol>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Upcoming Events -->
+<div class="content-card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>Upcoming Events</h2>
+        <a href="{{ url_for('main.events') }}" class="btn btn-sm btn-outline-primary">View All Events</a>
+    </div>
+    <div class="card-body p-0">
+        {% if upcoming_events %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Date</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in upcoming_events %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="event-icon me-2 bg-{{ event.event_type_color }}-light">
+                                    <i class="fas fa-{{ event.event_type_icon }} text-{{ event.event_type_color }}"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ event.name }}</div>
+                                    <small class="text-muted">{{ event.venue }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>{{ event.start_date.strftime('%b %d, %Y') }}</div>
+                            <small class="text-muted">{{ event.start_date.strftime('%I:%M %p') }}</small>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ event.event_type_color }}">{{ event.event_type|title }}</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ event.status_color }}">{{ event.status|replace('_', ' ')|title }}</span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-info-circle"></i> Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-calendar-times fa-3x text-muted"></i>
+            </div>
+            <h5>No upcoming events</h5>
+            <p class="text-muted">Check back later for new events or browse all events.</p>
+            <a href="{{ url_for('main.events') }}" class="btn btn-primary">
+                <i class="fas fa-search me-1"></i> Browse Events
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- My Teams -->
+<div class="content-card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>My Teams</h2>
+        <a href="{{ url_for('dashboard.teams') }}" class="btn btn-sm btn-outline-primary">View All Teams</a>
+    </div>
+    <div class="card-body p-0">
+        {% if team_memberships %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Team</th>
+                        <th>Event</th>
+                        <th>Members</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for membership in team_memberships %}
+                    <tr>
+                        <td>
+                            <div class="fw-bold">{{ membership.team.name }}</div>
+                        </td>
+                        <td>
+                            <div>{{ membership.team.event.name }}</div>
+                            <small class="text-muted">{{ membership.team.event.event_type|title }}</small>
+                        </td>
+                        <td>{{ membership.team.members|length }}</td>
+                        <td>
+                            <span class="badge bg-{{ 'primary' if membership.role == 'leader' else 'secondary' }}">
+                                {{ membership.role|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{{ url_for('dashboard.team_details', team_id=membership.team.id) }}" class="btn btn-sm btn-outline-primary">
+                                <i class="fas fa-users"></i> View Team
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-users-slash fa-3x text-muted"></i>
+            </div>
+            <h5>You're not part of any teams yet</h5>
+            <p class="text-muted">Join a team or create your own for team events.</p>
+            <a href="{{ url_for('main.events') }}?type=hackathon" class="btn btn-primary">
+                <i class="fas fa-users me-1"></i> Find Team Events
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
 <style>
-    .dashboard-container {
+    /* Content Header */
+    .content-header {
         display: flex;
-        min-height: calc(100vh - 56px);
-        background-color: #f8f9fa;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
     }
 
-    /* Sidebar Styles */
-    .dashboard-sidebar {
-        width: 280px;
-        background-color: var(--secondary);
-        border-right: 1px solid var(--border-color);
-        position: fixed;
-        height: 100%;
-        overflow-y: auto;
-    }
-
-    .sidebar-header {
-        padding: 2rem;
-        background-color: var(--primary);
-    }
-
-    .user-info {
+    /* Stats Cards */
+    .stats-card {
+        background-color: #fff;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
         display: flex;
         align-items: center;
-        gap: 1rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .user-avatar {
-        width: 48px;
-        height: 48px;
-        background-color: var(--secondary);
-        color: var(--primary);
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-icon {
+        width: 60px;
+        height: 60px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: bold;
-        font-size: 1.2rem;
-    }
-
-    .user-details h6 {
-        margin: 0;
-        color: var(--secondary);
-        font-weight: 600;
-    }
-
-    .user-details span {
-        font-size: 0.875rem;
-        color: var(--secondary);
-        opacity: 0.8;
-    }
-
-    .sidebar-nav {
-        padding: 1rem 0;
-    }
-
-    .nav-item {
-        display: flex;
-        align-items: center;
-        padding: 0.75rem 2rem;
-        color: var(--text-light);
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
-
-    .nav-item:hover {
-        background-color: rgba(255, 215, 0, 0.1);
-        color: var(--primary);
-    }
-
-    .nav-item.active {
-        background-color: var(--primary);
-        color: var(--secondary);
-        font-weight: 600;
-    }
-
-    .nav-item i {
-        width: 20px;
         margin-right: 1rem;
-    }
-
-    .nav-divider {
-        height: 1px;
-        background-color: rgba(255, 255, 255, 0.1);
-        margin: 1rem 0;
-    }
-
-    .nav-header {
-        padding: 0.5rem 2rem;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        color: var(--primary);
-        font-weight: 600;
-        letter-spacing: 1px;
-    }
-
-    /* Main Content Styles */
-    .dashboard-main {
-        flex: 1;
-        margin-left: 280px;
-        padding: 2rem;
-    }
-
-    .dashboard-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 2rem;
-    }
-
-    .dashboard-header h1 {
-        margin: 0;
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--text-dark);
-    }
-
-    .dashboard-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
-
-    .stat-card {
-        background-color: white;
-        border-radius: 12px;
-        padding: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    .stat-icon {
-        width: 48px;
-        height: 48px;
-        background-color: var(--primary-light);
-        color: var(--primary);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
         font-size: 1.5rem;
     }
 
-    .stat-info h3 {
-        margin: 0;
-        font-size: 1.5rem;
+    .stats-info h3 {
+        font-size: 1.75rem;
         font-weight: 700;
-        color: var(--text-dark);
+        margin-bottom: 0.25rem;
     }
 
-    .stat-info p {
-        margin: 0;
-        color: var(--text-muted);
-        font-size: 0.875rem;
+    .stats-info p {
+        margin-bottom: 0;
+        color: #6c757d;
     }
 
-    .content-card {
-        background-color: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        margin-bottom: 1.5rem;
-    }
-
-    .card-header {
-        padding: 1.5rem;
-        border-bottom: 1px solid var(--border-color);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .card-header h2 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-    }
-
-    .card-body {
-        padding: 1.5rem;
-    }
-
-    /* Event List Styles */
-    .event-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .event-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem;
-        border-radius: 8px;
-        background-color: #f8f9fa;
-    }
-
-    .event-date {
-        text-align: center;
-        min-width: 60px;
-    }
-
-    .event-date .date {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--primary);
-        line-height: 1;
-    }
-
-    .event-date .month {
-        font-size: 0.875rem;
-        color: var(--text-muted);
-        text-transform: uppercase;
-    }
-
-    .event-details {
-        flex: 1;
-    }
-
-    .event-details h4 {
-        margin: 0 0 0.5rem;
-        font-size: 1rem;
-        font-weight: 600;
-    }
-
-    .event-details p {
-        margin: 0 0 0.5rem;
-        font-size: 0.875rem;
-        color: var(--text-muted);
-    }
-
-    .event-meta {
-        display: flex;
-        gap: 1rem;
-        font-size: 0.75rem;
-        color: var(--text-muted);
-    }
-
-    .event-meta span {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-    }
-
-    /* Team List Styles */
-    .team-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .team-item {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 0.75rem;
-        border-radius: 8px;
-        background-color: #f8f9fa;
-    }
-
-    .team-avatar {
-        width: 40px;
-        height: 40px;
-        background-color: var(--primary);
-        color: var(--secondary);
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-    }
-
-    .team-info {
-        flex: 1;
-    }
-
-    .team-info h4 {
-        margin: 0;
-        font-size: 0.875rem;
-        font-weight: 600;
-    }
-
-    .team-info p {
-        margin: 0;
-        font-size: 0.75rem;
-        color: var(--text-muted);
-    }
-
-    /* Empty State Styles */
-    .empty-state {
-        text-align: center;
-        padding: 2rem;
-        color: var(--text-muted);
-    }
-
-    .empty-state i {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-    }
-
-    .empty-state p {
-        margin-bottom: 1rem;
-    }
-
-    /* Additional styles for restored features */
+    /* Instruction Blocks */
     .instruction-block {
-        text-align: center;
         height: 100%;
     }
 
     .instruction-icon {
-        width: 48px;
-        height: 48px;
-        background-color: var(--primary-light);
-        color: var(--primary);
-        border-radius: 12px;
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
+        margin: 0 auto;
         font-size: 1.5rem;
-        margin: 0 auto 1rem;
     }
 
     .instruction-block h5 {
-        color: var(--text-dark);
-        margin-bottom: 1rem;
         font-weight: 600;
     }
 
     .instruction-block ol {
-        text-align: left;
-        padding-left: 1.5rem;
-        color: var(--text-muted);
+        color: #6c757d;
     }
 
     .instruction-block li {
         margin-bottom: 0.5rem;
     }
 
-    .table {
-        margin-bottom: 0;
+    /* Event Icon */
+    .event-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
+    /* Color Utilities */
+    .bg-primary-light {
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+
+    .bg-success-light {
+        background-color: rgba(40, 167, 69, 0.1);
+    }
+
+    .bg-info-light {
+        background-color: rgba(23, 162, 184, 0.1);
+    }
+
+    .bg-warning-light {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+
+    .bg-danger-light {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+
+    .bg-secondary-light {
+        background-color: rgba(108, 117, 125, 0.1);
+    }
+
+    /* Table Styles */
     .table th {
-        background-color: var(--primary-light);
-        color: var(--text-dark);
+        background-color: #f8f9fa;
         font-weight: 600;
-        border-bottom: none;
     }
 
     .table td {
         vertical-align: middle;
-    }
-
-    .team-meta {
-        margin-top: 0.5rem;
-    }
-
-    .team-meta .badge {
-        font-size: 0.75rem;
-        font-weight: 500;
-    }
-
-    .border-end {
-        border-color: var(--border-color) !important;
-    }
-
-    /* Responsive Styles */
-    @media (max-width: 768px) {
-        .dashboard-sidebar {
-            width: 100%;
-            position: relative;
-            height: auto;
-        }
-
-        .dashboard-main {
-            margin-left: 0;
-        }
-
-        .dashboard-stats {
-            grid-template-columns: 1fr;
-        }
-
-        .table-responsive {
-            border: 0;
-        }
-
-        .table thead {
-            display: none;
-        }
-
-        .table tr {
-            margin-bottom: 1rem;
-            display: block;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .table td {
-            display: block;
-            text-align: right;
-            padding: 0.5rem 1rem;
-            border: none;
-        }
-
-        .table td::before {
-            content: attr(data-label);
-            float: left;
-            font-weight: 600;
-        }
     }
 </style>
 {% endblock %}

@@ -1,0 +1,198 @@
+{% extends "layouts/base.html" %}
+
+{% block title %}Register for Pitching Event - {{ event.name }} - ESummit{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h4 class="card-title mb-0">Register for Pitching Event</h4>
+                    <p class="text-muted mb-0">{{ event.name }}</p>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-4">
+                        <h5 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Important Information</h5>
+                        <p class="mb-0">Please provide detailed information about your pitch. This information will be used by judges to evaluate your pitch.</p>
+                    </div>
+
+                    <form method="POST" action="{{ url_for('dashboard.register_pitching', team_id=team.id) }}">
+                        {{ form.csrf_token }}
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Pitch Title</label>
+                            {{ form.pitch_title(class="form-control", placeholder="Enter a catchy title for your pitch") }}
+                            {% if form.pitch_title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.pitch_title.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">A concise, memorable title for your pitch (5-100 characters)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Executive Summary</label>
+                            {{ form.pitch_summary(class="form-control", rows=3, placeholder="Provide a brief summary of your pitch") }}
+                            {% if form.pitch_summary.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.pitch_summary.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">A brief overview of your business idea (50-500 characters)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Problem Statement</label>
+                            {{ form.problem_statement(class="form-control", rows=4, placeholder="Describe the problem you're solving") }}
+                            {% if form.problem_statement.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.problem_statement.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Clearly define the problem your solution addresses (50-1000 characters)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Solution Approach</label>
+                            {{ form.solution_approach(class="form-control", rows=4, placeholder="Explain your solution") }}
+                            {% if form.solution_approach.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.solution_approach.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Describe how your solution solves the problem (50-1000 characters)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Market Analysis</label>
+                            {{ form.market_analysis(class="form-control", rows=4, placeholder="Describe your target market and competition") }}
+                            {% if form.market_analysis.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.market_analysis.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Analyze your target market, competition, and market opportunity (50-1000 characters)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Business Model</label>
+                            {{ form.business_model(class="form-control", rows=4, placeholder="Explain how you'll make money") }}
+                            {% if form.business_model.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.business_model.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Describe your revenue model, pricing strategy, and path to profitability (50-1000 characters)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Team Background</label>
+                            {{ form.team_background(class="form-control", rows=4, placeholder="Introduce your team and their qualifications") }}
+                            {% if form.team_background.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.team_background.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Highlight your team's relevant experience and qualifications (50-1000 characters)</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Pitch Deck URL (Google Drive/Docs)</label>
+                            {{ form.pitch_deck_url(class="form-control", placeholder="https://docs.google.com/presentation/d/...") }}
+                            {% if form.pitch_deck_url.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {% for error in form.pitch_deck_url.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Please provide a shareable link to your pitch deck (required)</div>
+                        </div>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Additional Documents URL (Optional)</label>
+                                {{ form.additional_docs_url(class="form-control", placeholder="https://drive.google.com/...") }}
+                                {% if form.additional_docs_url.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.additional_docs_url.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Any additional supporting documents (business plan, financials, etc.)</div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Video Pitch URL (Optional)</label>
+                                {{ form.video_pitch_url(class="form-control", placeholder="https://youtu.be/...") }}
+                                {% if form.video_pitch_url.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.video_pitch_url.errors %}
+                                            {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Link to a video pitch (YouTube, Vimeo, etc.)</div>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i> Submit Pitch Registration
+                            </button>
+                            <a href="{{ url_for('dashboard.team_details', team_id=team.id) }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Back to Team
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-label.fw-bold {
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-text {
+        color: #6c757d;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    .alert-info {
+        background-color: #e3f2fd;
+        border-color: #b3e5fc;
+        color: #0277bd;
+    }
+
+    .btn-primary {
+        background-color: #3F51B5;
+        border-color: #3F51B5;
+    }
+
+    .btn-primary:hover {
+        background-color: #303F9F;
+        border-color: #303F9F;
+    }
+</style>
+{% endblock %}
