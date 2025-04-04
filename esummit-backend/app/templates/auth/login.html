@@ -3,64 +3,260 @@
 {% block title %}Login - ESummit{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card fade-in">
-                <div class="card-body p-5">
-                    <h3 class="text-center fw-bold mb-4">Welcome Back</h3>
-                    <form method="POST" action="{{ url_for('auth.login') }}">
-                        {{ form.hidden_tag() }}
-                        <div class="mb-3">
-                            {{ form.email.label(class="form-label") }}
-                            {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="Enter your email", autocomplete="email") }}
-                            {% for error in form.email.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                        <div class="mb-4">
-                            {{ form.password.label(class="form-label") }}
-                            {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Enter your password", autocomplete="current-password") }}
-                            {% for error in form.password.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center mb-4">
-                            <div class="form-check">
-                                {{ form.remember(class="form-check-input") }}
-                                {{ form.remember.label(class="form-check-label") }}
-                            </div>
-                            <a href="{{ url_for('auth.reset_request') }}" class="text-decoration-none small">Forgot password?</a>
-                        </div>
-                        <div class="d-grid mb-4">
-                            {{ form.submit(class="btn btn-primary py-2") }}
-                        </div>
-                        <div class="text-center">
-                            <p class="small mb-0">Don't have an account? <a href="{{ url_for('auth.register') }}" class="text-decoration-none">Create account</a></p>
-                        </div>
-                    </form>
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1>Welcome Back</h1>
+            <p class="subtitle">Sign in to your account to continue</p>
+
+            <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">
+                {{ form.hidden_tag() }}
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""), placeholder="Enter your email", autocomplete="email") }}
+                    {% for error in form.email.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
                 </div>
-            </div>
-            <div class="text-center mt-4">
-                <a href="{{ url_for('main.index') }}" class="text-decoration-none">
-                    <i class="fas fa-arrow-left me-1"></i> Back to Home
-                </a>
-            </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""), placeholder="Enter your password", autocomplete="current-password") }}
+                    {% for error in form.password.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-options">
+                    <div class="remember-me">
+                        {{ form.remember(class="form-check-input") }}
+                        {{ form.remember.label(class="form-check-label") }}
+                    </div>
+                    <a href="{{ url_for('auth.reset_request') }}" class="forgot-password">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Sign In</button>
+
+                <div class="auth-footer">
+                    <div class="divider">or</div>
+                    <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Create account</a></p>
+                    <a href="{{ url_for('main.index') }}" class="back-link">
+                        <i class="fas fa-arrow-left"></i> Back to Home
+                    </a>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-<!-- Flash Messages -->
-{% with messages = get_flashed_messages(with_categories=true) %}
-    {% if messages %}
-        <div class="container mt-3">
-            {% for category, message in messages %}
-                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
-{% endwith %}
+<style>
+    body {
+        margin: 0;
+        background-color: #1a1a1a;
+        color: #ffffff;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .auth-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background-color: #121212;
+    }
+
+    .auth-container {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .auth-card {
+        background-color: #1e1e1e;
+        border-radius: 12px;
+        padding: 2rem;
+    }
+
+    .auth-card h1 {
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 8px 0;
+        color: #ffffff;
+        text-align: center;
+    }
+
+    .subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        text-align: center;
+        font-size: 14px;
+        margin: 0 0 32px 0;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #ffffff;
+        font-size: 14px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        background-color: #2a2a2a;
+        border: 1px solid #333333;
+        border-radius: 6px;
+        color: #ffffff;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #ffd700;
+        box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+    }
+
+    .form-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .form-check-input {
+        margin: 0;
+        width: 16px;
+        height: 16px;
+        background-color: #2a2a2a;
+        border: 1px solid #333333;
+        border-radius: 3px;
+        cursor: pointer;
+    }
+
+    .form-check-input:checked {
+        background-color: #ffd700;
+        border-color: #ffd700;
+    }
+
+    .form-check-label {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 14px;
+        cursor: pointer;
+    }
+
+    .forgot-password {
+        color: #ffd700;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
+
+    .btn-primary {
+        background-color: #ffd700;
+        color: #000000;
+        border: none;
+        border-radius: 6px;
+        padding: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        background-color: #ffed4a;
+    }
+
+    .auth-footer {
+        margin-top: 24px;
+        text-align: center;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 14px;
+        margin: 24px 0;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #333333;
+    }
+
+    .divider::before {
+        margin-right: 16px;
+    }
+
+    .divider::after {
+        margin-left: 16px;
+    }
+
+    .auth-footer p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 14px;
+        margin: 0 0 16px 0;
+    }
+
+    .auth-footer a {
+        color: #ffd700;
+        text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .back-link {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .back-link:hover {
+        color: #ffffff;
+    }
+
+    .invalid-feedback {
+        color: #ff4444;
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    @media (max-width: 480px) {
+        .auth-page {
+            padding: 1rem;
+        }
+
+        .auth-card {
+            padding: 1.5rem;
+        }
+    }
+</style>
 {% endblock %} 
