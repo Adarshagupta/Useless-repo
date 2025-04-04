@@ -9,6 +9,11 @@ class EventForm(FlaskForm):
         Length(min=3, max=100)
     ])
     
+    subtitle = StringField('Event Subtitle', validators=[
+        Optional(),
+        Length(max=200)
+    ])
+    
     description = TextAreaField('Description', validators=[
         DataRequired(),
         Length(min=10, max=2000)

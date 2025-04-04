@@ -4,436 +4,195 @@
 
 {% block content %}
 <!-- Events Header -->
-<div class="events-header py-5 mb-4 mb-md-5">
-    <div class="container-fluid px-4 px-md-5">
-        <div class="row justify-content-center">
-            <div class="col-lg-8 text-center">
-                <h6 class="text-accent text-uppercase fw-bold tracking-wide mb-2">Discover Opportunities</h6>
-                <h1 class="display-4 fw-bold mb-3">E-Summit Events</h1>
-                <p class="lead mb-0">Explore our exciting lineup of hackathons, workshops, competitions, and talks designed to elevate your entrepreneurial journey.</p>
+<div class="events-header py-5">
+    <div class="container-fluid px-4">
+        <div class="row">
+            <div class="col-md-6">
+                <h1 class="display-4 text-white fw-bold mb-0">UPCOMING<br>EVENTS</h1>
+            </div>
+            <div class="col-md-6 text-end">
+                <p class="text-white mb-0">GET READY FOR A MARKETING REVOLUTION!<br>EXPLORE DYNAMIC EVENTS PACKED WITH<br>INSIGHTS, NETWORKING, AND INNOVATION.</p>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Event Filters -->
-<div class="container-fluid px-4 px-md-5">
-    <div class="row mb-4 mb-md-5">
-        <div class="col-12 mx-auto">
-            <div class="filter-card">
-                <form method="GET" action="{{ url_for('main.events') }}" class="row g-3">
-                    <div class="col-md-4">
-                        <label class="form-label small text-uppercase fw-medium">Event Type</label>
-                        <select name="type" class="form-select">
-                            <option value="">All Event Types</option>
-                            <option value="hackathon" {% if request.args.get('type') == 'hackathon' %}selected{% endif %}>Hackathons</option>
-                            <option value="workshop" {% if request.args.get('type') == 'workshop' %}selected{% endif %}>Workshops</option>
-                            <option value="competition" {% if request.args.get('type') == 'competition' %}selected{% endif %}>Competitions</option>
-                            <option value="talk" {% if request.args.get('type') == 'talk' %}selected{% endif %}>Talks</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small text-uppercase fw-medium">Status</label>
-                        <select name="status" class="form-select">
-                            <option value="">All Statuses</option>
-                            <option value="upcoming" {% if request.args.get('status') == 'upcoming' %}selected{% endif %}>Upcoming</option>
-                            <option value="ongoing" {% if request.args.get('status') == 'ongoing' %}selected{% endif %}>Ongoing</option>
-                            <option value="past" {% if request.args.get('status') == 'past' %}selected{% endif %}>Past</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label small text-uppercase fw-medium d-none d-md-block">&nbsp;</label>
-                        <button type="submit" class="btn btn-dark w-100">
-                            <i class="fas fa-filter me-2"></i> Filter Events
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Events Grid -->
-    <div class="row g-4 mb-5">
+<!-- Events Grid -->
+<div class="container-fluid px-4">
+    <div class="row g-4">
         {% for event in events %}
-        <div class="col-12 col-md-6 col-lg-4">
+        <div class="col-md-6 col-lg-4">
             <div class="event-card h-100">
                 <div class="event-image">
                     {% if event.image_url %}
-                    <img src="{{ event.image_url }}" class="img-fluid" alt="{{ event.name }}">
+                    <img src="{{ event.image_url }}" alt="{{ event.name }}">
                     {% else %}
-                    <img src="{{ url_for('static', filename='img/event-default.jpg') }}" class="img-fluid" alt="{{ event.name }}">
+                    <img src="{{ url_for('static', filename='img/event-default.jpg') }}" alt="{{ event.name }}">
                     {% endif %}
-                    <div class="event-date">
-                        <span class="day">{{ event.start_date.strftime('%d') }}</span>
-                        <span class="month">{{ event.start_date.strftime('%b') }}</span>
-                    </div>
-                    <div class="event-status">
-                        <span class="badge status-{{ event.status }}">{{ event.status }}</span>
-                    </div>
-                </div>
-                <div class="event-content">
-                    <h4 class="event-title">{{ event.name }}</h4>
-                    <p class="event-description">{{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}</p>
-                    
-                    <div class="event-details">
-                        <div class="event-detail">
-                            <i class="fas fa-calendar-alt"></i>
-                            <span>{{ event.start_date.strftime('%b %d, %Y') }}
-                            {% if event.end_date %}
-                            - {{ event.end_date.strftime('%b %d, %Y') }}
-                            {% endif %}</span>
+                    <div class="event-overlay">
+                        <div class="event-header">
+                            <div class="event-type">{{ event.event_type|upper }}</div>
+                            <div class="event-date">
+                                <div class="date">{{ event.start_date.strftime('%d %b %Y') }}</div>
+                            </div>
                         </div>
-                        
-                        <div class="event-detail">
-                            <i class="fas fa-users"></i>
-                            <span>{{ event.registrations|length }} Registered</span>
+                        <div class="event-info">
+                            <h3 class="event-title">{{ event.name }}</h3>
+                            <p class="event-description">{{ event.description[:100] }}{% if event.description|length > 100 %}...{% endif %}</p>
+                            <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="event-link">
+                                <span class="arrow-icon">→</span>
+                            </a>
                         </div>
-                        
-                        {% if event.max_participants %}
-                        <div class="event-detail">
-                            <i class="fas fa-user-plus"></i>
-                            <span>{{ event.max_participants - event.registrations|length }} spots left</span>
-                        </div>
-                        {% endif %}
                     </div>
-                    
-                    <div class="event-badges">
-                        {% if event.is_team_event %}
-                        <span class="badge badge-team">
-                            <i class="fas fa-users me-1"></i> Team Event
-                        </span>
-                        {% endif %}
-                        
-                        {% if event.prize_pool %}
-                        <span class="badge badge-prize">
-                            <i class="fas fa-trophy me-1"></i> ₹{{ event.prize_pool }}
-                        </span>
-                        {% endif %}
-                    </div>
-                    
-                    <a href="{{ url_for('main.event_details', event_id=event.id) }}" class="btn btn-link text-accent p-0 mt-3 d-block w-100 text-center text-md-start">
-                        Learn More <i class="fas fa-arrow-right ms-1"></i>
-                    </a>
                 </div>
             </div>
         </div>
         {% else %}
         <div class="col-12">
-            <div class="empty-state text-center py-5">
-                <div class="empty-icon">
-                    <i class="fas fa-calendar-times"></i>
+            <div class="text-center py-5">
+                <div class="mb-4">
+                    <i class="fas fa-calendar-times fa-3x text-muted"></i>
                 </div>
-                <h3 class="mt-4 mb-2">No Events Found</h3>
-                <p class="text-muted mb-4">Try adjusting your filters or check back later for new events</p>
-                <a href="{{ url_for('main.events') }}" class="btn btn-outline-dark">View All Events</a>
+                <h3 class="text-white">No Events Found</h3>
+                <p class="text-muted">Check back later for upcoming events</p>
             </div>
         </div>
         {% endfor %}
     </div>
-
-    <!-- Pagination -->
-    {% if pagination.pages > 1 %}
-    <nav aria-label="Event pagination" class="my-5">
-        <ul class="pagination justify-content-center flex-wrap">
-            <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
-                <a class="page-link" href="{{ url_for('main.events', page=pagination.prev_num, **request.args) if pagination.has_prev else '#' }}">
-                    <i class="fas fa-chevron-left me-1"></i> Previous
-                </a>
-            </li>
-            {% for page in pagination.iter_pages() %}
-                {% if page %}
-                    <li class="page-item {% if page == pagination.page %}active{% endif %}">
-                        <a class="page-link" href="{{ url_for('main.events', page=page, **request.args) }}">{{ page }}</a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">...</span>
-                    </li>
-                {% endif %}
-            {% endfor %}
-            <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
-                <a class="page-link" href="{{ url_for('main.events', page=pagination.next_num, **request.args) if pagination.has_next else '#' }}">
-                    Next <i class="fas fa-chevron-right ms-1"></i>
-                </a>
-            </li>
-        </ul>
-    </nav>
-    {% endif %}
 </div>
 
 <style>
-    /* Yellow-themed color scheme */
-    :root {
-        --primary: #ffd100;
-        --primary-light: #fff3b0;
-        --primary-dark: #ffc400;
-        --accent: #ff9500;
-        --dark: #212121;
-        --light: #ffffff;
-    }
-    
     body {
-        background-color: var(--light);
-        color: var(--dark);
+        background-color: #1a1a1a;
     }
-    
-    /* Events header styling */
+
+    /* Header styling */
     .events-header {
-        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+        background-color: transparent;
+        padding: 4rem 0;
     }
     
-    .tracking-wide {
-        letter-spacing: 2px;
+    .events-header h1 {
+        font-size: 4rem;
+        line-height: 1;
+        letter-spacing: -1px;
     }
     
-    .text-accent {
-        color: var(--accent) !important;
+    .events-header p {
+        font-size: 0.9rem;
+        letter-spacing: 0.5px;
+        opacity: 0.9;
     }
-    
-    /* Filter card styling */
-    .filter-card {
-        background-color: white;
-        padding: 1rem;
-        border-radius: 8px;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-        width: 100%;
-    }
-    
-    @media (min-width: 768px) {
-        .filter-card {
-            padding: 2rem;
-        }
-    }
-    
-    .form-select, .form-control {
-        border: 1px solid #e0e0e0;
-        padding: 0.6rem 1rem;
-        border-radius: 6px;
-    }
-    
-    .form-select:focus, .form-control:focus {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 0.25rem rgba(255, 149, 0, 0.15);
-    }
-    
-    /* Event cards styling */
+
+    /* Event card styling */
     .event-card {
-        background-color: #fff;
-        border: none;
-        border-radius: 8px;
+        position: relative;
+        border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        width: 100%;
-    }
-    
-    @media (hover: hover) {
-        .event-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(0,0,0,0.12);
-        }
-        
-        .event-card:hover .event-image img {
-            transform: scale(1.1);
-        }
+        background-color: #2a2a2a;
+        transition: transform 0.3s ease;
     }
     
     .event-image {
         position: relative;
+        height: 500px;
         overflow: hidden;
     }
     
     .event-image img {
-        height: 220px;
-        object-fit: cover;
         width: 100%;
-        transition: transform 0.5s ease;
+        height: 100%;
+        object-fit: cover;
     }
     
-    @media (max-width: 767px) {
-        .event-image img {
-            height: 250px;
-        }
+    .event-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        padding: 2rem;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.8) 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    
+    .event-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+    
+    .event-type {
+        display: inline-block;
+        padding: 8px 16px;
+        background: rgba(255,255,255,0.1);
+        border: 1px dashed rgba(255,255,255,0.3);
+        border-radius: 50px;
+        color: white;
+        font-size: 0.8rem;
+        font-weight: 600;
+        letter-spacing: 1px;
     }
     
     .event-date {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        background-color: var(--accent);
         color: white;
-        padding: 10px 15px;
-        border-radius: 5px;
-        text-align: center;
-        font-weight: 700;
-        display: flex;
-        flex-direction: column;
-        z-index: 2;
+        font-size: 0.9rem;
+        font-weight: 500;
     }
     
-    .event-date .day {
-        font-size: 1.5rem;
-        line-height: 1;
-    }
-    
-    .event-date .month {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-    }
-    
-    .event-status {
-        position: absolute;
-        top: 15px;
-        left: 15px;
-        z-index: 2;
-    }
-    
-    .status-upcoming {
-        background-color: #28a745;
-    }
-    
-    .status-ongoing {
-        background-color: #007bff;
-    }
-    
-    .status-past {
-        background-color: #6c757d;
-    }
-    
-    .event-content {
-        padding: 1.5rem;
+    .event-info {
+        color: white;
     }
     
     .event-title {
+        font-size: 2rem;
         font-weight: 700;
         margin-bottom: 1rem;
+        color: white;
     }
     
     .event-description {
-        color: #6c757d;
-        margin-bottom: 1.5rem;
+        font-size: 1rem;
+        line-height: 1.6;
+        color: rgba(255,255,255,0.8);
+        margin-bottom: 2rem;
     }
     
-    .event-details {
-        margin-bottom: 1.25rem;
-    }
-    
-    .event-detail {
-        display: flex;
+    .event-link {
+        display: inline-flex;
         align-items: center;
-        margin-bottom: 0.5rem;
-        color: #6c757d;
-        font-size: 0.9rem;
-    }
-    
-    .event-detail i {
-        width: 20px;
-        color: var(--accent);
-        margin-right: 8px;
-    }
-    
-    .event-badges {
-        margin-bottom: 1.25rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-    }
-    
-    .badge {
-        font-weight: 500;
-        padding: 0.5rem 0.75rem;
-        border-radius: 4px;
-    }
-    
-    .badge-team {
-        background-color: var(--primary-light);
-        color: var(--dark);
-    }
-    
-    .badge-prize {
-        background-color: #28a745;
         color: white;
-    }
-    
-    /* Empty state styling */
-    .empty-state {
-        padding: 3rem;
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        width: 100%;
-    }
-    
-    .empty-icon {
-        font-size: 4rem;
-        color: var(--accent);
-    }
-    
-    /* Pagination styling */
-    .pagination {
-        gap: 0.3rem;
-    }
-    
-    .page-link {
-        border: none;
-        color: var(--dark);
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        transition: all 0.2s ease;
-        margin-bottom: 0.3rem;
-    }
-    
-    .page-item.active .page-link {
-        background-color: var(--accent);
-        border-color: var(--accent);
-    }
-    
-    .page-link:hover {
-        background-color: var(--primary-light);
-        color: var(--dark);
-    }
-    
-    .page-item.disabled .page-link {
-        color: #6c757d;
-        background-color: #f8f9fa;
-    }
-    
-    /* Button styling */
-    .btn-dark {
-        background-color: var(--dark);
-        border-color: var(--dark);
-    }
-    
-    .btn-dark:hover {
-        background-color: black;
-        border-color: black;
-    }
-    
-    .btn-outline-dark {
-        color: var(--dark);
-        border-color: var(--dark);
-    }
-    
-    .btn-outline-dark:hover {
-        background-color: var(--dark);
-        color: white;
-    }
-    
-    .btn-link {
         text-decoration: none;
+        transition: transform 0.3s ease;
     }
     
-    /* Add responsive font sizes */
-    @media (max-width: 767px) {
-        h1.display-4 {
-            font-size: 2.5rem;
+    .arrow-icon {
+        font-size: 1.5rem;
+        margin-left: 0.5rem;
+    }
+    
+    .event-card:hover {
+        transform: translateY(-10px);
+    }
+    
+    .event-card:hover .arrow-icon {
+        transform: translateX(5px);
+    }
+
+    @media (max-width: 768px) {
+        .events-header h1 {
+            font-size: 3rem;
+            margin-bottom: 2rem;
         }
         
-        .lead {
-            font-size: 1.1rem;
+        .event-image {
+            height: 400px;
         }
         
         .event-title {
-            font-size: 1.25rem;
+            font-size: 1.75rem;
         }
     }
 </style>

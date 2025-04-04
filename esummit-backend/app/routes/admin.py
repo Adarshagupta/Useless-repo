@@ -103,6 +103,7 @@ def create_event():
                 event = Event(
                     name=form.name.data,
                     description=form.description.data,
+                    subtitle=form.subtitle.data,
                     start_date=form.start_date.data,
                     end_date=form.end_date.data,
                     venue=form.venue.data,
@@ -145,7 +146,7 @@ def create_event():
                     now = datetime.utcnow()
                     cursor.execute("""
                         INSERT INTO event (
-                            name, description, start_date, end_date, venue, 
+                            name, description, subtitle, start_date, end_date, venue, 
                             registration_deadline, capacity, event_type, 
                             is_team_event, min_team_size, max_team_size, 
                             image_url, created_at

@@ -7,6 +7,7 @@ class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
+    subtitle = db.Column(db.String(200), nullable=True)
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime, nullable=False)
     venue = db.Column(db.String(100), nullable=False)
@@ -26,9 +27,10 @@ class Event(db.Model):
     
     def __init__(self, name, description, start_date, end_date, venue, registration_deadline, 
                  event_type, is_team_event=False, capacity=None, min_team_size=None, 
-                 max_team_size=None, image_url=None):
+                 max_team_size=None, image_url=None, subtitle=None):
         self.name = name
         self.description = description
+        self.subtitle = subtitle
         self.start_date = start_date
         self.end_date = end_date
         self.venue = venue

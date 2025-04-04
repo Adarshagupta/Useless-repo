@@ -1,154 +1,407 @@
 {% extends "layouts/base.html" %}
 
-{% block title %}Hackathons - ESummit{% endblock %}
+{% block title %}Hackathons{% endblock %}
 
 {% block content %}
-<div class="container py-4">
-    <!-- Hero Section -->
-    <div class="bg-primary text-white rounded-3 p-5 mb-4">
-        <div class="row align-items-center">
-            <div class="col-lg-8">
-                <h1 class="display-4 fw-bold mb-3">Hackathons</h1>
-                <p class="lead mb-4">Join exciting hackathons, showcase your skills, and compete with the best teams from across the country. Build innovative solutions and win amazing prizes!</p>
-                {% if current_user.is_authenticated %}
-                    <a href="#register" class="btn btn-light btn-lg">
-                        <i class="fas fa-code"></i> Register Now
-                    </a>
-                {% else %}
-                    <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg">
-                        <i class="fas fa-sign-in-alt"></i> Login to Register
-                    </a>
-                {% endif %}
-            </div>
-            <div class="col-lg-4 text-center">
-                <i class="fas fa-laptop-code fa-6x opacity-75"></i>
+<div class="hackathons-container">
+    <!-- Header Section -->
+    <div class="hackathon-header">
+        <div class="container">
+            <div class="header-content">
+                <h1>DISCOVER HACKATHONS</h1>
+                <p class="lead">Showcase your skills, build innovative solutions, and compete with the best.</p>
             </div>
         </div>
     </div>
 
-    <!-- Filters -->
-    <div class="card shadow-sm mb-4">
-        <div class="card-body">
-            <form method="GET" action="{{ url_for('main.hackathons') }}" class="row g-3">
-                <div class="col-md-4">
-                    <select name="status" class="form-select">
-                        <option value="">All Status</option>
-                        <option value="upcoming" {% if request.args.get('status') == 'upcoming' %}selected{% endif %}>Upcoming</option>
-                        <option value="ongoing" {% if request.args.get('status') == 'ongoing' %}selected{% endif %}>Ongoing</option>
-                        <option value="completed" {% if request.args.get('status') == 'completed' %}selected{% endif %}>Completed</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <select name="prize" class="form-select">
-                        <option value="">All Prize Ranges</option>
-                        <option value="10000" {% if request.args.get('prize') == '10000' %}selected{% endif %}>₹10,000+</option>
-                        <option value="50000" {% if request.args.get('prize') == '50000' %}selected{% endif %}>₹50,000+</option>
-                        <option value="100000" {% if request.args.get('prize') == '100000' %}selected{% endif %}>₹1,00,000+</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <div class="input-group">
-                        <input type="text" name="search" class="form-control" placeholder="Search hackathons..." value="{{ request.args.get('search', '') }}">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search"></i>
-                        </button>
+    <!-- Main Content -->
+    <div class="container py-5">
+        <!-- Filters -->
+        <div class="filters-section mb-4">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control" placeholder="Search hackathons...">
                     </div>
                 </div>
-            </form>
+                <div class="col-md-6 text-md-end">
+                    <div class="filter-buttons">
+                        <button class="btn btn-outline-primary active">All</button>
+                        <button class="btn btn-outline-primary">Upcoming</button>
+                        <button class="btn btn-outline-primary">Ongoing</button>
+                        <button class="btn btn-outline-primary">Past</button>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
 
-    <!-- Hackathons List -->
-    <div class="row g-4" id="register">
-        {% for hackathon in hackathons %}
-        <div class="col-md-6 col-lg-4">
-            <div class="card h-100 shadow-sm">
-                {% if hackathon.image_url %}
-                    <img src="{{ hackathon.image_url }}" class="card-img-top" alt="{{ hackathon.name }}">
-                {% else %}
-                    <img src="{{ url_for('static', filename='img/event-default.jpg') }}" class="card-img-top" alt="{{ hackathon.name }}">
-                {% endif %}
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h5 class="card-title mb-0">{{ hackathon.name }}</h5>
-                        <span class="badge bg-{{ hackathon.status_color }}">{{ hackathon.status }}</span>
-                    </div>
-                    <p class="card-text text-muted mb-3">{{ hackathon.description[:150] }}...</p>
-                    <div class="mb-3">
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-calendar-alt text-primary me-2"></i>
-                            <span>{{ hackathon.start_date.strftime('%B %d, %Y') }}</span>
-                        </div>
-                        <div class="d-flex align-items-center mb-2">
-                            <i class="fas fa-users text-primary me-2"></i>
-                            <span>{{ hackathon.min_team_size }}-{{ hackathon.max_team_size }} members per team</span>
-                        </div>
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-trophy text-primary me-2"></i>
-                            <span>Prize Pool: {% if hackathon.prize_pool %}₹{{ '{:,}'.format(hackathon.prize_pool) }}{% else %}TBA{% endif %}</span>
-                        </div>
-                    </div>
-                    <div class="d-grid gap-2">
-                        {% if current_user.is_authenticated %}
-                            {% if hackathon.is_registered(current_user) %}
-                                <button class="btn btn-success" disabled>
-                                    <i class="fas fa-check"></i> Registered
-                                </button>
-                            {% else %}
-                                <a href="{{ url_for('main.hackathon_details', hackathon_id=hackathon.id) }}" class="btn btn-primary">
-                                    <i class="fas fa-users"></i> Form Team
+        <!-- Hackathons Grid -->
+        <div class="hackathons-grid">
+            {% for hackathon in hackathons %}
+            <div class="hackathon-card">
+                <div class="card-image" style="background-image: url('{{ hackathon.image_url }}')">
+                    <div class="card-overlay">
+                        <div class="card-content">
+                            <div class="card-header">
+                                <span class="status-badge {% if hackathon.status == 'upcoming' %}status-upcoming{% elif hackathon.status == 'ongoing' %}status-ongoing{% else %}status-ended{% endif %}">
+                                    {{ hackathon.status|title }}
+                                </span>
+                                <div class="prize-pool">
+                                    <i class="fas fa-trophy"></i>
+                                    {% if hackathon.prize_pool %}₹{{ hackathon.prize_pool }}{% else %}TBA{% endif %}
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="date">{{ hackathon.start_date.strftime('%d %b') }} - {{ hackathon.end_date.strftime('%d %b') }}</div>
+                                <h3>{{ hackathon.name }}</h3>
+                                <p>{{ hackathon.description[:150] }}...</p>
+                            </div>
+                            <div class="card-footer">
+                                <div class="meta">
+                                    <span><i class="fas fa-users"></i> {{ hackathon.team_size }} per team</span>
+                                    <span><i class="fas fa-code-branch"></i> {{ hackathon.registered_teams|length }} teams</span>
+                                </div>
+                                <a href="{{ url_for('main.hackathon_details', hackathon_id=hackathon.id) }}" class="btn-view">
+                                    View Details <i class="fas fa-arrow-right"></i>
                                 </a>
-                            {% endif %}
-                        {% else %}
-                            <a href="{{ url_for('auth.login') }}" class="btn btn-outline-primary">
-                                <i class="fas fa-sign-in-alt"></i> Login to Register
-                            </a>
-                        {% endif %}
-                        <a href="{{ url_for('main.hackathon_details', hackathon_id=hackathon.id) }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-info-circle"></i> View Details
-                        </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        {% else %}
-        <div class="col-12">
-            <div class="text-center py-5">
-                <i class="fas fa-code-branch fa-4x text-muted mb-3"></i>
+            {% else %}
+            <div class="empty-state">
+                <i class="fas fa-laptop-code"></i>
                 <h3>No Hackathons Found</h3>
-                <p class="text-muted">Check back later for upcoming hackathons or try adjusting your filters.</p>
+                <p>Check back later for upcoming hackathons!</p>
             </div>
-        </div>
-        {% endfor %}
-    </div>
-
-    <!-- Pagination -->
-    {% if pagination.pages > 1 %}
-    <nav aria-label="Hackathon pagination" class="mt-4">
-        <ul class="pagination justify-content-center">
-            <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
-                <a class="page-link" href="{{ url_for('main.hackathons', page=pagination.prev_num, **request.args) if pagination.has_prev else '#' }}">
-                    <i class="fas fa-chevron-left"></i> Previous
-                </a>
-            </li>
-            {% for page in pagination.iter_pages() %}
-                {% if page %}
-                    <li class="page-item {% if page == pagination.page %}active{% endif %}">
-                        <a class="page-link" href="{{ url_for('main.hackathons', page=page, **request.args) }}">{{ page }}</a>
-                    </li>
-                {% else %}
-                    <li class="page-item disabled">
-                        <span class="page-link">...</span>
-                    </li>
-                {% endif %}
             {% endfor %}
-            <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
-                <a class="page-link" href="{{ url_for('main.hackathons', page=pagination.next_num, **request.args) if pagination.has_next else '#' }}">
-                    Next <i class="fas fa-chevron-right"></i>
-                </a>
-            </li>
-        </ul>
-    </nav>
-    {% endif %}
+        </div>
+
+        <!-- Pagination -->
+        {% if pagination.pages > 1 %}
+        <nav class="pagination-container">
+            <ul class="pagination justify-content-center">
+                <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('main.hackathons', page=pagination.prev_num) if pagination.has_prev else '#' }}">
+                        <i class="fas fa-chevron-left"></i>
+                    </a>
+                </li>
+                {% for page in pagination.iter_pages() %}
+                    {% if page %}
+                        <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('main.hackathons', page=page) }}">{{ page }}</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_for('main.hackathons', page=pagination.next_num) if pagination.has_next else '#' }}">
+                        <i class="fas fa-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
 </div>
+
+<style>
+    body {
+        background-color: #121212;
+        color: #ffffff;
+    }
+
+    .hackathons-container {
+        min-height: calc(100vh - 56px);
+    }
+
+    /* Header Styles */
+    .hackathon-header {
+        background-color: var(--primary);
+        padding: 4rem 0;
+        text-align: center;
+        position: relative;
+    }
+
+    .header-content {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .hackathon-header h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 1rem;
+        color: var(--secondary);
+        letter-spacing: -1px;
+    }
+
+    .hackathon-header .lead {
+        font-size: 1.25rem;
+        color: var(--secondary);
+        opacity: 0.9;
+    }
+
+    /* Filters Section */
+    .filters-section {
+        background-color: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .search-box {
+        position: relative;
+    }
+
+    .search-box i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+    }
+
+    .search-box input {
+        padding-left: 2.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+    }
+
+    .filter-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-buttons .btn {
+        border-radius: 20px;
+        padding: 0.375rem 1rem;
+    }
+
+    /* Hackathon Cards */
+    .hackathons-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 2rem;
+        margin: 2rem 0;
+    }
+
+    .hackathon-card {
+        position: relative;
+        border-radius: 16px;
+        overflow: hidden;
+        aspect-ratio: 3/4;
+    }
+
+    .card-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .card-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.9));
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        transition: all 0.3s ease;
+    }
+
+    .hackathon-card:hover .card-overlay {
+        background: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.95));
+    }
+
+    .card-content {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .status-upcoming { background-color: var(--primary); color: var(--secondary); }
+    .status-ongoing { background-color: #00c853; color: white; }
+    .status-ended { background-color: #ff5252; color: white; }
+
+    .prize-pool {
+        color: white;
+        font-weight: 600;
+        font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .card-body {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem 0;
+    }
+
+    .date {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--primary);
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+    }
+
+    .card-body h3 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: white;
+        line-height: 1.2;
+    }
+
+    .card-body p {
+        color: rgba(255,255,255,0.8);
+        font-size: 1rem;
+        line-height: 1.5;
+    }
+
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .meta {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .meta span {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: rgba(255,255,255,0.8);
+        font-size: 0.875rem;
+    }
+
+    .meta i {
+        color: var(--primary);
+    }
+
+    .btn-view {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-view:hover {
+        color: white;
+    }
+
+    .btn-view i {
+        transition: transform 0.3s ease;
+    }
+
+    .btn-view:hover i {
+        transform: translateX(5px);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background-color: rgba(255,255,255,0.05);
+        border-radius: 16px;
+        grid-column: 1 / -1;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: white;
+    }
+
+    .empty-state p {
+        color: rgba(255,255,255,0.6);
+    }
+
+    /* Pagination */
+    .pagination-container {
+        margin-top: 2rem;
+    }
+
+    .pagination .page-link {
+        background-color: transparent;
+        border-color: rgba(255,255,255,0.1);
+        color: var(--primary);
+        padding: 0.5rem 1rem;
+    }
+
+    .pagination .page-item.active .page-link {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        color: var(--secondary);
+    }
+
+    .pagination .page-item.disabled .page-link {
+        background-color: transparent;
+        color: rgba(255,255,255,0.3);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .hackathon-header {
+            padding: 3rem 0;
+        }
+
+        .hackathon-header h1 {
+            font-size: 2.5rem;
+        }
+
+        .hackathons-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hackathon-card {
+            aspect-ratio: 16/9;
+        }
+    }
+</style>
 {% endblock %} 

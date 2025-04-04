@@ -461,8 +461,13 @@ a:hover {
     }
 
     .container-fluid {
-        padding-left: 1.25rem;
-        padding-right: 1.25rem;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
     }
 }
 
@@ -475,9 +480,9 @@ a:hover {
         padding: 1rem 1.25rem;
     }
 
-    .container-fluid {
-        padding-left: 1rem;
-        padding-right: 1rem;
+    .container-fluid, .container {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
     }
 }
 
@@ -519,13 +524,27 @@ a:hover {
 .content-wrapper {
     display: flex;
     min-height: calc(100vh - 56px);
+    width: 100%;
+    position: relative;
+    overflow-x: hidden;
 }
 
 .content {
     flex: 1;
     padding: 1.5rem;
-    margin-left: 260px;
     transition: all 0.3s ease;
+}
+
+/* Apply margin only when sidebar is present */
+.sidebar + .content {
+    margin-left: 260px;
+    width: calc(100% - 260px);
+}
+
+/* For pages without sidebar - add this class in the template */
+.no-sidebar .content {
+    margin-left: 0 !important;
+    width: 100% !important;
 }
 
 .sidebar .nav-link {
@@ -566,22 +585,27 @@ a:hover {
         width: 220px;
     }
 
-    .content {
+    .sidebar + .content {
         margin-left: 220px;
+        width: calc(100% - 220px);
     }
 }
 
 @media (max-width: 768px) {
     .sidebar {
         transform: translateX(-100%);
+        z-index: 1030;
     }
 
-    .content {
-        margin-left: 0;
+    .content, .sidebar + .content {
+        margin-left: 0 !important;
+        width: 100% !important;
+        padding: 1rem;
     }
 
     .sidebar.show {
         transform: translateX(0);
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
     }
 }
 
