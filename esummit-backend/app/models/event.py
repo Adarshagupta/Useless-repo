@@ -44,7 +44,8 @@ class Event(db.Model):
     
     @property
     def is_registration_open(self):
-        return datetime.utcnow() < self.registration_deadline
+        now = datetime.utcnow()
+        return now < self.start_date and not self.is_full
     
     @property
     def registered_count(self):
@@ -63,6 +64,8 @@ class Event(db.Model):
             return 'completed'
         elif now > self.start_date:
             return 'ongoing'
+        elif now > self.registration_deadline:
+            return 'registration_closed'
         else:
             return 'upcoming'
     
@@ -73,6 +76,8 @@ class Event(db.Model):
             return 'secondary'
         elif status == 'ongoing':
             return 'success'
+        elif status == 'registration_closed':
+            return 'danger'
         else:
             return 'primary'
     

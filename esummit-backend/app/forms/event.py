@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, IntegerField, BooleanField, SelectField, SubmitField, DateTimeLocalField
-from wtforms.validators import DataRequired, Optional, URL, Length, NumberRange
-from datetime import datetime
+from wtforms.validators import DataRequired, Optional, URL, Length, NumberRange, ValidationError
+from datetime import datetime, timedelta
 
 class EventForm(FlaskForm):
     name = StringField('Event Name', validators=[
@@ -35,14 +35,14 @@ class EventForm(FlaskForm):
         'Start Date',
         format='%Y-%m-%dT%H:%M',
         validators=[DataRequired()],
-        default=datetime.utcnow
+        default=lambda: datetime.utcnow() + timedelta(days=1)  # Default to tomorrow
     )
     
     end_date = DateTimeLocalField(
         'End Date',
         format='%Y-%m-%dT%H:%M',
         validators=[DataRequired()],
-        default=lambda: datetime.utcnow()
+        default=lambda: datetime.utcnow() + timedelta(days=1, hours=3)  # Default to tomorrow + 3 hours
     )
     
     min_team_size = IntegerField('Minimum Team Size', validators=[
@@ -66,10 +66,17 @@ class EventForm(FlaskForm):
         'Registration Deadline',
         format='%Y-%m-%dT%H:%M',
         validators=[DataRequired()],
-        default=lambda: datetime.utcnow()
+        default=lambda: datetime.utcnow() + timedelta(hours=24)  # Default to 24 hours from now
     )
     submit = SubmitField('Create Event')
 
+    def validate_registration_deadline(self, field):
+        if field.data >= self.start_date.data:
+            raise ValidationError('Registration deadline must be before the event start date.')
+    
+    def validate_end_date(self, field):
+        if field.data <= self.start_date.data:
+            raise ValidationError('End date must be after the start date.')
 
 class EventRegistrationForm(FlaskForm):
     submit = SubmitField('Register for Event')

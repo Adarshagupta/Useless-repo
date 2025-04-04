@@ -5,7 +5,7 @@
 {% block content %}
 <div class="event-details-container">
     <!-- Hero Section -->
-    <div class="event-hero" style="background-image: url('{{ event.image_url if event.image_url else url_for('static', filename='img/event-default.jpg') }}')">
+    <div class="event-hero" style="background-image: url('{{ event.image_url if event.image_url else url_for('static', filename='img/event-default.jpg') }}');">
         <div class="hero-overlay">
             <div class="container">
                 <div class="hero-content">
@@ -92,17 +92,32 @@
                 <div class="registration-card">
                     <div class="status-section">
                         {% if event.is_registration_open %}
-                            <div class="status-badge open">
-                                <i class="fas fa-door-open"></i> Registration Open
+                            {% if current_time > event.registration_deadline %}
+                                <div class="status-badge warning">
+                                    <i class="fas fa-exclamation-triangle"></i> Late Registration Open
+                                </div>
+                                <div class="spots">
+                                    {% if event.capacity %}
+                                    {{ event.capacity - event.registrations|length }} spots remaining
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <div class="status-badge open">
+                                    <i class="fas fa-door-open"></i> Registration Open
+                                </div>
+                                <div class="spots">
+                                    {% if event.capacity %}
+                                    {{ event.capacity - event.registrations|length }} spots remaining
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        {% elif event.status == 'ongoing' %}
+                            <div class="status-badge ongoing">
+                                <i class="fas fa-play-circle"></i> Event in Progress
                             </div>
-                            <div class="spots">
-                                {% if event.max_participants %}
-                                {{ event.max_participants - event.registrations|length }} spots remaining
-                                {% endif %}
-                            </div>
-                        {% else %}
-                            <div class="status-badge closed">
-                                <i class="fas fa-door-closed"></i> Registration Closed
+                        {% elif event.status == 'completed' %}
+                            <div class="status-badge completed">
+                                <i class="fas fa-check-circle"></i> Event Completed
                             </div>
                         {% endif %}
                     </div>
@@ -601,6 +616,21 @@
     .status-badge.closed {
         background-color: #dc3545;
         color: white;
+    }
+
+    .status-badge.ongoing {
+        background-color: #ffc107;
+        color: black;
+    }
+
+    .status-badge.completed {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .status-badge.warning {
+        background-color: #ffc107;
+        color: black;
     }
 
     .spots {

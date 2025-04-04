@@ -241,6 +241,8 @@ def verify_otp(action):
                 user.otp_verified = True
                 db.session.commit()
                 flash('Email verified successfully with master OTP!', 'success')
+                login_user(user)
+                return redirect(url_for('dashboard.index'))
             elif action == 'login':
                 remember_me = session.get('remember_me', False)
                 login_user(user, remember=remember_me)
@@ -265,7 +267,8 @@ def verify_otp(action):
                     user.otp_verified = True
                     db.session.commit()
                     flash('Email verified successfully!', 'success')
-                    return redirect(url_for('auth.login'))
+                    login_user(user)
+                    return redirect(url_for('dashboard.index'))
                 elif action == 'login':
                     user.otp_verified = True
                     db.session.commit()

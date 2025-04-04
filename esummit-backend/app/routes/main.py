@@ -120,7 +120,8 @@ def event_details(event_id):
                            registration=registration,
                            form=form,
                            team_form=team_form,
-                           join_form=join_form)
+                           join_form=join_form,
+                           current_time=datetime.utcnow())
 
 @main_bp.route('/hackathons')
 def hackathons():
@@ -187,7 +188,8 @@ def hackathon_details(hackathon_id):
                            registration=registration,
                            form=form,
                            team_form=team_form,
-                           join_form=join_form)
+                           join_form=join_form,
+                           current_time=datetime.utcnow())
 
 @main_bp.route('/register/event/<int:event_id>', methods=['GET', 'POST'])
 @login_required
