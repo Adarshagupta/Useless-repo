@@ -1,0 +1,449 @@
+{% extends "staff/layout.html" %}
+
+{% block title %}Staff Dashboard{% endblock %}
+
+{% block staff_content %}
+<div class="content-header mb-4">
+    <div>
+        <h1 class="mb-0">Staff Dashboard</h1>
+        <p class="text-muted">Welcome back, {{ current_user.first_name or current_user.username }}!</p>
+    </div>
+    <div class="header-actions">
+        <a href="{{ url_for('staff.events') }}" class="btn btn-success">
+            <i class="fas fa-calendar-plus me-1"></i> Manage Events
+        </a>
+    </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="row g-4 mb-4">
+    <!-- Active Events Card -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stats-card">
+            <div class="stats-icon bg-success-light">
+                <i class="fas fa-calendar-check text-success"></i>
+            </div>
+            <div class="stats-info">
+                <h3>{{ active_events|length }}</h3>
+                <p>Active Events</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pending Registrations Card -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stats-card">
+            <div class="stats-icon bg-warning-light">
+                <i class="fas fa-clipboard-list text-warning"></i>
+            </div>
+            <div class="stats-info">
+                <h3>{{ pending_registrations|length }}</h3>
+                <p>Pending Registrations</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Total Participants Card -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stats-card">
+            <div class="stats-icon bg-info-light">
+                <i class="fas fa-users text-info"></i>
+            </div>
+            <div class="stats-info">
+                <h3>{{ total_participants }}</h3>
+                <p>Total Participants</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Teams Card -->
+    <div class="col-md-6 col-lg-3">
+        <div class="stats-card">
+            <div class="stats-icon bg-primary-light">
+                <i class="fas fa-user-friends text-primary"></i>
+            </div>
+            <div class="stats-info">
+                <h3>{{ total_teams }}</h3>
+                <p>Active Teams</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="content-card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>Recent Activity</h2>
+        <a href="{{ url_for('staff.activity_log') }}" class="btn btn-sm btn-outline-success">View All Activity</a>
+    </div>
+    <div class="card-body p-0">
+        {% if recent_activities %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Activity</th>
+                        <th>User</th>
+                        <th>Event</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for activity in recent_activities %}
+                    <tr>
+                        <td>{{ activity.timestamp.strftime('%b %d, %H:%M') }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="activity-icon me-2 bg-{{ activity.type_color }}-light">
+                                    <i class="fas fa-{{ activity.type_icon }} text-{{ activity.type_color }}"></i>
+                                </div>
+                                <div>{{ activity.description }}</div>
+                            </div>
+                        </td>
+                        <td>{{ activity.user.full_name }}</td>
+                        <td>{{ activity.event.name if activity.event else 'N/A' }}</td>
+                        <td>
+                            <span class="badge bg-{{ activity.status_color }}">{{ activity.status }}</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-history fa-3x text-muted"></i>
+            </div>
+            <h5>No recent activity</h5>
+            <p class="text-muted">Recent activities will appear here.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Upcoming Events -->
+<div class="content-card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>Upcoming Events</h2>
+        <a href="{{ url_for('staff.events') }}" class="btn btn-sm btn-outline-success">View All Events</a>
+    </div>
+    <div class="card-body p-0">
+        {% if upcoming_events %}
+        <div class="row g-0">
+            {% for event in upcoming_events %}
+            <div class="col-md-6 col-lg-4 p-3 border-bottom {% if not loop.last %}border-end{% endif %}">
+                <div class="event-card">
+                    <div class="event-header d-flex justify-content-between align-items-start mb-3">
+                        <div class="event-icon bg-{{ event.event_type_color }}-light">
+                            <i class="fas fa-{{ event.event_type_icon }} text-{{ event.event_type_color }}"></i>
+                        </div>
+                        <span class="badge bg-{{ event.status_color }}">{{ event.status|replace('_', ' ')|title }}</span>
+                    </div>
+                    <h5 class="event-title mb-2">{{ event.name }}</h5>
+                    <div class="event-details mb-3">
+                        <div class="mb-2">
+                            <i class="fas fa-calendar-day text-muted me-2"></i>
+                            <span>{{ event.start_date.strftime('%b %d, %Y') }}</span>
+                        </div>
+                        <div class="mb-2">
+                            <i class="fas fa-clock text-muted me-2"></i>
+                            <span>{{ event.start_date.strftime('%I:%M %p') }}</span>
+                        </div>
+                        <div>
+                            <i class="fas fa-map-marker-alt text-muted me-2"></i>
+                            <span>{{ event.venue }}</span>
+                        </div>
+                    </div>
+                    <div class="event-stats d-flex justify-content-between mb-3">
+                        <div class="text-center">
+                            <div class="fw-bold">{{ event.registrations|length }}</div>
+                            <small class="text-muted">Registrations</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="fw-bold">{{ event.teams|length }}</div>
+                            <small class="text-muted">Teams</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="fw-bold">{{ event.capacity }}</div>
+                            <small class="text-muted">Capacity</small>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <a href="{{ url_for('staff.event_details', event_id=event.id) }}" class="btn btn-sm btn-outline-success">
+                            <i class="fas fa-cog me-1"></i> Manage Event
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-calendar-times fa-3x text-muted"></i>
+            </div>
+            <h5>No upcoming events</h5>
+            <p class="text-muted">There are no upcoming events assigned to you.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Pending Registrations -->
+<div class="content-card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h2>Pending Registrations</h2>
+        <a href="{{ url_for('staff.registrations') }}?status=pending" class="btn btn-sm btn-outline-success">View All Pending</a>
+    </div>
+    <div class="card-body p-0">
+        {% if pending_registrations %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Participant</th>
+                        <th>Event</th>
+                        <th>Type</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for registration in pending_registrations %}
+                    <tr>
+                        <td>{{ registration.registration_date.strftime('%b %d, %Y') }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="user-avatar-sm bg-light text-dark me-2">
+                                    {{ registration.user.username[0].upper() }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ registration.user.full_name }}</div>
+                                    <small class="text-muted">{{ registration.user.email }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ registration.event.name }}</td>
+                        <td>
+                            <span class="badge bg-{{ registration.event.event_type_color }}">
+                                {{ registration.event.event_type|title }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ registration.id }}">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#rejectModal{{ registration.id }}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                <a href="{{ url_for('staff.registration_details', registration_id=registration.id) }}" class="btn btn-sm btn-info text-white">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                            
+                            <!-- Approve Modal -->
+                            <div class="modal fade" id="approveModal{{ registration.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Approve Registration</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to approve this registration?</p>
+                                            <div class="alert alert-info">
+                                                <div><strong>Event:</strong> {{ registration.event.name }}</div>
+                                                <div><strong>Participant:</strong> {{ registration.user.full_name }}</div>
+                                                <div><strong>Date:</strong> {{ registration.registration_date.strftime('%b %d, %Y') }}</div>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form method="POST" action="{{ url_for('staff.approve_registration', registration_id=registration.id) }}">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="btn btn-success">
+                                                    <i class="fas fa-check me-1"></i> Approve
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Reject Modal -->
+                            <div class="modal fade" id="rejectModal{{ registration.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Reject Registration</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to reject this registration?</p>
+                                            <div class="alert alert-warning mb-3">
+                                                <div><strong>Event:</strong> {{ registration.event.name }}</div>
+                                                <div><strong>Participant:</strong> {{ registration.user.full_name }}</div>
+                                                <div><strong>Date:</strong> {{ registration.registration_date.strftime('%b %d, %Y') }}</div>
+                                            </div>
+                                            <form method="POST" action="{{ url_for('staff.reject_registration', registration_id=registration.id) }}" id="rejectForm{{ registration.id }}">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Reason for Rejection</label>
+                                                    <textarea name="reason" class="form-control" rows="3" required></textarea>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <button type="submit" form="rejectForm{{ registration.id }}" class="btn btn-danger">
+                                                <i class="fas fa-times me-1"></i> Reject
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-clipboard-check fa-3x text-muted"></i>
+            </div>
+            <h5>No pending registrations</h5>
+            <p class="text-muted">All registrations have been processed.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    /* Content Header */
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Stats Cards */
+    .stats-card {
+        background-color: #fff;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .stats-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+    }
+
+    .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1rem;
+        font-size: 1.5rem;
+    }
+
+    .stats-info h3 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.25rem;
+    }
+
+    .stats-info p {
+        margin-bottom: 0;
+        color: #6c757d;
+    }
+
+    /* Event Card */
+    .event-card {
+        height: 100%;
+    }
+
+    .event-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    .event-title {
+        font-weight: 600;
+    }
+
+    /* Activity Icon */
+    .activity-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* User Avatar Small */
+    .user-avatar-sm {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.875rem;
+    }
+
+    /* Color Utilities */
+    .bg-primary-light {
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+
+    .bg-success-light {
+        background-color: rgba(40, 167, 69, 0.1);
+    }
+
+    .bg-info-light {
+        background-color: rgba(23, 162, 184, 0.1);
+    }
+
+    .bg-warning-light {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+
+    .bg-danger-light {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+
+    .bg-secondary-light {
+        background-color: rgba(108, 117, 125, 0.1);
+    }
+
+    /* Table Styles */
+    .table th {
+        background-color: #f8f9fa;
+        font-weight: 600;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+</style>
+{% endblock %}

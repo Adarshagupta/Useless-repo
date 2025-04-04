@@ -1,0 +1,428 @@
+{% extends "staff/layout.html" %}
+
+{% block title %}{{ event.name }} - Staff Dashboard{% endblock %}
+
+{% block staff_content %}
+<div class="content-header mb-4">
+    <div>
+        <h1 class="mb-0">{{ event.name }}</h1>
+        <p class="text-muted">{{ event.event_type|title }} Event</p>
+    </div>
+    <div class="header-actions">
+        <div class="btn-group">
+            <a href="{{ url_for('staff.event_check_in', event_id=event.id) }}" class="btn btn-success">
+                <i class="fas fa-clipboard-check me-1"></i> Check-in
+            </a>
+            <button type="button" class="btn btn-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+                <span class="visually-hidden">Toggle Dropdown</span>
+            </button>
+            <ul class="dropdown-menu">
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('staff.event_registrations', event_id=event.id) }}">
+                        <i class="fas fa-clipboard-list me-2"></i> Registrations
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('staff.event_participants', event_id=event.id) }}">
+                        <i class="fas fa-users me-2"></i> Participants
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('staff.event_teams', event_id=event.id) }}">
+                        <i class="fas fa-user-friends me-2"></i> Teams
+                    </a>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('staff.event_reports', event_id=event.id) }}">
+                        <i class="fas fa-chart-bar me-2"></i> Reports
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item" href="{{ url_for('main.event_details', event_id=event.id) }}" target="_blank">
+                        <i class="fas fa-external-link-alt me-2"></i> View Public Page
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Event Details -->
+    <div class="col-lg-8">
+        <div class="content-card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2>Event Details</h2>
+                <span class="badge bg-{{ event.status_color }} fs-6">{{ event.status|replace('_', ' ')|title }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Event Type</label>
+                            <div class="d-flex align-items-center">
+                                <div class="event-icon me-2 bg-{{ event.event_type_color }}-light">
+                                    <i class="fas fa-{{ event.event_type_icon }} text-{{ event.event_type_color }}"></i>
+                                </div>
+                                <h5 class="mb-0">{{ event.event_type|title }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Capacity</label>
+                            <div class="d-flex align-items-center">
+                                <div class="event-icon me-2 bg-info-light">
+                                    <i class="fas fa-users text-info"></i>
+                                </div>
+                                <h5 class="mb-0">{{ event.capacity }} Participants</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Start Date & Time</label>
+                            <div class="d-flex align-items-center">
+                                <div class="event-icon me-2 bg-success-light">
+                                    <i class="fas fa-calendar-day text-success"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">{{ event.start_date.strftime('%b %d, %Y') }}</h5>
+                                    <div class="text-muted">{{ event.start_date.strftime('%I:%M %p') }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">End Date & Time</label>
+                            <div class="d-flex align-items-center">
+                                <div class="event-icon me-2 bg-danger-light">
+                                    <i class="fas fa-calendar-times text-danger"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">{{ event.end_date.strftime('%b %d, %Y') }}</h5>
+                                    <div class="text-muted">{{ event.end_date.strftime('%I:%M %p') }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label text-muted">Venue</label>
+                    <div class="d-flex align-items-center">
+                        <div class="event-icon me-2 bg-primary-light">
+                            <i class="fas fa-map-marker-alt text-primary"></i>
+                        </div>
+                        <h5 class="mb-0">{{ event.venue }}</h5>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label text-muted">Description</label>
+                    <div class="p-3 bg-light rounded">
+                        {{ event.description|safe }}
+                    </div>
+                </div>
+                
+                {% if event.requirements %}
+                <div class="mb-4">
+                    <label class="form-label text-muted">Requirements</label>
+                    <div class="p-3 bg-light rounded">
+                        {{ event.requirements|safe }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if event.prizes %}
+                <div class="mb-4">
+                    <label class="form-label text-muted">Prizes</label>
+                    <div class="p-3 bg-light rounded">
+                        {{ event.prizes|safe }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if event.rules %}
+                <div class="mb-4">
+                    <label class="form-label text-muted">Rules</label>
+                    <div class="p-3 bg-light rounded">
+                        {{ event.rules|safe }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if event.judges %}
+                <div class="mb-4">
+                    <label class="form-label text-muted">Judges</label>
+                    <div class="p-3 bg-light rounded">
+                        {{ event.judges|safe }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if event.sponsors %}
+                <div class="mb-4">
+                    <label class="form-label text-muted">Sponsors</label>
+                    <div class="p-3 bg-light rounded">
+                        {{ event.sponsors|safe }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Registration Stats -->
+        <div class="content-card mb-4">
+            <div class="card-header">
+                <h2>Registration Statistics</h2>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="stat-circle bg-success-light mx-auto mb-2">
+                                <span class="text-success">{{ event.registrations|length }}</span>
+                            </div>
+                            <h6>Total Registrations</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="stat-circle bg-info-light mx-auto mb-2">
+                                <span class="text-info">{{ confirmed_registrations|length }}</span>
+                            </div>
+                            <h6>Confirmed</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="stat-circle bg-warning-light mx-auto mb-2">
+                                <span class="text-warning">{{ pending_registrations|length }}</span>
+                            </div>
+                            <h6>Pending</h6>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="text-center">
+                            <div class="stat-circle bg-danger-light mx-auto mb-2">
+                                <span class="text-danger">{{ cancelled_registrations|length }}</span>
+                            </div>
+                            <h6>Cancelled</h6>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <h5 class="mb-3">Registration Progress</h5>
+                    <div class="progress" style="height: 20px;">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{ (confirmed_registrations|length / event.capacity * 100) if event.capacity > 0 else 0 }}%" aria-valuenow="{{ confirmed_registrations|length }}" aria-valuemin="0" aria-valuemax="{{ event.capacity }}">
+                            {{ confirmed_registrations|length }}
+                        </div>
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ (pending_registrations|length / event.capacity * 100) if event.capacity > 0 else 0 }}%" aria-valuenow="{{ pending_registrations|length }}" aria-valuemin="0" aria-valuemax="{{ event.capacity }}">
+                            {{ pending_registrations|length }}
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between mt-2">
+                        <small class="text-muted">0</small>
+                        <small class="text-muted">{{ event.capacity }} (Capacity)</small>
+                    </div>
+                </div>
+                
+                {% if event.event_type in ['hackathon', 'pitching', 'competition'] %}
+                <div>
+                    <h5 class="mb-3">Team Statistics</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-0">Total Teams</h6>
+                                            <small class="text-muted">Registered for this event</small>
+                                        </div>
+                                        <h3 class="mb-0">{{ teams|length }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-light">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h6 class="mb-0">Average Team Size</h6>
+                                            <small class="text-muted">Members per team</small>
+                                        </div>
+                                        <h3 class="mb-0">{{ avg_team_size|round(1) }}</h3>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        <div class="content-card mb-4">
+            <div class="card-header">
+                <h2>Quick Actions</h2>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('staff.event_check_in', event_id=event.id) }}" class="btn btn-success">
+                        <i class="fas fa-clipboard-check me-2"></i> Check-in Participants
+                    </a>
+                    <a href="{{ url_for('staff.event_registrations', event_id=event.id) }}" class="btn btn-outline-success">
+                        <i class="fas fa-clipboard-list me-2"></i> Manage Registrations
+                    </a>
+                    <a href="{{ url_for('staff.event_participants', event_id=event.id) }}" class="btn btn-outline-success">
+                        <i class="fas fa-users me-2"></i> View Participants
+                    </a>
+                    <a href="{{ url_for('staff.event_teams', event_id=event.id) }}" class="btn btn-outline-success">
+                        <i class="fas fa-user-friends me-2"></i> Manage Teams
+                    </a>
+                    <a href="{{ url_for('staff.event_reports', event_id=event.id) }}" class="btn btn-outline-success">
+                        <i class="fas fa-chart-bar me-2"></i> Generate Reports
+                    </a>
+                    <a href="{{ url_for('main.event_details', event_id=event.id) }}" target="_blank" class="btn btn-outline-primary">
+                        <i class="fas fa-external-link-alt me-2"></i> View Public Page
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Registrations -->
+        <div class="content-card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2>Recent Registrations</h2>
+                <a href="{{ url_for('staff.event_registrations', event_id=event.id) }}" class="btn btn-sm btn-outline-success">View All</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_registrations %}
+                <div class="list-group list-group-flush">
+                    {% for registration in recent_registrations %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex align-items-center">
+                                <div class="user-avatar-sm bg-light text-dark me-2">
+                                    {{ registration.user.username[0].upper() }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ registration.user.full_name }}</div>
+                                    <small class="text-muted">{{ registration.registration_date.strftime('%b %d, %H:%M') }}</small>
+                                </div>
+                            </div>
+                            <span class="badge bg-{{ registration.status_color }}">{{ registration.status }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <div class="mb-2">
+                        <i class="fas fa-clipboard-list fa-2x text-muted"></i>
+                    </div>
+                    <p class="mb-0">No registrations yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Staff Notes -->
+        <div class="content-card">
+            <div class="card-header">
+                <h2>Staff Notes</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('staff.update_event_notes', event_id=event.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <textarea name="notes" class="form-control" rows="5" placeholder="Add notes about this event...">{{ event.staff_notes }}</textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save me-1"></i> Save Notes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Event Icon */
+    .event-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+
+    /* Stat Circle */
+    .stat-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-circle span {
+        font-size: 1.75rem;
+        font-weight: 700;
+    }
+
+    /* User Avatar Small */
+    .user-avatar-sm {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.875rem;
+    }
+
+    /* Color Utilities */
+    .bg-primary-light {
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+
+    .bg-success-light {
+        background-color: rgba(40, 167, 69, 0.1);
+    }
+
+    .bg-info-light {
+        background-color: rgba(23, 162, 184, 0.1);
+    }
+
+    .bg-warning-light {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+
+    .bg-danger-light {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+
+    .bg-secondary-light {
+        background-color: rgba(108, 117, 125, 0.1);
+    }
+</style>
+{% endblock %}

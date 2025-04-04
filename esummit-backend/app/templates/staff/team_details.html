@@ -1,0 +1,419 @@
+{% extends "staff/layout.html" %}
+
+{% block title %}Team Details - Staff Dashboard{% endblock %}
+
+{% block staff_content %}
+<div class="content-header mb-4">
+    <div>
+        <h1 class="mb-0">{{ team.name }}</h1>
+        <p class="text-muted">{{ team.event.name }} - {{ team.event.event_type|title }} Team</p>
+    </div>
+    <div class="header-actions">
+        <a href="{{ url_for('staff.teams') }}" class="btn btn-outline-success me-2">
+            <i class="fas fa-arrow-left me-1"></i> Back to Teams
+        </a>
+        <a href="mailto:{{ team.leader.email }}" class="btn btn-success">
+            <i class="fas fa-envelope me-1"></i> Contact Leader
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Team Information -->
+    <div class="col-lg-8">
+        <div class="content-card mb-4">
+            <div class="card-header">
+                <h2>Team Information</h2>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Team Name</label>
+                            <div class="d-flex align-items-center">
+                                <div class="team-icon me-2 bg-info-light">
+                                    <i class="fas fa-users text-info"></i>
+                                </div>
+                                <h5 class="mb-0">{{ team.name }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Created On</label>
+                            <div class="d-flex align-items-center">
+                                <div class="team-icon me-2 bg-primary-light">
+                                    <i class="fas fa-calendar-plus text-primary"></i>
+                                </div>
+                                <h5 class="mb-0">{{ team.created_at.strftime('%b %d, %Y') }}</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Event</label>
+                            <div class="d-flex align-items-center">
+                                <div class="team-icon me-2 bg-{% if team.event.event_type == 'hackathon' %}danger{% elif team.event.event_type == 'pitching' %}warning{% elif team.event.event_type == 'workshop' %}info{% elif team.event.event_type == 'talk' %}success{% else %}primary{% endif %}-light">
+                                    <i class="fas fa-{% if team.event.event_type == 'hackathon' %}laptop-code{% elif team.event.event_type == 'pitching' %}lightbulb{% elif team.event.event_type == 'workshop' %}chalkboard-teacher{% elif team.event.event_type == 'talk' %}microphone-alt{% else %}calendar-alt{% endif %} text-{% if team.event.event_type == 'hackathon' %}danger{% elif team.event.event_type == 'pitching' %}warning{% elif team.event.event_type == 'workshop' %}info{% elif team.event.event_type == 'talk' %}success{% else %}primary{% endif %}"></i>
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">{{ team.event.name }}</h5>
+                                    <span class="badge bg-{% if team.event.event_type == 'hackathon' %}danger{% elif team.event.event_type == 'pitching' %}warning{% elif team.event.event_type == 'workshop' %}info{% elif team.event.event_type == 'talk' %}success{% else %}primary{% endif %}">
+                                        {{ team.event.event_type|title }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label class="form-label text-muted">Team Size</label>
+                            <div class="d-flex align-items-center">
+                                <div class="team-icon me-2 bg-success-light">
+                                    <i class="fas fa-user-friends text-success"></i>
+                                </div>
+                                <h5 class="mb-0">{{ team.members|length }} Members</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label text-muted">Team Leader</label>
+                    <div class="d-flex align-items-center">
+                        <div class="user-avatar-md bg-light text-dark me-3">
+                            {{ team.leader.username[0].upper() }}
+                        </div>
+                        <div>
+                            <h5 class="mb-0">{{ team.leader.full_name }}</h5>
+                            <div class="text-muted">{{ team.leader.email }}</div>
+                            {% if team.leader.phone %}
+                            <div class="text-muted">{{ team.leader.phone }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <label class="form-label text-muted">Team Members</label>
+                    <div class="list-group">
+                        {% for member in team.members %}
+                        {% if member.role != 'leader' %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    <div class="user-avatar-sm bg-light text-dark me-3">
+                                        {{ member.user.username[0].upper() }}
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">{{ member.user.full_name }}</h6>
+                                        <div class="text-muted">{{ member.user.email }}</div>
+                                    </div>
+                                </div>
+                                <a href="{{ url_for('staff.participant_details', user_id=member.user.id) }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                {% if team.event.event_type == 'hackathon' and team.hackathon_registration %}
+                <div class="mb-4">
+                    <label class="form-label text-muted">Hackathon Registration</label>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-danger text-white">
+                            <h5 class="card-title mb-0">{{ team.hackathon_registration.project_title }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6 class="fw-bold text-danger mb-2"><i class="fas fa-info-circle me-2"></i>Project Description</h6>
+                                <p class="card-text">{{ team.hackathon_registration.project_description }}</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6 class="fw-bold text-danger mb-2"><i class="fas fa-code me-2"></i>Tech Stack</h6>
+                                <p class="card-text">{{ team.hackathon_registration.tech_stack }}</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6 class="fw-bold text-danger mb-2"><i class="fas fa-link me-2"></i>Project Links</h6>
+                                
+                                {% if team.hackathon_registration.github_repo %}
+                                <div class="mb-2">
+                                    <a href="{{ team.hackathon_registration.github_repo }}" target="_blank" class="btn btn-sm btn-outline-dark me-2">
+                                        <i class="fab fa-github me-1"></i> GitHub Repository
+                                    </a>
+                                </div>
+                                {% endif %}
+                                
+                                {% if team.hackathon_registration.demo_url %}
+                                <div class="mb-2">
+                                    <a href="{{ team.hackathon_registration.demo_url }}" target="_blank" class="btn btn-sm btn-outline-primary me-2">
+                                        <i class="fas fa-globe me-1"></i> Demo URL
+                                    </a>
+                                </div>
+                                {% endif %}
+                                
+                                {% if team.hackathon_registration.presentation_url %}
+                                <div class="mb-2">
+                                    <a href="{{ team.hackathon_registration.presentation_url }}" target="_blank" class="btn btn-sm btn-outline-danger me-2">
+                                        <i class="fas fa-file-powerpoint me-1"></i> Presentation
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="alert alert-{{ team.hackathon_registration.status_color }} mb-0">
+                                <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Status: {{ team.hackathon_registration.status|title }}</h6>
+                                {% if team.hackathon_registration.status == 'rejected' and team.hackathon_registration.rejection_reason %}
+                                    <hr>
+                                    <p class="mb-0"><strong>Reason:</strong> {{ team.hackathon_registration.rejection_reason }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if team.event.event_type == 'pitching' and team.pitch_registration %}
+                <div class="mb-4">
+                    <label class="form-label text-muted">Pitch Registration</label>
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-warning text-dark">
+                            <h5 class="card-title mb-0">{{ team.pitch_registration.pitch_title }}</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-3">
+                                <h6 class="fw-bold text-warning mb-2"><i class="fas fa-info-circle me-2"></i>Executive Summary</h6>
+                                <p class="card-text">{{ team.pitch_registration.pitch_summary }}</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6 class="fw-bold text-warning mb-2"><i class="fas fa-question-circle me-2"></i>Problem Statement</h6>
+                                <p class="card-text">{{ team.pitch_registration.problem_statement }}</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6 class="fw-bold text-warning mb-2"><i class="fas fa-lightbulb me-2"></i>Solution Approach</h6>
+                                <p class="card-text">{{ team.pitch_registration.solution_approach }}</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6 class="fw-bold text-warning mb-2"><i class="fas fa-chart-line me-2"></i>Market Analysis</h6>
+                                <p class="card-text">{{ team.pitch_registration.market_analysis }}</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6 class="fw-bold text-warning mb-2"><i class="fas fa-money-bill-wave me-2"></i>Business Model</h6>
+                                <p class="card-text">{{ team.pitch_registration.business_model }}</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6 class="fw-bold text-warning mb-2"><i class="fas fa-users me-2"></i>Team Background</h6>
+                                <p class="card-text">{{ team.pitch_registration.team_background }}</p>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <h6 class="fw-bold text-warning mb-2"><i class="fas fa-link me-2"></i>Documents & Links</h6>
+                                
+                                <div class="mb-2">
+                                    <a href="{{ team.pitch_registration.pitch_deck_url }}" target="_blank" class="btn btn-sm btn-outline-warning me-2">
+                                        <i class="fas fa-file-powerpoint me-1"></i> Pitch Deck
+                                    </a>
+                                </div>
+                                
+                                {% if team.pitch_registration.additional_docs_url %}
+                                <div class="mb-2">
+                                    <a href="{{ team.pitch_registration.additional_docs_url }}" target="_blank" class="btn btn-sm btn-outline-secondary me-2">
+                                        <i class="fas fa-file-alt me-1"></i> Additional Documents
+                                    </a>
+                                </div>
+                                {% endif %}
+                                
+                                {% if team.pitch_registration.video_pitch_url %}
+                                <div class="mb-2">
+                                    <a href="{{ team.pitch_registration.video_pitch_url }}" target="_blank" class="btn btn-sm btn-outline-danger me-2">
+                                        <i class="fas fa-video me-1"></i> Video Pitch
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="alert alert-{{ team.pitch_registration.status_color }} mb-0">
+                                <h6 class="alert-heading"><i class="fas fa-info-circle me-2"></i>Status: {{ team.pitch_registration.status|title }}</h6>
+                                {% if team.pitch_registration.status == 'rejected' and team.pitch_registration.rejection_reason %}
+                                    <hr>
+                                    <p class="mb-0"><strong>Reason:</strong> {{ team.pitch_registration.rejection_reason }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Quick Actions -->
+        <div class="content-card mb-4">
+            <div class="card-header">
+                <h2>Quick Actions</h2>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('staff.event_details', event_id=team.event.id) }}" class="btn btn-outline-success">
+                        <i class="fas fa-calendar-alt me-2"></i> View Event
+                    </a>
+                    <a href="{{ url_for('staff.participant_details', user_id=team.leader.id) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-user me-2"></i> View Leader Profile
+                    </a>
+                    <a href="mailto:{{ team.leader.email }}" class="btn btn-outline-info">
+                        <i class="fas fa-envelope me-2"></i> Email Leader
+                    </a>
+                    
+                    {% if team.event.event_type == 'hackathon' and team.hackathon_registration %}
+                    <a href="{{ url_for('staff.hackathon_submission', registration_id=team.hackathon_registration.id) }}" class="btn btn-outline-danger">
+                        <i class="fas fa-laptop-code me-2"></i> View Hackathon Submission
+                    </a>
+                    {% endif %}
+                    
+                    {% if team.event.event_type == 'pitching' and team.pitch_registration %}
+                    <a href="{{ url_for('staff.pitch_submission', registration_id=team.pitch_registration.id) }}" class="btn btn-outline-warning">
+                        <i class="fas fa-lightbulb me-2"></i> View Pitch Submission
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Staff Notes -->
+        <div class="content-card mb-4">
+            <div class="card-header">
+                <h2>Staff Notes</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('staff.update_team_notes', team_id=team.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <textarea name="notes" class="form-control" rows="5" placeholder="Add notes about this team...">{{ team.staff_notes }}</textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save me-1"></i> Save Notes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Team Activity -->
+        <div class="content-card">
+            <div class="card-header">
+                <h2>Team Activity</h2>
+            </div>
+            <div class="card-body p-0">
+                {% if team_activities %}
+                <div class="list-group list-group-flush">
+                    {% for activity in team_activities %}
+                    <div class="list-group-item">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="activity-icon me-2 bg-{{ activity.type_color }}-light">
+                                <i class="fas fa-{{ activity.type_icon }} text-{{ activity.type_color }}"></i>
+                            </div>
+                            <div class="fw-bold">{{ activity.description }}</div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ activity.timestamp.strftime('%b %d, %Y %H:%M') }}</small>
+                            <span class="badge bg-{{ activity.status_color }}">{{ activity.status }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <div class="mb-2">
+                        <i class="fas fa-history fa-2x text-muted"></i>
+                    </div>
+                    <p class="mb-0">No team activity recorded</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Team Icon */
+    .team-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+    
+    /* User Avatar */
+    .user-avatar-md {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 1.5rem;
+    }
+    
+    .user-avatar-sm {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.875rem;
+    }
+    
+    /* Activity Icon */
+    .activity-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Color Utilities */
+    .bg-primary-light {
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+    
+    .bg-success-light {
+        background-color: rgba(40, 167, 69, 0.1);
+    }
+    
+    .bg-info-light {
+        background-color: rgba(23, 162, 184, 0.1);
+    }
+    
+    .bg-warning-light {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+    
+    .bg-danger-light {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+</style>
+{% endblock %}

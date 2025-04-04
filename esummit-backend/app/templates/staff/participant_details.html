@@ -1,0 +1,438 @@
+{% extends "staff/layout.html" %}
+
+{% block title %}Participant Details - Staff Dashboard{% endblock %}
+
+{% block staff_content %}
+<div class="content-header mb-4">
+    <div>
+        <h1 class="mb-0">Participant Details</h1>
+        <p class="text-muted">View and manage participant information</p>
+    </div>
+    <div class="header-actions">
+        <a href="{{ url_for('staff.participants') }}" class="btn btn-outline-success me-2">
+            <i class="fas fa-arrow-left me-1"></i> Back to Participants
+        </a>
+        <a href="mailto:{{ user.email }}" class="btn btn-success">
+            <i class="fas fa-envelope me-1"></i> Contact
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Participant Profile -->
+    <div class="col-lg-4">
+        <div class="content-card mb-4">
+            <div class="card-header">
+                <h2>Profile Information</h2>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-4">
+                    <div class="user-avatar-lg bg-light text-dark mx-auto mb-3">
+                        {{ user.username[0].upper() }}
+                    </div>
+                    <h4>{{ user.full_name }}</h4>
+                    <p class="text-muted mb-2">@{{ user.username }}</p>
+                    <div class="d-flex justify-content-center">
+                        <a href="mailto:{{ user.email }}" class="btn btn-sm btn-outline-primary me-2">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                        {% if user.phone %}
+                        <a href="tel:{{ user.phone }}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-phone"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-muted">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                        <input type="text" class="form-control" value="{{ user.email }}" readonly>
+                    </div>
+                </div>
+                
+                {% if user.phone %}
+                <div class="mb-3">
+                    <label class="form-label text-muted">Phone</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                        <input type="text" class="form-control" value="{{ user.phone }}" readonly>
+                    </div>
+                </div>
+                {% endif %}
+                
+                {% if user.college %}
+                <div class="mb-3">
+                    <label class="form-label text-muted">College/University</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-university"></i></span>
+                        <input type="text" class="form-control" value="{{ user.college }}" readonly>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="mb-3">
+                    <label class="form-label text-muted">Account Created</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-calendar-plus"></i></span>
+                        <input type="text" class="form-control" value="{{ user.created_at.strftime('%b %d, %Y') }}" readonly>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label class="form-label text-muted">Account Status</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-user-check"></i></span>
+                        <input type="text" class="form-control" value="{{ 'Verified' if user.is_email_verified else 'Not Verified' }}" readonly>
+                    </div>
+                </div>
+                
+                {% if user.is_admin or user.is_staff %}
+                <div class="mb-3">
+                    <label class="form-label text-muted">Role</label>
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="fas fa-user-shield"></i></span>
+                        <input type="text" class="form-control" value="{{ 'Administrator' if user.is_admin else 'Staff' }}" readonly>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Staff Notes -->
+        <div class="content-card mb-4">
+            <div class="card-header">
+                <h2>Staff Notes</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('staff.update_participant_notes', user_id=user.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <textarea name="notes" class="form-control" rows="5" placeholder="Add notes about this participant...">{{ user.staff_notes }}</textarea>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save me-1"></i> Save Notes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Registrations and Teams -->
+    <div class="col-lg-8">
+        <!-- Event Registrations -->
+        <div class="content-card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2>Event Registrations</h2>
+                <span class="badge bg-primary rounded-pill">{{ user.event_registrations|length }}</span>
+            </div>
+            <div class="card-body p-0">
+                {% if user.event_registrations %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Type</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for registration in user.event_registrations %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="event-icon-sm me-2 bg-{% if registration.event.event_type == 'hackathon' %}danger{% elif registration.event.event_type == 'pitching' %}warning{% elif registration.event.event_type == 'workshop' %}info{% elif registration.event.event_type == 'talk' %}success{% else %}primary{% endif %}-light">
+                                            <i class="fas fa-{% if registration.event.event_type == 'hackathon' %}laptop-code{% elif registration.event.event_type == 'pitching' %}lightbulb{% elif registration.event.event_type == 'workshop' %}chalkboard-teacher{% elif registration.event.event_type == 'talk' %}microphone-alt{% else %}calendar-alt{% endif %} text-{% if registration.event.event_type == 'hackathon' %}danger{% elif registration.event.event_type == 'pitching' %}warning{% elif registration.event.event_type == 'workshop' %}info{% elif registration.event.event_type == 'talk' %}success{% else %}primary{% endif %}"></i>
+                                        </div>
+                                        <div>{{ registration.event.name }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if registration.event.event_type == 'hackathon' %}danger{% elif registration.event.event_type == 'pitching' %}warning{% elif registration.event.event_type == 'workshop' %}info{% elif registration.event.event_type == 'talk' %}success{% else %}primary{% endif %}">
+                                        {{ registration.event.event_type|title }}
+                                    </span>
+                                </td>
+                                <td>{{ registration.registration_date.strftime('%b %d, %Y') }}</td>
+                                <td>
+                                    <span class="badge bg-{% if registration.status == 'confirmed' %}success{% elif registration.status == 'pending' %}warning{% elif registration.status == 'rejected' %}danger{% else %}secondary{% endif %}">
+                                        {{ registration.status|title }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{{ url_for('staff.registration_details', registration_id=registration.id) }}" class="btn btn-sm btn-outline-success">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                        {% if registration.status == 'pending' %}
+                                        <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+                                            <span class="visually-hidden">Toggle Dropdown</span>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li>
+                                                <a class="dropdown-item text-success" href="#" data-bs-toggle="modal" data-bs-target="#approveModal{{ registration.id }}">
+                                                    <i class="fas fa-check me-2"></i> Approve
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal" data-bs-target="#rejectModal{{ registration.id }}">
+                                                    <i class="fas fa-times me-2"></i> Reject
+                                                </a>
+                                            </li>
+                                        </ul>
+                                        
+                                        <!-- Approve Modal -->
+                                        <div class="modal fade" id="approveModal{{ registration.id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Approve Registration</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to approve this registration?</p>
+                                                        <div class="alert alert-info">
+                                                            <div><strong>Event:</strong> {{ registration.event.name }}</div>
+                                                            <div><strong>Participant:</strong> {{ registration.user.full_name }}</div>
+                                                            <div><strong>Date:</strong> {{ registration.registration_date.strftime('%b %d, %Y') }}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <form method="POST" action="{{ url_for('staff.approve_registration', registration_id=registration.id) }}">
+                                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                            <button type="submit" class="btn btn-success">
+                                                                <i class="fas fa-check me-1"></i> Approve
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Reject Modal -->
+                                        <div class="modal fade" id="rejectModal{{ registration.id }}" tabindex="-1">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Reject Registration</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p>Are you sure you want to reject this registration?</p>
+                                                        <div class="alert alert-warning mb-3">
+                                                            <div><strong>Event:</strong> {{ registration.event.name }}</div>
+                                                            <div><strong>Participant:</strong> {{ registration.user.full_name }}</div>
+                                                            <div><strong>Date:</strong> {{ registration.registration_date.strftime('%b %d, %Y') }}</div>
+                                                        </div>
+                                                        <form method="POST" action="{{ url_for('staff.reject_registration', registration_id=registration.id) }}" id="rejectForm{{ registration.id }}">
+                                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Reason for Rejection</label>
+                                                                <textarea name="reason" class="form-control" rows="3" required></textarea>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" form="rejectForm{{ registration.id }}" class="btn btn-danger">
+                                                            <i class="fas fa-times me-1"></i> Reject
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-clipboard-list fa-3x text-muted"></i>
+                    </div>
+                    <h5>No event registrations</h5>
+                    <p class="text-muted">This participant has not registered for any events.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Team Memberships -->
+        <div class="content-card mb-4">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h2>Team Memberships</h2>
+                <span class="badge bg-info rounded-pill">{{ user.team_memberships|length }}</span>
+            </div>
+            <div class="card-body p-0">
+                {% if user.team_memberships %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Team</th>
+                                <th>Event</th>
+                                <th>Role</th>
+                                <th>Members</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for membership in user.team_memberships %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">{{ membership.team.name }}</div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="event-icon-sm me-2 bg-{% if membership.team.event.event_type == 'hackathon' %}danger{% elif membership.team.event.event_type == 'pitching' %}warning{% elif membership.team.event.event_type == 'workshop' %}info{% elif membership.team.event.event_type == 'talk' %}success{% else %}primary{% endif %}-light">
+                                            <i class="fas fa-{% if membership.team.event.event_type == 'hackathon' %}laptop-code{% elif membership.team.event.event_type == 'pitching' %}lightbulb{% elif membership.team.event.event_type == 'workshop' %}chalkboard-teacher{% elif membership.team.event.event_type == 'talk' %}microphone-alt{% else %}calendar-alt{% endif %} text-{% if membership.team.event.event_type == 'hackathon' %}danger{% elif membership.team.event.event_type == 'pitching' %}warning{% elif membership.team.event.event_type == 'workshop' %}info{% elif membership.team.event.event_type == 'talk' %}success{% else %}primary{% endif %}"></i>
+                                        </div>
+                                        <div>{{ membership.team.event.name }}</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-{% if membership.role == 'leader' %}primary{% else %}secondary{% endif %}">
+                                        {{ membership.role|title }}
+                                    </span>
+                                </td>
+                                <td>{{ membership.team.members|length }}</td>
+                                <td>
+                                    <a href="{{ url_for('staff.team_details', team_id=membership.team.id) }}" class="btn btn-sm btn-outline-info">
+                                        <i class="fas fa-users me-1"></i> View Team
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-users fa-3x text-muted"></i>
+                    </div>
+                    <h5>No team memberships</h5>
+                    <p class="text-muted">This participant is not a member of any teams.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Activity Log -->
+        <div class="content-card">
+            <div class="card-header">
+                <h2>Activity Log</h2>
+            </div>
+            <div class="card-body p-0">
+                {% if user_activities %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Activity</th>
+                                <th>Event</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for activity in user_activities %}
+                            <tr>
+                                <td>{{ activity.timestamp.strftime('%b %d, %H:%M') }}</td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="activity-icon me-2 bg-{{ activity.type_color }}-light">
+                                            <i class="fas fa-{{ activity.type_icon }} text-{{ activity.type_color }}"></i>
+                                        </div>
+                                        <div>{{ activity.description }}</div>
+                                    </div>
+                                </td>
+                                <td>{{ activity.event.name if activity.event else 'N/A' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ activity.status_color }}">{{ activity.status }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <div class="mb-3">
+                        <i class="fas fa-history fa-3x text-muted"></i>
+                    </div>
+                    <h5>No activity recorded</h5>
+                    <p class="text-muted">No activity has been recorded for this participant.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* User Avatar */
+    .user-avatar-lg {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 2rem;
+    }
+    
+    /* Event Icon */
+    .event-icon-sm {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+    }
+    
+    /* Activity Icon */
+    .activity-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    /* Color Utilities */
+    .bg-primary-light {
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+    
+    .bg-success-light {
+        background-color: rgba(40, 167, 69, 0.1);
+    }
+    
+    .bg-info-light {
+        background-color: rgba(23, 162, 184, 0.1);
+    }
+    
+    .bg-warning-light {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+    
+    .bg-danger-light {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+</style>
+{% endblock %}

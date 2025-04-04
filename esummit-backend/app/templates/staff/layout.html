@@ -1,71 +1,55 @@
-{% extends "layouts/dashboard_base.html" %}
+{% extends "layouts/staff_base.html" %}
 
 {% block content %}
-<div class="dashboard-container">
+<div class="staff-dashboard-container">
+    <!-- Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
     <!-- Sidebar -->
-    <div class="dashboard-sidebar" id="dashboard-sidebar">
+    <div class="staff-sidebar" id="staff-sidebar">
         <div class="sidebar-header">
             <div class="user-info">
-                <div class="user-avatar bg-primary text-white">{{ current_user.username[0].upper() }}</div>
+                <div class="user-avatar bg-success text-white">{{ current_user.username[0].upper() }}</div>
                 <div class="user-details">
                     <h6 class="mb-0">{{ current_user.full_name or current_user.username }}</h6>
-                    <span class="badge bg-{{ 'danger' if current_user.is_admin else 'info' }} rounded-pill">{{ "Administrator" if current_user.is_admin else "Member" }}</span>
+                    <span class="badge bg-success rounded-pill">Staff</span>
                 </div>
             </div>
         </div>
         <nav class="sidebar-nav">
-            <a href="{{ url_for('dashboard.index') }}" class="nav-item {% if request.endpoint == 'dashboard.index' %}active{% endif %}">
+            <a href="{{ url_for('staff.index') }}" class="nav-item {% if request.endpoint == 'staff.index' %}active{% endif %}">
                 <i class="fas fa-tachometer-alt"></i>
                 <span>Dashboard</span>
             </a>
-            <a href="{{ url_for('dashboard.events') }}" class="nav-item {% if request.endpoint == 'dashboard.events' %}active{% endif %}">
+            <a href="{{ url_for('staff.events') }}" class="nav-item {% if request.endpoint == 'staff.events' or request.endpoint == 'staff.event_details' %}active{% endif %}">
                 <i class="fas fa-calendar-alt"></i>
-                <span>My Events</span>
+                <span>Events</span>
             </a>
-            <a href="{{ url_for('dashboard.teams') }}" class="nav-item {% if request.endpoint == 'dashboard.teams' or request.endpoint == 'dashboard.team_details' %}active{% endif %}">
+            <a href="{{ url_for('staff.registrations') }}" class="nav-item {% if request.endpoint == 'staff.registrations' %}active{% endif %}">
+                <i class="fas fa-clipboard-list"></i>
+                <span>Registrations</span>
+            </a>
+            <a href="{{ url_for('staff.participants') }}" class="nav-item {% if request.endpoint == 'staff.participants' %}active{% endif %}">
                 <i class="fas fa-users"></i>
-                <span>My Teams</span>
+                <span>Participants</span>
             </a>
-            <a href="{{ url_for('dashboard.profile') }}" class="nav-item {% if request.endpoint == 'dashboard.profile' %}active{% endif %}">
-                <i class="fas fa-user-circle"></i>
+            <a href="{{ url_for('staff.teams') }}" class="nav-item {% if request.endpoint == 'staff.teams' %}active{% endif %}">
+                <i class="fas fa-user-friends"></i>
+                <span>Teams</span>
+            </a>
+            <a href="{{ url_for('staff.reports') }}" class="nav-item {% if request.endpoint == 'staff.reports' %}active{% endif %}">
+                <i class="fas fa-chart-bar"></i>
+                <span>Reports</span>
+            </a>
+            <div class="nav-divider"></div>
+            <a href="{{ url_for('staff.profile') }}" class="nav-item {% if request.endpoint == 'staff.profile' %}active{% endif %}">
+                <i class="fas fa-user-cog"></i>
                 <span>Profile</span>
             </a>
-            <a href="{{ url_for('dashboard.faq') }}" class="nav-item {% if request.endpoint == 'dashboard.faq' %}active{% endif %}">
-                <i class="fas fa-question-circle"></i>
-                <span>Instructions</span>
+            <a href="{{ url_for('staff.settings') }}" class="nav-item {% if request.endpoint == 'staff.settings' %}active{% endif %}">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
             </a>
-            {% if current_user.is_admin %}
-            <div class="nav-divider"></div>
-            <div class="nav-header">Admin</div>
-            <a href="{{ url_for('admin.index') }}" class="nav-item">
-                <i class="fas fa-cogs"></i>
-                <span>Admin Dashboard</span>
-            </a>
-            <a href="{{ url_for('admin.users') }}" class="nav-item">
-                <i class="fas fa-user-shield"></i>
-                <span>Manage Users</span>
-            </a>
-            <a href="{{ url_for('admin.events') }}" class="nav-item">
-                <i class="fas fa-calendar-check"></i>
-                <span>Manage Events</span>
-            </a>
-            <a href="{{ url_for('admin.teams') }}" class="nav-item">
-                <i class="fas fa-user-friends"></i>
-                <span>Manage Teams</span>
-            </a>
-            <a href="{{ url_for('admin.registrations') }}" class="nav-item">
-                <i class="fas fa-clipboard-list"></i>
-                <span>Event Registrations</span>
-            </a>
-            <a href="{{ url_for('admin.hackathons') }}" class="nav-item">
-                <i class="fas fa-laptop-code"></i>
-                <span>Hackathon Projects</span>
-            </a>
-            <a href="{{ url_for('admin.pitches') }}" class="nav-item">
-                <i class="fas fa-lightbulb"></i>
-                <span>Pitch Registrations</span>
-            </a>
-            {% endif %}
             <div class="nav-divider"></div>
             <a href="{{ url_for('auth.logout') }}" class="nav-item text-danger">
                 <i class="fas fa-sign-out-alt"></i>
@@ -80,9 +64,9 @@
     </div>
 
     <!-- Main Content -->
-    <div class="dashboard-main" id="dashboard-main">
+    <div class="staff-main" id="staff-main">
         <div class="mobile-header d-lg-none">
-            <button id="mobile-sidebar-toggle" class="btn btn-sm btn-outline-primary">
+            <button id="mobile-sidebar-toggle" class="btn btn-sm btn-outline-success">
                 <i class="fas fa-bars"></i>
             </button>
             <a href="{{ url_for('main.index') }}" class="mobile-logo">ESummit</a>
@@ -90,20 +74,20 @@
                 <i class="fas fa-sign-out-alt"></i>
             </a>
         </div>
-        {% block dashboard_content %}{% endblock %}
+        {% block staff_content %}{% endblock %}
     </div>
 </div>
 
 <style>
-    /* Dashboard Layout */
-    .dashboard-container {
+    /* Staff Dashboard Layout */
+    .staff-dashboard-container {
         display: flex;
         min-height: 100vh;
         background-color: #f8f9fa;
     }
 
     /* Sidebar Styles */
-    .dashboard-sidebar {
+    .staff-sidebar {
         width: 260px;
         background-color: #fff;
         border-right: 1px solid rgba(0, 0, 0, 0.1);
@@ -162,13 +146,13 @@
 
     .nav-item:hover {
         background-color: rgba(0, 0, 0, 0.05);
-        color: #007bff;
+        color: #28a745;
     }
 
     .nav-item.active {
-        background-color: rgba(0, 123, 255, 0.1);
-        color: #007bff;
-        border-left: 3px solid #007bff;
+        background-color: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+        border-left: 3px solid #28a745;
     }
 
     .nav-item i {
@@ -184,15 +168,6 @@
         margin: 0.5rem 1.5rem;
     }
 
-    .nav-header {
-        padding: 0.5rem 1.5rem;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        color: #6c757d;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-    }
-
     .sidebar-footer {
         padding: 1rem;
         border-top: 1px solid rgba(0, 0, 0, 0.1);
@@ -200,7 +175,7 @@
     }
 
     /* Main Content Styles */
-    .dashboard-main {
+    .staff-main {
         flex: 1;
         margin-left: 260px;
         padding: 1.5rem;
@@ -219,55 +194,126 @@
 
     .mobile-logo {
         font-weight: bold;
-        color: #007bff;
+        color: #28a745;
         text-decoration: none;
         font-size: 1.25rem;
     }
 
     /* Responsive Styles */
     @media (max-width: 991.98px) {
-        .dashboard-sidebar {
+        .staff-sidebar {
             transform: translateX(-100%);
+            width: 280px;
+            z-index: 1050;
         }
 
-        .dashboard-sidebar.show {
+        .staff-sidebar.show {
             transform: translateX(0);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
         }
 
-        .dashboard-main {
+        .staff-main {
             margin-left: 0;
+            padding: 1rem;
         }
 
         .mobile-header {
             display: flex;
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+        }
+
+        /* Add overlay when sidebar is shown */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1040;
+        }
+
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+        /* Adjust content cards for mobile */
+        .content-card {
+            margin-bottom: 1rem;
+        }
+
+        .content-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .header-actions {
+            margin-top: 1rem;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+    }
+
+    /* Small phones */
+    @media (max-width: 575.98px) {
+        .staff-main {
+            padding: 0.75rem;
+        }
+
+        .content-card {
+            padding: 0.75rem;
+        }
+
+        .mobile-header {
+            padding: 0.5rem 0.75rem;
+        }
+
+        /* Make tables responsive */
+        .table-responsive {
+            font-size: 0.875rem;
+        }
+
+        /* Adjust buttons for mobile */
+        .btn-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .btn-group > .btn {
+            border-radius: 0.25rem !important;
+            margin-bottom: 0.25rem;
         }
     }
 
     /* Collapsed Sidebar */
-    .dashboard-sidebar.collapsed {
+    .staff-sidebar.collapsed {
         width: 70px;
     }
 
-    .dashboard-sidebar.collapsed .user-details,
-    .dashboard-sidebar.collapsed .nav-item span,
-    .dashboard-sidebar.collapsed .nav-header {
+    .staff-sidebar.collapsed .user-details,
+    .staff-sidebar.collapsed .nav-item span,
+    .staff-sidebar.collapsed .nav-header {
         display: none;
     }
 
-    .dashboard-sidebar.collapsed .nav-item {
+    .staff-sidebar.collapsed .nav-item {
         padding: 0.75rem;
         justify-content: center;
     }
 
-    .dashboard-sidebar.collapsed .nav-item i {
+    .staff-sidebar.collapsed .nav-item i {
         margin-right: 0;
     }
 
-    .dashboard-sidebar.collapsed ~ .dashboard-main {
+    .staff-sidebar.collapsed ~ .staff-main {
         margin-left: 70px;
     }
 
-    .dashboard-sidebar.collapsed .sidebar-footer button i {
+    .staff-sidebar.collapsed .sidebar-footer button i {
         transform: rotate(180deg);
     }
 
@@ -301,8 +347,8 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Sidebar toggle
         const sidebarToggle = document.getElementById('sidebar-toggle');
-        const sidebar = document.getElementById('dashboard-sidebar');
-        const main = document.getElementById('dashboard-main');
+        const sidebar = document.getElementById('staff-sidebar');
+        const main = document.getElementById('staff-main');
 
         if (sidebarToggle && sidebar && main) {
             sidebarToggle.addEventListener('click', function() {
@@ -310,14 +356,14 @@
 
                 // Save preference to localStorage
                 if (sidebar.classList.contains('collapsed')) {
-                    localStorage.setItem('sidebarCollapsed', 'true');
+                    localStorage.setItem('staffSidebarCollapsed', 'true');
                 } else {
-                    localStorage.setItem('sidebarCollapsed', 'false');
+                    localStorage.setItem('staffSidebarCollapsed', 'false');
                 }
             });
 
             // Check localStorage for saved preference
-            if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            if (localStorage.getItem('staffSidebarCollapsed') === 'true') {
                 sidebar.classList.add('collapsed');
             }
         }

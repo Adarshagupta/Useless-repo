@@ -1,0 +1,289 @@
+{% extends "staff/layout.html" %}
+
+{% block title %}Participants - Staff Dashboard{% endblock %}
+
+{% block staff_content %}
+<div class="content-header mb-4">
+    <div>
+        <h1 class="mb-0">Participants</h1>
+        <p class="text-muted">View and manage all participants</p>
+    </div>
+    <div class="header-actions">
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exportModal">
+            <i class="fas fa-file-export me-1"></i> Export
+        </button>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="content-card mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('staff.participants') }}" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">Search</label>
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="Search by name, email, or username..." value="{{ request.args.get('search', '') }}">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Event</label>
+                <select name="event_id" class="form-select">
+                    <option value="">All Events</option>
+                    {% for event in events %}
+                    <option value="{{ event.id }}" {% if request.args.get('event_id', type=int) == event.id %}selected{% endif %}>{{ event.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Registration Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="confirmed" {% if request.args.get('status') == 'confirmed' %}selected{% endif %}>Confirmed</option>
+                    <option value="pending" {% if request.args.get('status') == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="rejected" {% if request.args.get('status') == 'rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <a href="{{ url_for('staff.participants') }}" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-sync-alt"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Participants Table -->
+<div class="content-card">
+    <div class="card-body p-0">
+        {% if users %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Registered Events</th>
+                        <th>Teams</th>
+                        <th>Joined</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="user-avatar-sm bg-light text-dark me-2">
+                                    {{ user.username[0].upper() }}
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ user.full_name }}</div>
+                                    <small class="text-muted">@{{ user.username }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-primary rounded-pill me-2">{{ user.event_registrations|length }}</span>
+                                {% if user.event_registrations %}
+                                <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#eventsCollapse{{ user.id }}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                            {% if user.event_registrations %}
+                            <div class="collapse mt-2" id="eventsCollapse{{ user.id }}">
+                                <div class="card card-body py-2 px-3">
+                                    <ul class="list-unstyled mb-0">
+                                        {% for registration in user.event_registrations %}
+                                        <li class="mb-1">
+                                            <span class="badge bg-{% if registration.status == 'confirmed' %}success{% elif registration.status == 'pending' %}warning{% elif registration.status == 'rejected' %}danger{% else %}secondary{% endif %} me-1">{{ registration.status }}</span>
+                                            {{ registration.event.name }}
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-info rounded-pill me-2">{{ user.team_memberships|length }}</span>
+                                {% if user.team_memberships %}
+                                <button class="btn btn-sm btn-outline-info" type="button" data-bs-toggle="collapse" data-bs-target="#teamsCollapse{{ user.id }}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                            {% if user.team_memberships %}
+                            <div class="collapse mt-2" id="teamsCollapse{{ user.id }}">
+                                <div class="card card-body py-2 px-3">
+                                    <ul class="list-unstyled mb-0">
+                                        {% for membership in user.team_memberships %}
+                                        <li class="mb-1">
+                                            <span class="badge bg-{% if membership.role == 'leader' %}primary{% else %}secondary{% endif %} me-1">{{ membership.role }}</span>
+                                            {{ membership.team.name }}
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.created_at.strftime('%b %d, %Y') }}</td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{{ url_for('staff.participant_details', user_id=user.id) }}" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-eye"></i> View
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+                                    <span class="visually-hidden">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="mailto:{{ user.email }}">
+                                            <i class="fas fa-envelope me-2"></i> Email
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('staff.participant_registrations', user_id=user.id) }}">
+                                            <i class="fas fa-clipboard-list me-2"></i> Registrations
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('staff.participant_teams', user_id=user.id) }}">
+                                            <i class="fas fa-users me-2"></i> Teams
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-users fa-3x text-muted"></i>
+            </div>
+            <h5>No participants found</h5>
+            <p class="text-muted">Try adjusting your filters or search criteria.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if pagination.pages > 1 %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('staff.participants', page=pagination.prev_num, **request.args) if pagination.has_prev else '#' }}">
+                <i class="fas fa-chevron-left"></i> Previous
+            </a>
+        </li>
+        {% for page in pagination.iter_pages() %}
+            {% if page %}
+                <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('staff.participants', page=page, **request.args) }}">{{ page }}</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+            {% endif %}
+        {% endfor %}
+        <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('staff.participants', page=pagination.next_num, **request.args) if pagination.has_next else '#' }}">
+                Next <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+    </ul>
+</nav>
+{% endif %}
+
+<!-- Export Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Export Participants</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('staff.export_participants') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label class="form-label">Export Format</label>
+                        <select name="format" class="form-select" required>
+                            <option value="csv">CSV</option>
+                            <option value="excel">Excel</option>
+                            <option value="pdf">PDF</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Event</label>
+                        <select name="event_id" class="form-select">
+                            <option value="">All Events</option>
+                            {% for event in events %}
+                            <option value="{{ event.id }}">{{ event.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Registration Status</label>
+                        <select name="status" class="form-select">
+                            <option value="">All Statuses</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="pending">Pending</option>
+                            <option value="rejected">Rejected</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Include Fields</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="fields" value="personal_info" id="fieldPersonalInfo" checked>
+                            <label class="form-check-label" for="fieldPersonalInfo">Personal Information</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="fields" value="contact_info" id="fieldContactInfo" checked>
+                            <label class="form-check-label" for="fieldContactInfo">Contact Information</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="fields" value="event_registrations" id="fieldEventRegistrations" checked>
+                            <label class="form-check-label" for="fieldEventRegistrations">Event Registrations</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="fields" value="team_memberships" id="fieldTeamMemberships" checked>
+                            <label class="form-check-label" for="fieldTeamMemberships">Team Memberships</label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-file-export me-1"></i> Export
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* User Avatar Small */
+    .user-avatar-sm {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 0.875rem;
+    }
+</style>
+{% endblock %}

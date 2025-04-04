@@ -1,0 +1,281 @@
+{% extends "staff/layout.html" %}
+
+{% block title %}Manage Events - Staff Dashboard{% endblock %}
+
+{% block staff_content %}
+<div class="content-header mb-4">
+    <div>
+        <h1 class="mb-0">Manage Events</h1>
+        <p class="text-muted">View and manage all events</p>
+    </div>
+    <div class="header-actions">
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exportModal">
+            <i class="fas fa-file-export me-1"></i> Export
+        </button>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="content-card mb-4">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('staff.events') }}" class="row g-3">
+            <div class="col-md-3">
+                <label class="form-label">Event Type</label>
+                <select name="event_type" class="form-select">
+                    <option value="">All Types</option>
+                    <option value="hackathon" {% if request.args.get('event_type') == 'hackathon' %}selected{% endif %}>Hackathon</option>
+                    <option value="pitching" {% if request.args.get('event_type') == 'pitching' %}selected{% endif %}>Pitching</option>
+                    <option value="workshop" {% if request.args.get('event_type') == 'workshop' %}selected{% endif %}>Workshop</option>
+                    <option value="talk" {% if request.args.get('event_type') == 'talk' %}selected{% endif %}>Talk</option>
+                    <option value="competition" {% if request.args.get('event_type') == 'competition' %}selected{% endif %}>Competition</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Status</label>
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="upcoming" {% if request.args.get('status') == 'upcoming' %}selected{% endif %}>Upcoming</option>
+                    <option value="ongoing" {% if request.args.get('status') == 'ongoing' %}selected{% endif %}>Ongoing</option>
+                    <option value="completed" {% if request.args.get('status') == 'completed' %}selected{% endif %}>Completed</option>
+                    <option value="cancelled" {% if request.args.get('status') == 'cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Search</label>
+                <div class="input-group">
+                    <input type="text" name="search" class="form-control" placeholder="Search events..." value="{{ request.args.get('search', '') }}">
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <a href="{{ url_for('staff.events') }}" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-sync-alt"></i> Reset
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Events Table -->
+<div class="content-card">
+    <div class="card-body p-0">
+        {% if events %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Date & Time</th>
+                        <th>Venue</th>
+                        <th>Registrations</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="event-icon me-2 bg-{{ event.event_type_color }}-light">
+                                    <i class="fas fa-{{ event.event_type_icon }} text-{{ event.event_type_color }}"></i>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ event.name }}</div>
+                                    <small class="text-muted">{{ event.event_type|title }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div>{{ event.start_date.strftime('%b %d, %Y') }}</div>
+                            <small class="text-muted">{{ event.start_date.strftime('%I:%M %p') }} - {{ event.end_date.strftime('%I:%M %p') }}</small>
+                        </td>
+                        <td>{{ event.venue }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                    <div class="progress-bar bg-success" role="progressbar" style="width: {{ (event.registrations|length / event.capacity * 100) if event.capacity > 0 else 0 }}%"></div>
+                                </div>
+                                <span>{{ event.registrations|length }}/{{ event.capacity }}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ event.status_color }}">{{ event.status|replace('_', ' ')|title }}</span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{{ url_for('staff.event_details', event_id=event.id) }}" class="btn btn-sm btn-outline-success">
+                                    <i class="fas fa-cog"></i> Manage
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-success dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+                                    <span class="visually-hidden">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('staff.event_registrations', event_id=event.id) }}">
+                                            <i class="fas fa-clipboard-list me-2"></i> Registrations
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('staff.event_participants', event_id=event.id) }}">
+                                            <i class="fas fa-users me-2"></i> Participants
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('staff.event_teams', event_id=event.id) }}">
+                                            <i class="fas fa-user-friends me-2"></i> Teams
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('staff.event_check_in', event_id=event.id) }}">
+                                            <i class="fas fa-clipboard-check me-2"></i> Check-in
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('staff.event_reports', event_id=event.id) }}">
+                                            <i class="fas fa-chart-bar me-2"></i> Reports
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-calendar-times fa-3x text-muted"></i>
+            </div>
+            <h5>No events found</h5>
+            <p class="text-muted">Try adjusting your filters or search criteria.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if pagination.pages > 1 %}
+<nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+        <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('staff.events', page=pagination.prev_num, **request.args) if pagination.has_prev else '#' }}">
+                <i class="fas fa-chevron-left"></i> Previous
+            </a>
+        </li>
+        {% for page in pagination.iter_pages() %}
+            {% if page %}
+                <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('staff.events', page=page, **request.args) }}">{{ page }}</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+            {% endif %}
+        {% endfor %}
+        <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('staff.events', page=pagination.next_num, **request.args) if pagination.has_next else '#' }}">
+                Next <i class="fas fa-chevron-right"></i>
+            </a>
+        </li>
+    </ul>
+</nav>
+{% endif %}
+
+<!-- Export Modal -->
+<div class="modal fade" id="exportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Export Events</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('staff.export_events') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label class="form-label">Export Format</label>
+                        <select name="format" class="form-select" required>
+                            <option value="csv">CSV</option>
+                            <option value="excel">Excel</option>
+                            <option value="pdf">PDF</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Include Fields</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="fields" value="event_details" id="fieldEventDetails" checked>
+                            <label class="form-check-label" for="fieldEventDetails">Event Details</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="fields" value="registration_stats" id="fieldRegistrationStats" checked>
+                            <label class="form-check-label" for="fieldRegistrationStats">Registration Statistics</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="fields" value="participant_list" id="fieldParticipantList">
+                            <label class="form-check-label" for="fieldParticipantList">Participant List</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Date Range</label>
+                        <div class="row g-2">
+                            <div class="col">
+                                <input type="date" name="start_date" class="form-control" placeholder="Start Date">
+                            </div>
+                            <div class="col">
+                                <input type="date" name="end_date" class="form-control" placeholder="End Date">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-file-export me-1"></i> Export
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Event Icon */
+    .event-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Color Utilities */
+    .bg-primary-light {
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+
+    .bg-success-light {
+        background-color: rgba(40, 167, 69, 0.1);
+    }
+
+    .bg-info-light {
+        background-color: rgba(23, 162, 184, 0.1);
+    }
+
+    .bg-warning-light {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+
+    .bg-danger-light {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+
+    .bg-secondary-light {
+        background-color: rgba(108, 117, 125, 0.1);
+    }
+</style>
+{% endblock %}

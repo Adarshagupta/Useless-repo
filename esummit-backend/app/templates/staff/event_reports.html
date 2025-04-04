@@ -1,0 +1,507 @@
+{% extends "staff/layout.html" %}
+
+{% block title %}Event Reports - Staff Dashboard{% endblock %}
+
+{% block staff_content %}
+<div class="content-header mb-4">
+    <div>
+        <h1 class="mb-0">Event Reports</h1>
+        <p class="text-muted">{{ event.name }} - {{ event.event_type|title }}</p>
+    </div>
+    <div class="header-actions">
+        <a href="{{ url_for('staff.event_details', event_id=event.id) }}" class="btn btn-outline-success me-2">
+            <i class="fas fa-arrow-left me-1"></i> Back to Event
+        </a>
+    </div>
+</div>
+
+<!-- Report Types -->
+<div class="row g-4 mb-4">
+    <!-- Registration Report -->
+    <div class="col-md-6 col-lg-4">
+        <div class="content-card h-100">
+            <div class="card-body text-center">
+                <div class="report-icon bg-success-light text-success mx-auto mb-3">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h4>Registration Report</h4>
+                <p class="text-muted">Generate reports for registrations and participant data</p>
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#registrationReportModal">
+                    <i class="fas fa-file-alt me-1"></i> Generate Report
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Attendance Report -->
+    <div class="col-md-6 col-lg-4">
+        <div class="content-card h-100">
+            <div class="card-body text-center">
+                <div class="report-icon bg-warning-light text-warning mx-auto mb-3">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <h4>Attendance Report</h4>
+                <p class="text-muted">Generate reports for event check-ins and attendance</p>
+                <button type="button" class="btn btn-warning text-white" data-bs-toggle="modal" data-bs-target="#attendanceReportModal">
+                    <i class="fas fa-file-alt me-1"></i> Generate Report
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    {% if event.is_team_event %}
+    <!-- Team Report -->
+    <div class="col-md-6 col-lg-4">
+        <div class="content-card h-100">
+            <div class="card-body text-center">
+                <div class="report-icon bg-info-light text-info mx-auto mb-3">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h4>Team Report</h4>
+                <p class="text-muted">Generate reports for teams and team members</p>
+                <button type="button" class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#teamReportModal">
+                    <i class="fas fa-file-alt me-1"></i> Generate Report
+                </button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Event Statistics -->
+<div class="content-card mb-4">
+    <div class="card-header">
+        <h2>Event Statistics</h2>
+    </div>
+    <div class="card-body">
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="stat-circle bg-primary-light mx-auto mb-2">
+                        <span class="text-primary">{{ event.registrations|length }}</span>
+                    </div>
+                    <h6>Total Registrations</h6>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="stat-circle bg-success-light mx-auto mb-2">
+                        <span class="text-success">{{ confirmed_count }}</span>
+                    </div>
+                    <h6>Confirmed</h6>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="stat-circle bg-warning-light mx-auto mb-2">
+                        <span class="text-warning">{{ checked_in_count }}</span>
+                    </div>
+                    <h6>Checked In</h6>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="text-center">
+                    <div class="stat-circle bg-danger-light mx-auto mb-2">
+                        <span class="text-danger">{{ not_checked_in_count }}</span>
+                    </div>
+                    <h6>No-Shows</h6>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-4">
+            <h5 class="mb-3">Registration Progress</h5>
+            <div class="progress" style="height: 20px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: {{ (confirmed_count / event.capacity * 100) if event.capacity > 0 else 0 }}%" aria-valuenow="{{ confirmed_count }}" aria-valuemin="0" aria-valuemax="{{ event.capacity }}">
+                    {{ confirmed_count }}
+                </div>
+                <div class="progress-bar bg-warning" role="progressbar" style="width: {{ (pending_count / event.capacity * 100) if event.capacity > 0 else 0 }}%" aria-valuenow="{{ pending_count }}" aria-valuemin="0" aria-valuemax="{{ event.capacity }}">
+                    {{ pending_count }}
+                </div>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+                <small class="text-muted">0</small>
+                <small class="text-muted">{{ event.capacity }} (Capacity)</small>
+            </div>
+        </div>
+        
+        <div class="mb-4">
+            <h5 class="mb-3">Attendance Rate</h5>
+            <div class="progress" style="height: 20px;">
+                <div class="progress-bar bg-success" role="progressbar" style="width: {{ (checked_in_count / confirmed_count * 100) if confirmed_count > 0 else 0 }}%" aria-valuenow="{{ checked_in_count }}" aria-valuemin="0" aria-valuemax="{{ confirmed_count }}">
+                    {{ checked_in_count }}
+                </div>
+            </div>
+            <div class="d-flex justify-content-between mt-2">
+                <small class="text-muted">0</small>
+                <small class="text-muted">{{ confirmed_count }} (Confirmed)</small>
+            </div>
+            <div class="text-center mt-2">
+                <span class="badge bg-success">{{ "%.1f"|format((checked_in_count / confirmed_count * 100) if confirmed_count > 0 else 0) }}% Attendance Rate</span>
+            </div>
+        </div>
+        
+        {% if event.is_team_event %}
+        <div>
+            <h5 class="mb-3">Team Statistics</h5>
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">Total Teams</h6>
+                                    <small class="text-muted">Registered for this event</small>
+                                </div>
+                                <h3 class="mb-0">{{ teams|length }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="mb-0">Average Team Size</h6>
+                                    <small class="text-muted">Members per team</small>
+                                </div>
+                                <h3 class="mb-0">{{ avg_team_size|round(1) }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Recent Reports -->
+<div class="content-card">
+    <div class="card-header">
+        <h2>Recent Reports</h2>
+    </div>
+    <div class="card-body p-0">
+        {% if recent_reports %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Report Name</th>
+                        <th>Type</th>
+                        <th>Generated By</th>
+                        <th>Format</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in recent_reports %}
+                    <tr>
+                        <td>{{ report.created_at.strftime('%b %d, %Y') }}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="report-icon-sm me-2 bg-{{ report.type_color }}-light">
+                                    <i class="fas fa-{{ report.type_icon }} text-{{ report.type_color }}"></i>
+                                </div>
+                                <div>{{ report.name }}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-{{ report.type_color }}">{{ report.type }}</span>
+                        </td>
+                        <td>{{ report.user.full_name }}</td>
+                        <td>
+                            <span class="badge bg-secondary">{{ report.format|upper }}</span>
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <a href="{{ report.file_url }}" class="btn btn-sm btn-outline-primary" download>
+                                    <i class="fas fa-download"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#deleteReportModal{{ report.id }}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                            
+                            <!-- Delete Report Modal -->
+                            <div class="modal fade" id="deleteReportModal{{ report.id }}" tabindex="-1">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Delete Report</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p>Are you sure you want to delete this report?</p>
+                                            <div class="alert alert-warning">
+                                                <div><strong>Report:</strong> {{ report.name }}</div>
+                                                <div><strong>Date:</strong> {{ report.created_at.strftime('%b %d, %Y') }}</div>
+                                                <div><strong>Format:</strong> {{ report.format|upper }}</div>
+                                            </div>
+                                            <p class="text-danger">This action cannot be undone.</p>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                            <form method="POST" action="{{ url_for('staff.delete_report', report_id=report.id) }}">
+                                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                                <button type="submit" class="btn btn-danger">
+                                                    <i class="fas fa-trash me-1"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <div class="mb-3">
+                <i class="fas fa-file-alt fa-3x text-muted"></i>
+            </div>
+            <h5>No reports generated yet</h5>
+            <p class="text-muted">Generate a report using the options above.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Registration Report Modal -->
+<div class="modal fade" id="registrationReportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Generate Registration Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('staff.generate_event_registration_report', event_id=event.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label class="form-label">Report Name</label>
+                        <input type="text" name="report_name" class="form-control" placeholder="{{ event.name }} - Registration Report" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            <option value="">All Statuses</option>
+                            <option value="pending">Pending</option>
+                            <option value="confirmed">Confirmed</option>
+                            <option value="rejected">Rejected</option>
+                            <option value="cancelled">Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Include Data</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="include_user_details" id="includeUserDetails" checked>
+                            <label class="form-check-label" for="includeUserDetails">User Details</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="include_registration_date" id="includeRegistrationDate" checked>
+                            <label class="form-check-label" for="includeRegistrationDate">Registration Date</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="include_status" id="includeStatus" checked>
+                            <label class="form-check-label" for="includeStatus">Status Information</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Format</label>
+                        <select name="format" class="form-select" required>
+                            <option value="csv">CSV</option>
+                            <option value="excel">Excel</option>
+                            <option value="pdf">PDF</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-file-export me-1"></i> Generate Report
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Attendance Report Modal -->
+<div class="modal fade" id="attendanceReportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Generate Attendance Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('staff.generate_event_attendance_report', event_id=event.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label class="form-label">Report Name</label>
+                        <input type="text" name="report_name" class="form-control" placeholder="{{ event.name }} - Attendance Report" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Check-in Status</label>
+                        <select name="checked_in" class="form-select">
+                            <option value="">All</option>
+                            <option value="yes">Checked In</option>
+                            <option value="no">Not Checked In</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Include Data</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="include_user_details" id="includeAttendanceUserDetails" checked>
+                            <label class="form-check-label" for="includeAttendanceUserDetails">User Details</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="include_registration_details" id="includeRegistrationDetails" checked>
+                            <label class="form-check-label" for="includeRegistrationDetails">Registration Details</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="include_check_in_time" id="includeCheckInTime" checked>
+                            <label class="form-check-label" for="includeCheckInTime">Check-in Time</label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Format</label>
+                        <select name="format" class="form-select" required>
+                            <option value="csv">CSV</option>
+                            <option value="excel">Excel</option>
+                            <option value="pdf">PDF</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-warning text-white">
+                        <i class="fas fa-file-export me-1"></i> Generate Report
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if event.is_team_event %}
+<!-- Team Report Modal -->
+<div class="modal fade" id="teamReportModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Generate Team Report</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="POST" action="{{ url_for('staff.generate_event_team_report', event_id=event.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div class="mb-3">
+                        <label class="form-label">Report Name</label>
+                        <input type="text" name="report_name" class="form-control" placeholder="{{ event.name }} - Team Report" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Include Data</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="include_team_details" id="includeTeamDetails" checked>
+                            <label class="form-check-label" for="includeTeamDetails">Team Details</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="include_team_members" id="includeTeamMembers" checked>
+                            <label class="form-check-label" for="includeTeamMembers">Team Members</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="include_leader_details" id="includeLeaderDetails" checked>
+                            <label class="form-check-label" for="includeLeaderDetails">Leader Details</label>
+                        </div>
+                        {% if event.event_type == 'hackathon' %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="include_hackathon_details" id="includeHackathonDetails" checked>
+                            <label class="form-check-label" for="includeHackathonDetails">Hackathon Submission Details</label>
+                        </div>
+                        {% endif %}
+                        {% if event.event_type == 'pitching' %}
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="include_pitch_details" id="includePitchDetails" checked>
+                            <label class="form-check-label" for="includePitchDetails">Pitch Details</label>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Format</label>
+                        <select name="format" class="form-select" required>
+                            <option value="csv">CSV</option>
+                            <option value="excel">Excel</option>
+                            <option value="pdf">PDF</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-info text-white">
+                        <i class="fas fa-file-export me-1"></i> Generate Report
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    /* Report Icon */
+    .report-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin: 0 auto;
+    }
+    
+    .report-icon-sm {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+    }
+    
+    /* Stat Circle */
+    .stat-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-circle span {
+        font-size: 1.75rem;
+        font-weight: 700;
+    }
+    
+    /* Color Utilities */
+    .bg-primary-light {
+        background-color: rgba(0, 123, 255, 0.1);
+    }
+    
+    .bg-success-light {
+        background-color: rgba(40, 167, 69, 0.1);
+    }
+    
+    .bg-info-light {
+        background-color: rgba(23, 162, 184, 0.1);
+    }
+    
+    .bg-warning-light {
+        background-color: rgba(255, 193, 7, 0.1);
+    }
+    
+    .bg-danger-light {
+        background-color: rgba(220, 53, 69, 0.1);
+    }
+</style>
+{% endblock %}
