@@ -3,60 +3,243 @@
 {% block title %}Verify OTP - ESummit{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
-            <div class="card fade-in">
-                <div class="card-body p-5">
-                    <h3 class="text-center fw-bold mb-4">
-                        {% if action == 'registration' %}
-                            Verify Your Email
-                        {% else %}
-                            Two-Factor Authentication
-                        {% endif %}
-                    </h3>
-                    <p class="text-center text-muted mb-4">
-                        {% if action == 'registration' %}
-                            We've sent a 6-digit OTP to your email address.<br>Please enter it below to complete your registration.
-                        {% else %}
-                            We've sent a 6-digit OTP to your email address.<br>Please enter it below to continue.
-                        {% endif %}
-                    </p>
-                    
-                    <div class="alert alert-info mb-4">
-                        <strong>Development Note:</strong> During development, you can use the master OTP <strong>425387</strong> to bypass the email verification.
-                    </div>
-                    
-                    <form method="POST" action="{{ url_for('auth.verify_otp', action=action) }}">
-                        {{ form.hidden_tag() }}
-                        <div class="mb-4">
-                            <div class="text-center">
-                                {{ form.otp(class="form-control form-control-lg text-center", placeholder="Enter 6-digit OTP") }}
-                                {% for error in form.otp.errors %}
-                                    <span class="text-danger">{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        </div>
-                        <div class="d-grid mb-4">
-                            {{ form.submit(class="btn btn-primary py-2") }}
-                        </div>
-                    </form>
-                    
-                    <div class="text-center">
-                        <p class="small text-muted mb-3">Didn't receive the OTP?</p>
-                        <form method="POST" action="{{ url_for('auth.resend_otp', action=action) }}">
-                            <button type="submit" class="btn btn-link">Resend OTP</button>
-                        </form>
-                    </div>
-                    
-                    <div class="mt-4 text-center">
-                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none">
-                            <i class="fas fa-arrow-left me-1"></i> Back to Login
-                        </a>
-                    </div>
+<div class="auth-page">
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1>
+                {% if action == 'registration' %}
+                    Verify Your Email
+                {% else %}
+                    Two-Factor Authentication
+                {% endif %}
+            </h1>
+            <p class="subtitle">
+                {% if action == 'registration' %}
+                    We've sent a 6-digit OTP to your email address.<br>Please enter it below to complete your registration.
+                {% else %}
+                    We've sent a 6-digit OTP to your email address.<br>Please enter it below to continue.
+                {% endif %}
+            </p>
+            
+            <div class="dev-note">
+                <strong>Development Note:</strong> During development, you can use the master OTP <strong>425387</strong> to bypass the email verification.
+            </div>
+            
+            <form method="POST" action="{{ url_for('auth.verify_otp', action=action) }}" class="auth-form">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    {{ form.otp(class="form-control text-center" + (" is-invalid" if form.otp.errors else ""), placeholder="Enter 6-digit OTP") }}
+                    {% for error in form.otp.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
                 </div>
+                
+                <button type="submit" class="btn btn-primary w-100">Verify OTP</button>
+            </form>
+            
+            <div class="auth-footer">
+                <div class="divider">or</div>
+                <p>Didn't receive the OTP?</p>
+                <form method="POST" action="{{ url_for('auth.resend_otp', action=action) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="btn btn-link">Resend OTP</button>
+                </form>
+                <a href="{{ url_for('auth.login') }}" class="back-link">
+                    <i class="fas fa-arrow-left"></i> Back to Login
+                </a>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    body {
+        margin: 0;
+        background-color: #1a1a1a;
+        color: #ffffff;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    }
+
+    .auth-page {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background-color: #121212;
+    }
+
+    .auth-container {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .auth-card {
+        background-color: #1e1e1e;
+        border-radius: 12px;
+        padding: 2rem;
+    }
+
+    .auth-card h1 {
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 8px 0;
+        color: #ffffff;
+        text-align: center;
+    }
+
+    .subtitle {
+        color: rgba(255, 255, 255, 0.7);
+        text-align: center;
+        font-size: 14px;
+        margin: 0 0 24px 0;
+        line-height: 1.5;
+    }
+
+    .dev-note {
+        background-color: rgba(255, 215, 0, 0.1);
+        border: 1px solid rgba(255, 215, 0, 0.2);
+        border-radius: 6px;
+        padding: 12px;
+        margin-bottom: 24px;
+        font-size: 14px;
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .dev-note strong {
+        color: #ffd700;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 16px;
+        background-color: #2a2a2a;
+        border: 1px solid #333333;
+        border-radius: 6px;
+        color: #ffffff;
+        font-size: 24px;
+        box-sizing: border-box;
+        letter-spacing: 8px;
+        text-align: center;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #ffd700;
+        box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+    }
+
+    .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.5);
+        letter-spacing: normal;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background-color: #ffd700;
+        color: #000000;
+        border: none;
+        border-radius: 6px;
+        padding: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+        width: 100%;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-1px);
+        background-color: #ffed4a;
+    }
+
+    .auth-footer {
+        margin-top: 24px;
+        text-align: center;
+    }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 14px;
+        margin: 24px 0;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid #333333;
+    }
+
+    .divider::before {
+        margin-right: 16px;
+    }
+
+    .divider::after {
+        margin-left: 16px;
+    }
+
+    .auth-footer p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 14px;
+        margin: 0 0 16px 0;
+    }
+
+    .btn-link {
+        background: none;
+        border: none;
+        color: #ffd700;
+        text-decoration: none;
+        font-size: 14px;
+        cursor: pointer;
+        padding: 0;
+        margin-bottom: 16px;
+    }
+
+    .btn-link:hover {
+        text-decoration: underline;
+    }
+
+    .back-link {
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        font-size: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .back-link:hover {
+        color: #ffffff;
+    }
+
+    .invalid-feedback {
+        color: #ff4444;
+        font-size: 12px;
+        margin-top: 4px;
+        text-align: center;
+    }
+
+    @media (max-width: 480px) {
+        .auth-page {
+            padding: 1rem;
+        }
+
+        .auth-card {
+            padding: 1.5rem;
+        }
+
+        .form-control {
+            font-size: 20px;
+            letter-spacing: 6px;
+        }
+    }
+</style>
 {% endblock %} 
