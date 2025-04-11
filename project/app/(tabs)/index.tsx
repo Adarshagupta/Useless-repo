@@ -239,6 +239,16 @@ export default function HomeScreen() {
     outputRange: [1, 1.2, 1]
   });
 
+  // Notification pulse animation
+  const notificationPulse = useRef(new Animated.Value(1)).current;
+  const notificationScale = notificationPulse.interpolate({
+    inputRange: [0, 0.5, 1],
+    outputRange: [1, 1.15, 1]
+  });
+
+  // Bounce animation for scrollable lists
+  const bounceAnim = useRef(new Animated.Value(0)).current;
+
   // Animation values
   const scrollY = useRef(new Animated.Value(0)).current;
   const headerFadeAnim = useRef(new Animated.Value(0)).current;
@@ -414,6 +424,36 @@ export default function HomeScreen() {
   useEffect(() => {
     // Start all animations when component mounts
     startAllAnimations();
+
+    // Start notification pulse animation
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(notificationPulse, {
+          toValue: 0,
+          duration: 1000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+        Animated.timing(notificationPulse, {
+          toValue: 1,
+          duration: 1000,
+          easing: Easing.inOut(Easing.ease),
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Setup bounce animation for scrollable lists
+    const setupBounceEffect = () => {
+      Animated.spring(bounceAnim, {
+        toValue: 1,
+        friction: 5,
+        tension: 40,
+        useNativeDriver: true,
+      }).start();
+    };
+
+    setupBounceEffect();
   }, []);
 
   // Parallax header effect
@@ -498,27 +538,83 @@ export default function HomeScreen() {
                 activeOpacity={0.7}
               >
                 <Bell size={22} color="#6B7280" />
-                <View style={styles.notificationBadge}>
+                <Animated.View
+                  style={[
+                    styles.notificationBadge,
+                    { transform: [{ scale: notificationScale }] }
+                  ]}
+                >
                   <Text style={styles.notificationText}>2</Text>
-                </View>
+                </Animated.View>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.profileButton}
                 activeOpacity={0.7}
+                onPress={() => {
+                  const tempAnim = new Animated.Value(1);
+                  Animated.sequence([
+                    Animated.timing(tempAnim, {
+                      toValue: 0.8,
+                      duration: 100,
+                      useNativeDriver: true,
+                    }),
+                    Animated.timing(tempAnim, {
+                      toValue: 1.1,
+                      duration: 100,
+                      useNativeDriver: true,
+                    }),
+                    Animated.timing(tempAnim, {
+                      toValue: 1,
+                      duration: 100,
+                      useNativeDriver: true,
+                    }),
+                  ]).start();
+                }}
               >
-                <Image
-                  source={{ uri: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop' }}
-                  style={styles.profileImage}
-                />
+                <Animated.View
+                  style={{
+                    borderRadius: 20,
+                    overflow: 'hidden',
+                    borderWidth: 2,
+                    borderColor: colors.primary,
+                  }}
+                >
+                  <Image
+                    source={{ uri: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop' }}
+                    style={styles.profileImage}
+                  />
+                </Animated.View>
               </TouchableOpacity>
             </View>
           </View>
 
           {/* Search Bar */}
-          <Animated.View style={{ transform: [{ scale: searchBarScaleAnim }] }}>
+          <Animated.View
+            style={{
+              transform: [{ scale: searchBarScaleAnim }],
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 2 },
+              shadowOpacity: searchBarScaleAnim.interpolate({
+                inputRange: [0.9, 1],
+                outputRange: [0.1, 0.2]
+              }),
+              shadowRadius: searchBarScaleAnim.interpolate({
+                inputRange: [0.9, 1],
+                outputRange: [2, 4]
+              }),
+              elevation: searchBarScaleAnim.interpolate({
+                inputRange: [0.9, 1],
+                outputRange: [1, 3]
+              }),
+            }}
+          >
             <TouchableOpacity
               style={styles.searchContainer}
-              onPress={() => router.push('/(tabs)/search')}
+              onPress={() => {
+                const tempAnim = new Animated.Value(1);
+                animatePress(tempAnim);
+                router.push('/(tabs)/search');
+              }}
               activeOpacity={0.8}
             >
               <Search size={20} color="#6B7280" />
@@ -637,14 +733,23 @@ export default function HomeScreen() {
             <Text style={styles.sectionTitle}>Categories</Text>
             <TouchableOpacity
               style={styles.seeAllButton}
-              onPress={() => router.push('/(tabs)/categories')}
+              onPress={() => {
+                const tempAnim = new Animated.Value(1);
+                animatePress(tempAnim);
+                router.push('/(tabs)/categories');
+              }}
               activeOpacity={0.7}
             >
               <Text style={styles.seeAllText}>See All</Text>
               <ChevronRight size={16} color="#6B7280" />
             </TouchableOpacity>
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoriesContainer}>
+          <Animated.ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={[styles.categoriesContainer, { transform: [{ translateX: bounceAnim.interpolate({inputRange: [0, 1], outputRange: [20, 0]}) }] }]}
+            contentContainerStyle={{ paddingRight: 20 }}
+          >
             {categories.map((category, index) => {
               const cardScale = useRef(new Animated.Value(1)).current;
 
@@ -678,7 +783,7 @@ export default function HomeScreen() {
                 </Animated.View>
               );
             })}
-          </ScrollView>
+          </Animated.ScrollView>
         </Animated.View>
 
         {/* Featured Items */}
@@ -695,7 +800,12 @@ export default function HomeScreen() {
             <Text style={styles.sectionTitle}>Featured Items</Text>
             <TrendingUp size={20} color="#FF2E56" />
           </View>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.featuredContainer}>
+          <Animated.ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={[styles.featuredContainer, { transform: [{ translateX: bounceAnim.interpolate({inputRange: [0, 1], outputRange: [-20, 0]}) }] }]}
+            contentContainerStyle={{ paddingRight: 20 }}
+          >
             {featuredItems.map((item, index) => {
               const itemAnim = useRef(new Animated.Value(0)).current;
 
@@ -755,7 +865,7 @@ export default function HomeScreen() {
                 </Animated.View>
               );
             })}
-          </ScrollView>
+          </Animated.ScrollView>
         </Animated.View>
 
         {/* Popular Restaurants */}
