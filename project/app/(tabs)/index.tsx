@@ -5,6 +5,7 @@ import { MapPin, Search, Star, Clock, TrendingUp, Percent, Award, ChevronRight, 
 import { colors, typography, spacing, shadows, borderRadius } from '../theme';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRef, useEffect, useState, useCallback } from 'react';
+import { useNavigation } from '../../context/NavigationContext';
 
 // Utility function to darken or lighten a color
 const shadeColor = (color: string, percent: number): string => {
@@ -178,7 +179,7 @@ const specialOffers = [
   {
     id: 4,
     title: 'Refer & Earn',
-    description: 'Get $10 for each friend',
+    description: 'Get $10 for friend',
     code: 'REFER10',
     backgroundColor: '#D1FAE5',
     textColor: '#059669',
@@ -226,6 +227,7 @@ const foodBlogs = [
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { navigateWithTransition } = useNavigation();
   const [refreshing, setRefreshing] = useState(false);
 
   // Pull-to-refresh animation values
@@ -613,7 +615,11 @@ export default function HomeScreen() {
               onPress={() => {
                 const tempAnim = new Animated.Value(1);
                 animatePress(tempAnim);
-                router.push('/(tabs)/search');
+                navigateWithTransition('/(tabs)/search', {
+                  type: 'zoom',
+                  duration: 400,
+                  color: 'rgba(255, 255, 255, 0.9)'
+                });
               }}
               activeOpacity={0.8}
             >
@@ -736,7 +742,11 @@ export default function HomeScreen() {
               onPress={() => {
                 const tempAnim = new Animated.Value(1);
                 animatePress(tempAnim);
-                router.push('/(tabs)/categories');
+                navigateWithTransition('/(tabs)/categories', {
+                  type: 'slide',
+                  duration: 350,
+                  color: 'rgba(255, 255, 255, 0.9)'
+                });
               }}
               activeOpacity={0.7}
             >
@@ -770,7 +780,11 @@ export default function HomeScreen() {
                     style={styles.categoryCard}
                     onPress={() => {
                       animatePress(cardScale);
-                      router.push(`/category/${category.id}`);
+                      navigateWithTransition(`/category/${category.id}`, {
+                        type: 'flip',
+                        duration: 500,
+                        color: 'rgba(255, 255, 255, 0.9)'
+                      });
                     }}
                     activeOpacity={0.7}
                   >
@@ -837,7 +851,11 @@ export default function HomeScreen() {
                     style={styles.featuredCard}
                     onPress={() => {
                       animatePress(itemAnim);
-                      router.push(`/product/${item.id}`);
+                      navigateWithTransition(`/product/${item.id}`, {
+                        type: 'fade',
+                        duration: 400,
+                        color: 'rgba(255, 255, 255, 0.9)'
+                      });
                     }}
                     activeOpacity={0.8}
                   >

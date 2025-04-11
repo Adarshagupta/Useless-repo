@@ -1,0 +1,21 @@
+# Node modules that are not needed for the build
+node_modules/**/*
+!node_modules/@babel/runtime/**/*
+!node_modules/react/**/*
+!node_modules/react-native/**/*
+!node_modules/expo*/**/*
+
+# Other files and directories not needed
+.git
+__tests__
+*.log
+*.lock
+
+# Development files
+.vscode
+.idea
+*.md
+
+# Environment and OS files
+.env*
+.DS_Store 
